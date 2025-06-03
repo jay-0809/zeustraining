@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My First Web Page</title>
+    <style>
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        #titles {
+            height: 30px;
+            padding: 6px 12px;
+            background-color: rgb(105, 191, 20);
+            color: white;
+            font-size: 1.75rem;
+        }
+    </style>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div style="background-color:crimson; height: 70px;">
+        <h2
+            style="height: 50px; display: flex;justify-content: center; align-items: center; background-color: brown; color: blanchedalmond; letter-spacing: 20px; font-size: 2.5rem;">
+            <i> My first web page</i>
+        </h2>
+    </div>
+
+    <h3 id="titles">What this is</h3>
+    <p style="font-size: 1.5rem;">Welcome to <i>my first webpage</i>. I created this webpage without the assistance of a
+        webpage editor. Just my
+        little text editor and a keen <b><i>understanding of html.</i></b></p>
+
+    <h3 id="titles">Why this is</h3>
+    <ul style="color: brown; font: italic; font-size: 1.2rem;">
+        <i>
+            <li>To learn HTML</li>
+            <li>List element
+                <ol>
+                    <li>Home</li>
+                    <li>FAQ</li>
+                    <li>Contact</li>
+                    <li>About</li>
+                </ol>
+            </li>
+            <li>Here I have created ordered and unordered list</li>
+        </i>
+    </ul>
+
+    <h3 id="titles">ZeusLearning.com</h3>
+    <a href="https://www.zeuslearning.com/" target="_blank" style="font-size: 1.2rem;">This link will open
+        zeuslearning.com in new tab</a>
+
+    <h3 id="titles">On click of following image navigate to Google.com</h3>
+    <a href="https://www.google.com/"><img
+            src="https://storage.googleapis.com/gd-prod/images/a910d418-7123-4bc4-aa3b-ef7e25e74ae6.60c498c559810aa0.webp"
+            height="150" width="300" alt="Google" style="border: 2px dashed rgb(169, 169, 169);"></a>
+
+    <h3 style="font-size: 1.75rem; color: gray;">Some randome table</h3>
+    <table style="background-color: rgb(162, 162, 162); height: 100px; width: 300px;">
+        <tr style="padding: 5px;">
+            <td>Row 1, cell 1</td>
+            <td>Row 1, cell 2</td>
+            <td>Row 1, cell 3</td>
+        </tr>
+        <tr>
+            <td>Row 2, cell 1</td>
+            <td>Row 2, cell 2</td>
+            <td>Row 2, cell 3</td>
+        </tr>
+        <tr>
+            <td>Row 3, cell 1</td>
+            <td>Row 3, cell 2</td>
+            <td>Row 3, cell 3</td>
+        </tr>
+    </table>
+
+    <h3 style="font-size: 1.75rem; color: gray;">Some randome form</h3>
+    <p><b>NOTE:</b> It looks the part, but won't do anything.</p>
+
+    <form onsubmit="formSubmit()" style="width: 20%; display: flex; flex-direction: column; gap: 10px;">
+        <label for="name">Name:</label>
+        <input type="text" name="name" id="name" placeholder="Your name">
+
+        <label for="comments">Comments:</label>
+        <textarea name="comments" id="comments" rows="4" cols="50" placeholder="Your Comments..."></textarea>
+
+        <label for="gender">Are you:</label>
+        <div>
+            <input type="radio" id="male" name="gender" value="male">
+            <label for="male">Male</label>
+        </div>
+        <div>
+            <input type="radio" id="female" name="gender" value="female">
+            <label for="age2">Female</label>
+        </div>
+
+        <input type="submit" value="Submit Query">
+    </form>
+
+
+    <script>
+        function formSubmit() {
+            let name = document.getElementById("name").value.trim();
+            let comments = document.getElementById("comments").value.trim();
+            let isMaleSelected = document.getElementById("male").checked;
+            let isFemaleSelected = document.getElementById("female").checked;
+
+            if (name === "") {
+                alert("Please enter your name.");
+                return false;
+            }
+            if (comments === "") {
+                alert("Please enter your comments.");
+                return false;
+            }
+            if (!isMaleSelected && !isFemaleSelected) {
+                alert("Please select your gender.");
+                return false;
+            }
+            alert("form submitted" + name + comments + isMaleSelected + isFemaleSelected);
+        }
+
+    </script>
+</body>
+
+</html>
