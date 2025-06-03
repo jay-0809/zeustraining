@@ -15,7 +15,7 @@
         #titles {
             height: 30px;
             padding: 6px 12px;
-            background-color: rgb(105, 191, 20);
+            background-color: rgb(0, 153, 0);
             color: white;
             font-size: 1.75rem;
         }
@@ -24,9 +24,9 @@
 </head>
 
 <body>
-    <div style="background-color:crimson; height: 70px;">
+    <div style="background-color:rgb(204,0,0); height: 80px;">
         <h2
-            style="height: 50px; display: flex;justify-content: center; align-items: center; background-color: brown; color: blanchedalmond; letter-spacing: 20px; font-size: 2.5rem;">
+            style="height: 50px; padding: 3px 0; display: flex;justify-content: center; align-items: center; background-color: rgb(153, 0, 0); color: blanchedalmond; letter-spacing: 20px; font-size: 2.5rem;">
             <i> My first web page</i>
         </h2>
     </div>
@@ -34,10 +34,10 @@
     <h3 id="titles">What this is</h3>
     <p style="font-size: 1.5rem;">Welcome to <i>my first webpage</i>. I created this webpage without the assistance of a
         webpage editor. Just my
-        little text editor and a keen <b><i>understanding of html.</i></b></p>
+        little text editor and a keen <b><i>UNDERSTANDING OF HTML.</i></b></p>
 
     <h3 id="titles">Why this is</h3>
-    <ul style="color: brown; font: italic; font-size: 1.2rem;">
+    <ul style="color: rgb(158, 14, 11); font: italic; font-size: 1.2rem;">
         <i>
             <li>To learn HTML</li>
             <li>List element
@@ -83,9 +83,9 @@
     <h3 style="font-size: 1.75rem; color: gray;">Some randome form</h3>
     <p><b>NOTE:</b> It looks the part, but won't do anything.</p>
 
-    <form onsubmit="formSubmit()" style="width: 20%; display: flex; flex-direction: column; gap: 10px;">
+    <form id="form" onsubmit="return formSubmit(e)" style="width: 20%; display: flex; flex-direction: column; gap: 15px;">
         <label for="name">Name:</label>
-        <input type="text" name="name" id="name" placeholder="Your name">
+        <input type="text" name="name" id="name" placeholder="Your name" style="height: 25px;">
 
         <label for="comments">Comments:</label>
         <textarea name="comments" id="comments" rows="4" cols="50" placeholder="Your Comments..."></textarea>
@@ -100,12 +100,14 @@
             <label for="age2">Female</label>
         </div>
 
-        <input type="submit" value="Submit Query">
+        <input type="submit" value="Submit Query" style="width: 33%; padding: 4px 8px; font-size: 1rem;">
     </form>
 
 
     <script>
-        function formSubmit() {
+        const formId = document.getElementById("form");
+        formId.addEventListener("submit", function formSubmit(e) {
+            e.preventDefault();
             let name = document.getElementById("name").value.trim();
             let comments = document.getElementById("comments").value.trim();
             let isMaleSelected = document.getElementById("male").checked;
@@ -123,8 +125,9 @@
                 alert("Please select your gender.");
                 return false;
             }
-            alert("form submitted" + name + comments + isMaleSelected + isFemaleSelected);
-        }
+            // alert("form submitted" + name + comments + isMaleSelected + isFemaleSelected);
+        })
+        
 
     </script>
 </body>
