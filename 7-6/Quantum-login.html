@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quantum Login page</title>
+    <link rel="stylesheet" href="./Quantum-login.css">
+</head>
+
+<body>
+    <div class="header">
+        <div class="h-image"><img src="asset\icons\logo used in header.svg" alt="logo" style="height: 46px; opacity: 1; z-index: 10;"></div>
+    </div>
+
+    <div class="container">
+        <form id="login" class="login-form" onsubmit="validateForm()">
+            <div style="display: flex; justify-content: center; align-items: center; text-align: center; gap: 1.5rem;">
+                <img src="asset/icons/back.svg" alt="back" class="form-img">
+                <h2>Log in with Quantum</h2>
+            </div>
+
+            <div class="form-radio">
+                <input type="radio" id="district" value="district" name="button" checked="checked">
+                <label for="district">District</label>
+                <input type="radio" id="indschool" value="Indschool" name="button">
+                <label for="indschool">Independent school</label>
+                <!-- <img src="asset/icons/radio-button-on.svg" alt="radio" style="height: 30px; width: 30px;">
+                <span style="margin-right: 10px;">District</span>
+                <img src="asset/icons/radio-button-off.svg" alt="radio" style="height: 30px; width: 30px;">
+                <span>Independent school</span> -->
+            </div>
+
+            <div class="form-el">
+                <label for="state">State*</label>
+                <select name="state" id="state">
+                    <option value="">Alabama</option>
+                </select>
+            </div>
+            <div class="form-el">
+                <label for="district">District*</label>
+                <select name="district" id="district">
+                    <option value="">Alabama School District</option>
+                </select>
+            </div>
+            <div class="form-el">
+                <input type="text" class="input" placeholder="Username/Email ID*">
+                <a href="" style="text-decoration: none;">FORGOT USERNAME?</a>
+            </div>
+            <div class="form-el">
+                <input type="password" class="input" placeholder="Password*">
+                <img src="asset/icons/preview.svg" alt="preview" style="height: 22px; width: 22px;">
+                <a href="" style="text-decoration: none;">FORGOT PASSWORD?</a>
+            </div>
+
+            <div class="form-checkbox">
+                <input type="checkbox" name="remember" class="remember">
+                <label for="remember" style="font-size: 1.25rem;">Remember Me</label>
+            </div>
+            <button>LOG IN</button>
+        </form>
+    </div>
+
+    <div class="foot">
+        <div class="off-form">
+            <a href="#" style="padding-right: 10px; border-right: 1px solid #d1d1d1;">About</a>
+            <a href="#">Contact Us</a>
+        </div>
+        <div class="footer">
+            <img src="asset/icons/logo used in footer.svg" alt="logo" style="height: 24px; width: 90px;">
+            <div class="footer-text">
+                <div style="border-left: 2px solid #8f8f8f; padding-left: 1rem; font-size: 12px;">Copyright @ 2020-2021
+                </div>
+                <div style="font-size: 12px; font-family: 'QB';">Zeus Systems Pvt. ltd.</div>
+                <div style="font-size: 12px;">All right reserverd.</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

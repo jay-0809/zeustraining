@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard</title>
+    <link rel="stylesheet" href="./Quantum-dashboard.css">
+</head>
+
+<body>
+    <div class="header-section">
+        <div class="header">
+            <img src="asset\icons\logo used in header.svg" alt="logo" style="height: 46px;">
+            <div class="navbar">
+                <div class="nav-tab active" onclick="switchTab(this, 'dashboard')">
+                    <span>Dashboard</span>
+                </div>
+
+                <div class="nav-tab" onclick="switchTab(this, 'content')">
+                    <span>Content</span>
+                </div>
+
+                <div class="nav-tab " onclick="switchTab(this, 'users')">
+                    <span>Users</span>
+                </div>
+
+                <div class="nav-tab " onclick="switchTab(this, 'reports')">
+                    <span>Reports</span>
+                </div>
+
+                <div class="nav-tab " onclick="switchTab(this, 'admin')">
+                    <span>Admin</span>
+                </div>
+
+                <div class="image-div">
+                    <img src="asset/icons/alerts.svg" alt="Alerts" />
+                    <div class="counter">2</div>
+                </div>
+
+                <div class="image-div">
+                    <img src="asset/icons/announcements.svg" alt="Announcements" />
+                    <div class="counter">1</div>
+                </div>
+
+                <div class="image-div">
+                    <img src="asset/icons/account_circle.svg" alt="Profile Picture" />
+                    <div class="pro-name">T</div>
+                </div>
+                <div class="subnav">
+                    <div class="image-div" onclick="switchiconTab(this, 'pfp')">
+                        <img src="asset/icons/hamburger-menu.svg" alt="hamburger-menu" />
+                    </div>
+                    <div class="subnav-content">
+                        <a href="#dashboard">Dashboard</a>
+                        <a href="#content" class="subnav-2" onclick="switchsubnavTab(this, 'pfp')">
+                            <div>Content</div>
+                            <img src="asset/icons/arrow-down.svg" alt="down" />
+                            <div class="subnav-2-content">
+                                <a href="#course catalog">Course catalog</a>
+                            </div>
+                        </a>
+                        <a href="#users" class="subnav-2" onclick="switchsubnavTab(this, 'pfp')">
+                            <div>Users</div>
+                            <img src="asset/icons/arrow-down.svg" alt="down" />
+                        </a>
+                        <a href="#reports" class="subnav-2" onclick="switchsubnavTab(this, 'pfp')">
+                            <div>Reports</div>
+                            <img src="asset/icons/arrow-down.svg" alt="down" />
+                        </a>
+                        <a href="#admin" class="subnav-2" onclick="switchsubnavTab(this, 'pfp')">
+                            <div>Admin</div>
+                            <img src="asset/icons/arrow-down.svg" alt="down" />
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="titles">
+            <button onclick="onButtonClick()" class="titles-val active">
+                <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+                    <img src="asset/icons/courses.svg" alt="courses" />
+                    <div class="titles-num">4</div>
+                    <div class="titles-text">Courses</div>
+                </div>
+            </button>
+            <button onclick="onButtonClick()" class="titles-val">
+                <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+                    <img src="asset/icons/classes.svg" alt="classes" />
+                    <div class="titles-num">4</div>
+                    <div class="titles-text">Courses</div>
+                </div>
+            </button>
+        </div>
+
+        <div class="fillter">
+            <div style="font-size: 12px;">Showing 4 of 4 courses</div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <p style="font-size: 12px;">Sort By:</p>
+                <select name="course" id="course">
+                    <option value="">Course Name</option>
+                </select>
+                <img src="asset/icons/sort.svg" alt="sort" style="margin-left: 24px;" />
+            </div>
+        </div>
+
+        <div class="lineing"></div>
+
+        <div class="course-container">
+            <div class="courses-grid">
+                <div class="course-card">
+                    <div class="course-content">
+                        <img src="asset/images/imageMask-1.svg" class="course-image" alt="imageMask-1" />
+                        <div class="course-info">
+                            <div class="course-header">
+                                <div class="course-title">Acceleration</div>
+                                <div class="course-meta">Physics <div
+                                        style="display:flex; padding-left: 9px; border-left: 1px solid #d1d1d1;">Grade 7
+                                        <div style="padding-left: 2px; color: #1F7A54;">+2</div>
+                                    </div>
+                                </div>
+                                <div class="course-stats"> <span><b>4</b> Units</span> <span><b>18</b> Lessons</span>
+                                    <span><b>24</b> Topics</span>
+                                </div>
+                            </div>
+                            <div>
+                                <select name="course" class="course-class">
+                                    <option value="">Mr. Frank's Class B</option>
+                                </select>
+                                <div class="course-class-info">
+                                    <span style="padding-right: 8px; border-right: 1px solid #d1d1d1;">50
+                                        Students</span>
+                                    <span>21-Jan-2020 - 21-Aug-2020</span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="star-icon"><img src="asset/icons/favourite.svg" alt="fav"></div>
+                    </div>
+                    <div class="course-line"></div>
+                    <div class="course-actions">
+                        <img src="asset/icons/preview.svg" alt="preview">
+                        <img src="asset/icons/manage course.svg" alt="manage_course">
+                        <img src="asset/icons/grade submissions.svg" alt="submissions">
+                        <img src="asset/icons/reports.svg" alt="reports">
+                    </div>
+                </div>
+
+                <div class="course-card">
+                    <div class="course-content">
+                        <img src="asset/images/imageMask-2.svg" class="course-image" alt="imageMask-2" />
+                        <div class="course-info">
+                            <div class="course-header">
+                                <div class="course-title">Displacement, Velocity and Speed</div>
+                                <div class="course-meta">Physics 2<div
+                                        style="display:flex; padding-left: 9px; border-left: 1px solid #d1d1d1;">Grade 6
+                                        <div style="padding-left: 2px; color: #1F7A54;">+3</div>
+                                    </div>
+                                </div>
+                                <div class="course-stats"> <span><b>2</b> Units</span> <span><b>15</b> Lessons</span>
+                                    <span><b>20</b> Topics</span>
+                                </div>
+                            </div>
+                            <div>
+                                <select name="course" class="course-class">
+                                    <option value="">No Classes</option>
+                                </select>
+                            </div>
+
+                        </div>
+                        <div class="star-icon"><img src="asset/icons/favourite.svg" alt="fav"></div>
+                    </div>
+                    <div class="course-line"></div>
+                    <div class="course-actions">
+                        <img src="asset/icons/preview.svg" alt="preview">
+                        <img src="asset/icons/manage course.svg" alt="manage_course" style="opacity: 40%;">
+                        <img src="asset/icons/grade submissions.svg" alt="submissions" style="opacity: 40%;">
+                        <img src="asset/icons/reports.svg" alt="reports">
+                    </div>
+                </div>
+
+                <div class="course-card">
+                    <div class="course-content">
+                        <img src="asset/images/imageMask.svg" class="course-image" alt="imageMask" />
+                        <div class="course-info">
+                            <div class="course-header">
+                                <div class="course-title">Introduction to Biology: Micro organisms and how they affect
+                                </div>
+                                <div class="course-meta">Biology <div
+                                        style="display:flex; padding-left: 9px; border-left: 1px solid #d1d1d1;">Grade 4
+                                        <div style="padding-left: 2px; color: #1F7A54;">+1</div>
+                                    </div>
+                                </div>
+                                <div class="course-stats"> <span><b>5</b> Units</span> <span><b>16</b> Lessons</span>
+                                    <span><b>22</b> Topics</span>
+                                </div>
+                            </div>
+                            <div>
+                                <select name="course" class="course-class">
+                                    <option value="">All Classes</option>
+                                </select>
+                                <div class="course-class-info">
+                                    <span>300 Students</span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="star-icon"><img src="asset/icons/favourite.svg" alt="fav"></div>
+                    </div>
+                    <div class="course-line"></div>
+                    <div class="course-actions">
+                        <img src="asset/icons/preview.svg" alt="preview">
+                        <img src="asset/icons/manage course.svg" alt="manage_course" style="opacity: 40%;">
+                        <img src="asset/icons/grade submissions.svg" alt="submissions" style="opacity: 40%;">
+                        <img src="asset/icons/reports.svg" alt="reports">
+                    </div>
+                </div>
+
+                <div class="course-card">
+                    <div class="expired-badge">Expired</div>
+                    <div class="course-content">
+                        <img src="asset/images/imageMask-3.svg" class="course-image" alt="imageMask-3" />
+                        <div class="course-info">
+                            <div class="course-header">
+                                <div class="course-title">Introduction to High School Mathematics</div>
+                                <div class="course-meta">Mathematics <div
+                                        style="display:flex; padding-left: 9px; border-left: 1px solid #d1d1d1;">Grade 8
+                                        <div style="padding-left: 2px; color: #1F7A54;">+3</div>
+                                    </div>
+                                </div>
+                                <div class="course-stats">
+                                </div>
+                            </div>
+                            <div>
+                                <select name="course" class="course-class">
+                                    <option value="">Mr. Frank's Class A</option>
+                                </select>
+                                <div class="course-class-info">
+                                    <span style="padding-right: 8px; border-right: 1px solid #d1d1d1;">44
+                                        Students</span>
+                                    <span>14-Oct-2019 - 20-Oct-2020</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="star-icon"><img src="asset/icons/favourite gray.svg" alt="fav"></div>
+                    </div>
+                    <div class="course-line"></div>
+                    <div class="course-actions">
+                        <img src="asset/icons/preview.svg" alt="preview">
+                        <img src="asset/icons/manage course.svg" alt="manage_course">
+                        <img src="asset/icons/grade submissions.svg" alt="submissions">
+                        <img src="asset/icons/reports.svg" alt="reports">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="foot">
+        <div class="off-form">
+            <a href="#" style="padding-right: 10px; border-right: 1px solid #d1d1d1;">About</a>
+            <a href="#">Contact Us</a>
+        </div>
+        <div class="footer">
+            <img src="asset/icons/logo used in footer.svg" alt="logo" style="height: 24px; width: 90px;">
+            <div class="footer-text">
+                <div style="border-left: 2px solid #8f8f8f; padding-left: 1rem; font-size: 12px;">Copyright @
+                    2020-2021
+                </div>
+                <div style="font-size: 12px; font-family: 'QB';">Zeus Systems Pvt. ltd.</div>
+                <div style="font-size: 12px;">All right reserverd.</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(clickedTab, type) {
+            document
+                .querySelectorAll(".nav-tab")
+                .forEach((tab) => tab.classList.remove("active"));
+            clickedTab.classList.add("active");
+        }
+        function switchTab(clickedTab, type) {
+            document
+                .querySelectorAll(".image-div")
+                .forEach((tab) => tab.classList.remove("active"));
+            clickedTab.classList.add("active");
+        }
+        function switchsubnavTab(clickedTab, type) {
+            document
+                .querySelectorAll(".subnav-2")
+                .forEach((tab) => tab.classList.remove("active"));
+            clickedTab.classList.add("active");
+        }
+
+        function onButtonClick() {
+            const buttons = document.querySelectorAll('.titles-val');
+            buttons.forEach(button => {
+                button.addEventListener('click', () => {
+                    buttons.forEach(button => button.classList.remove('active'));
+                    button.classList.add('active');
+                });
+            });
+        }
+
+    </script>
+</body>
+
+</html>
