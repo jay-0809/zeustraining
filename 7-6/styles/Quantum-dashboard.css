@@ -4,42 +4,42 @@
   font-weight: normal;
   font-style: normal;
 }
-
 @font-face {
   font-family: "QB";
   src: url("asset/Quicksand font 1/static/Quicksand-Bold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
-
 @font-face {
   font-family: "QL";
   src: url("asset/Quicksand font 1/static/Quicksand-Light.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
-
 @font-face {
   font-family: "QM";
   src: url("asset/Quicksand font 1/static/Quicksand-Medium.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
-
 @font-face {
   font-family: "QR";
   src: url("asset/Quicksand font 1/static/Quicksand-Regular.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
-
 @font-face {
   font-family: "QS";
   src: url("asset/Quicksand font 1/static/Quicksand-SemiBold.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
 }
-
+/********* aleart ********/
+/*************** announcement ***************/
+/********************* subnav *****************/
+/******************** main *********************/
+/******************** Cards ********************/
+/********************** footer *****************/
 body {
   margin: 0;
   padding: 0;
@@ -54,8 +54,7 @@ body {
   height: 56px;
   border-bottom: 2px solid #31B9E4;
 }
-
-.header {
+.header-section .header {
   background-color: rgba(37, 49, 63, 0.8);
   height: 40px;
   padding: 8px 24px;
@@ -69,6 +68,9 @@ body {
   justify-content: center;
   align-items: center;
   gap: 32px;
+}
+.navbar a:hover {
+  background-color: rgb(255, 255, 255);
 }
 
 .nav-tab {
@@ -84,7 +86,6 @@ body {
 .nav-tab.active {
   color: white;
 }
-
 .nav-tab.active::after {
   content: "";
   position: absolute;
@@ -97,7 +98,6 @@ body {
 .image-div {
   position: relative;
   cursor: pointer;
-  /* margin: 10px 12px 0 0; */
 }
 
 .counter {
@@ -126,38 +126,27 @@ body {
   color: #000;
 }
 
-.navbar a:hover {
-  background-color: rgb(255, 255, 255);
-}
-
-/********* aleart ********/
 .aleart-box {
   display: none;
   position: absolute;
   top: 56px;
   right: 128px;
   background-color: rgb(255, 255, 255);
-  box-shadow: 0px 13px 20px #0000003D;
+  box-shadow: 0px 13px 20px rgba(0, 0, 0, 0.2392156863);
   border-radius: 2px;
   width: 315px;
   height: 582px;
   z-index: 1;
   overflow-y: scroll;
 }
-
-.aleart-container:hover .aleart-box {
-  display: block;
-}
-
 .aleart-box .aleart-items {
   font-family: "QM";
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 16px;
-  box-shadow: 0px 3px 6px #00000029;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1607843137);
 }
-
 .aleart-box .aleart-button {
   display: flex;
   justify-content: center;
@@ -165,10 +154,9 @@ body {
   position: sticky;
   bottom: 0;
   height: 48px;
-  box-shadow: 0px 1px 6px #0000003D;
+  box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.2392156863);
   border-radius: 0px 0px 2px 2px;
 }
-
 .aleart-box button {
   border: none;
   outline: none;
@@ -181,40 +169,36 @@ body {
   font-size: 14px;
   text-transform: uppercase;
 }
-
 .aleart-box button:hover {
   color: #fff;
   background-color: #1F7A54;
 }
 
-/*************** announcement ***************/
+.aleart-container:hover .aleart-box {
+  display: block;
+}
+
 .announce-box {
   display: none;
   position: absolute;
   top: 56px;
   right: 76px;
   background-color: rgb(255, 255, 255);
-  box-shadow: 0px 13px 20px #0000003D;
+  box-shadow: 0px 13px 20px rgba(0, 0, 0, 0.2392156863);
   border-radius: 2px;
   width: 315px;
   height: 582px;
   z-index: 1;
   overflow-y: scroll;
 }
-
-.announce-container:hover .announce-box {
-  display: block;
-}
-
 .announce-box .announce-items {
   font-family: "QM";
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 16px;
-  box-shadow: 0px 3px 6px #00000029;
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1607843137);
 }
-
 .announce-box .announce-buttons {
   display: flex;
   justify-content: center;
@@ -222,10 +206,9 @@ body {
   position: sticky;
   bottom: 0;
   height: 48px;
-  box-shadow: 0px 1px 6px #0000003D;
+  box-shadow: 0px 1px 6px rgba(0, 0, 0, 0.2392156863);
   border-radius: 0px 0px 2px 2px;
 }
-
 .announce-box button {
   border: none;
   outline: none;
@@ -237,25 +220,29 @@ body {
   font-size: 14px;
   text-transform: uppercase;
 }
-
 .announce-box button:hover {
   color: #fff;
   background-color: #1F7A54;
 }
 
-/********************* subnav *****************/
+.announce-container:hover .announce-box {
+  display: block;
+}
+
 .subnav {
   display: none;
   float: left;
   overflow: hidden;
 }
-
 .subnav .image-div {
   font-size: 16px;
   border: none;
   outline: none;
   font-family: inherit;
   margin: 0;
+}
+.subnav:hover .subnav-content {
+  display: block;
 }
 
 .subnav-content {
@@ -264,12 +251,11 @@ body {
   top: 59px;
   right: 16px;
   background-color: rgb(255, 255, 255);
-  box-shadow: 0px 13px 20px #0000003D;
+  box-shadow: 0px 13px 20px rgba(0, 0, 0, 0.2392156863);
   border-radius: 2px;
   width: 40%;
   z-index: 1;
 }
-
 .subnav-content a {
   display: flex;
   flex-direction: column;
@@ -279,16 +265,10 @@ body {
   text-decoration: none;
   text-transform: uppercase;
 }
-
 .subnav-content a:hover {
   display: flex;
   flex-direction: column;
   background-color: #eeeeee;
-  /* color: #1F7A54; */
-}
-
-.subnav:hover .subnav-content {
-  display: block;
 }
 
 .subnav-2 {
@@ -298,7 +278,6 @@ body {
   cursor: pointer;
   padding-left: 16px;
 }
-
 .subnav-2 img {
   position: absolute;
   right: 10px;
@@ -315,6 +294,11 @@ body {
   color: #1F7A54;
 }
 
+.subnav-2.active {
+  flex-direction: column;
+  background-color: #eeeeee;
+  color: #1F7A54;
+}
 .subnav-2.active img {
   transform: translateY(-50%) rotate(180deg);
 }
@@ -323,16 +307,8 @@ body {
   display: block;
 }
 
-.subnav-2.active {
-  flex-direction: column;
-  background-color: #eeeeee;
-  color: #1F7A54;
-}
-
-/******************** main *********************/
 .main {
   padding: 24px;
-  /* border: 1px solid rgb(196, 196, 196); */
 }
 
 .titles {
@@ -380,7 +356,6 @@ body {
   justify-content: space-between;
   align-items: center;
   color: #686868;
-
 }
 
 #course {
@@ -391,7 +366,9 @@ body {
   border: none;
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   outline: none;
-  appearance: none;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
   background-image: url("asset/icons/arrow-down.svg");
   background-repeat: no-repeat;
   background-position: right center;
@@ -405,7 +382,6 @@ body {
   opacity: 0.12;
 }
 
-/******************** Cards ********************/
 .courses-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
@@ -460,7 +436,6 @@ body {
   text-transform: uppercase;
 }
 
-
 .course-title {
   font-size: 16px;
   font-weight: 600;
@@ -481,7 +456,6 @@ body {
   font-size: 12px;
   margin-bottom: 16px;
 }
-
 .course-stats b {
   color: #000;
 }
@@ -494,7 +468,9 @@ body {
   border: none;
   border-bottom: 1px solid #686868;
   outline: none;
-  appearance: none;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
   background-image: url("asset/icons/arrow-down.svg");
   background-repeat: no-repeat;
   background-position: right center;
@@ -523,7 +499,6 @@ body {
   justify-content: space-between;
 }
 
-/********************** footer *****************/
 .foot {
   display: flex;
   flex-direction: column;
@@ -537,7 +512,6 @@ body {
   margin-bottom: 16px;
   gap: 16px;
 }
-
 .off-form a {
   text-decoration: none;
   color: #1F7A54;
@@ -561,80 +535,52 @@ body {
 
 @media screen and (max-width: 1024px) {
   body {
-    font-size: 14px
+    font-size: 14px;
   }
-
   .header {
     padding: 8px 20px;
   }
-
   .navbar {
     gap: 26px;
   }
-
   .image-div {
     margin-right: 12px;
   }
-
   .announce-box {
     right: 86px;
   }
-
   .aleart-box {
     right: 148px;
   }
 }
-
 @media screen and (max-width: 900px) {
   body {
-    font-size: 13px
+    font-size: 13px;
   }
-
   .navbar {
     gap: 22px;
   }
 }
-
 @media screen and (max-width: 768px) {
   body {
-    font-size: 12px
+    font-size: 12px;
   }
-
   .course-container {
     margin: 0px 99px;
   }
-
   .image-div {
     margin-right: 12px;
   }
-
   .announce-box {
     right: 136px;
   }
-
   .aleart-box {
     right: 188px;
   }
-
   .nav-tab {
     display: none;
   }
-
   .subnav {
     display: block;
   }
-}
-
-/* @media screen and (max-width: 550px) {
-  body {
-    font-size: 11px
-  }
-
-  .header {
-    padding: 8px 8px;
-  }
-
-  .navbar {
-    gap: 14px;
-  }
-} */
+}/*# sourceMappingURL=Quantum-dashboard.css.map */
