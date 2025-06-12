@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Teacher Dashboard</title>
     <link rel="stylesheet" href="./Quantum-dashboard.css">
-    <script src="./js/dashboard.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Edu+QLD+Hand:wght@400..700&display=swap" rel="stylesheet">
@@ -37,18 +36,20 @@
                     <span>Admin</span>
                 </div>
 
-                <div class="aleart-container">
-                    <div class="image-div" onclick="switchiconTab(this, 'pfp')">
-                        <img src="asset/icons/alerts.svg" alt="Alerts" />
-                        <div class="counter">2</div>
+                <div class="alert-container">
+                    <div class="alert image-div" onclick="switchiconTab(this, 'pfp')">
+                        <img src="asset/icons/alerts.svg" alt="Alerts" class="alert-image"/>
+                        <div class="alert-counter">2</div>
                     </div>
-                    <div class="aleart-box">
-                        <div class="aleart-items" style="background: #FFFFEE 0% 0% no-repeat padding-box;">
+                    <div class="alert-box">
+                        <!-- <div class="aleart-items" style="background: #FFFFEE 0% 0% no-repeat padding-box;">
                             <div style="display: flex; justify-content: space-between; font-size: 12px;">
-                                <div style="font-size: 14px;">License for Introduction to Algebra has been assigned to your school</div>
-                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;"/></div>
+                                <div style="font-size: 14px;">License for Introduction to Algebra has been assigned to
+                                    your school</div>
+                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;" />
+                                </div>
                             </div>
-                            <div style="display: flex; color: #6E6E6E; gap: 4px">
+                            <div style="display: flex; color: #6E6E6E; gap: 4px; font-size: 12px;">
                                 <span style="margin-left: auto;">15-Sep-2018 at 07:21 pm</span>
                             </div>
                         </div>
@@ -56,12 +57,13 @@
                         <div class="aleart-items">
                             <div style="display: flex; justify-content: space-between; font-size: 12px;">
                                 <div style="font-size: 14px;">Lesson 3 Practice Worksheet overdue for Amy Santiago</div>
-                                <div><img src="asset/icons/correct.png" alt="Minus" style="height: 15px; width: 15px;"/></div>
+                                <div><img src="asset/icons/correct.png" alt="Correct"
+                                        style="height: 15px; width: 15px;" /></div>
 
                             </div>
-                            <div><span style="color: #6E6E6E;">Course:</span> Advanced Mathematics</div>
-                            
-                            <div style="display: flex; color: #6E6E6E; gap: 4px">
+                            <div><span style="color: #6E6E6E;font-size: 12px;">Course:</span> Advanced Mathematics</div>
+
+                            <div style="display: flex; color: #6E6E6E; gap: 4px;font-size: 12px;">
                                 <span style="margin-left: auto;">15-Sep-2018 at 07:21 pm</span>
                             </div>
                         </div>
@@ -69,9 +71,10 @@
                         <div class="aleart-items" style="background: #FFFFEE 0% 0% no-repeat padding-box;">
                             <div style="display: flex; justify-content: space-between; font-size: 12px;">
                                 <div style="font-size: 14px;">23 new students created</div>
-                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;"/></div>
+                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;" />
+                                </div>
                             </div>
-                            <div style="display: flex; color: #6E6E6E; gap: 4px">
+                            <div style="display: flex; color: #6E6E6E; gap: 4px;font-size: 12px;">
                                 <span style="margin-left: auto;">15-Sep-2018 at 07:21 pm</span>
                             </div>
                         </div>
@@ -79,21 +82,24 @@
                         <div class="aleart-items" style="background: #FFFFEE 0% 0% no-repeat padding-box;">
                             <div style="display: flex; justify-content: space-between; font-size: 12px;">
                                 <div style="font-size: 14px;">15 submissions ready for evaluation</div>
-                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;"/></div>
+                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;" />
+                                </div>
                             </div>
-                            <div><span style="color: #6E6E6E;">Course:</span> Advanced Mathematics</div>
-                            
-                            <div style="display: flex; color: #6E6E6E; gap: 4px">
+                            <div><span style="color: #6E6E6E;font-size: 12px;">Course:</span> Advanced Mathematics</div>
+
+                            <div style="display: flex; color: #6E6E6E; gap: 4px;font-size: 12px;">
                                 <span style="margin-left: auto;">15-Sep-2018 at 07:21 pm</span>
                             </div>
                         </div>
 
                         <div class="aleart-items" style="background: #FFFFEE 0% 0% no-repeat padding-box;">
                             <div style="display: flex; justify-content: space-between; font-size: 12px;">
-                                <div style="font-size: 14px;">License for Basic Concepts in Geometry has been assigned to your... school</div>
-                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;"/></div>
+                                <div style="font-size: 14px;">License for Basic Concepts in Geometry has been assigned
+                                    to your... school</div>
+                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;" />
+                                </div>
                             </div>
-                            <div style="display: flex; color: #6E6E6E; gap: 4px">
+                            <div style="display: flex; color: #6E6E6E; gap: 4px;font-size: 12px;">
                                 <span style="margin-left: auto;">15-Sep-2018 at 07:21 pm</span>
                             </div>
                         </div>
@@ -101,11 +107,12 @@
                         <div class="aleart-items">
                             <div style="display: flex; justify-content: space-between; font-size: 12px;">
                                 <div style="font-size: 14px;">Lesson 3 Practice Worksheet overdue for Sam Diego</div>
-                                <div><img src="asset/icons/correct.png" alt="Minus" style="height: 15px; width: 15px;"/></div>
+                                <div><img src="asset/icons/correct.png" alt="correct"
+                                        style="height: 15px; width: 15px;" /></div>
                             </div>
-                            <div><span style="color: #6E6E6E;">Course:</span> Advanced Mathematics</div>
-                            
-                            <div style="display: flex; color: #6E6E6E; gap: 4px">
+                            <div><span style="color: #6E6E6E;font-size: 12px;">Course:</span> Advanced Mathematics</div>
+
+                            <div style="display: flex; color: #6E6E6E; gap: 4px;font-size: 12px;">
                                 <span style="margin-left: auto;">15-Sep-2018 at 07:21 pm</span>
                             </div>
                         </div>
@@ -113,34 +120,35 @@
                         <div class="aleart-items">
                             <div style="display: flex; justify-content: space-between; font-size: 12px;">
                                 <div style="font-size: 14px;">23 new students created</div>
-                                <div><img src="asset/icons/correct.png" alt="Minus" style="height: 15px; width: 15px;"/></div>
+                                <div><img src="asset/icons/correct.png" alt="Minus"
+                                        style="height: 15px; width: 15px;" /></div>
                             </div>
-                            <div style="display: flex; color: #6E6E6E; gap: 4px">
+                            <div style="display: flex; color: #6E6E6E; gap: 4px;font-size: 12px;">
                                 <span style="margin-left: auto;">15-Sep-2018 at 07:21 pm</span>
                             </div>
                         </div>
 
-                        <div class="aleart-button">
+                        <div class="alert-button">
                             <button>Show All</button>
-                        </div>
+                        </div> -->
                     </div>
-
                 </div>
 
                 <div class="announce-container">
-                    <div class="image-div" onclick="switchiconTab(this, 'pfp')">
-                        <img src="asset/icons/announcements.svg" alt="Announcements" />
-                        <div class="counter">1</div>
+                    <div class="announce image-div" onclick="switchiconTab(this, 'pfp')">
+                        <img src="asset/icons/announcements.svg" alt="Announcements" class="announce-image"/>
+                        <div class="announce-counter">1</div>
                     </div>
                     <div class="announce-box">
-                        <div class="announce-items">
+                        <!-- <div class="announce-items">
                             <div style="display: flex; justify-content: space-between; font-size: 12px;">
                                 <div><span style="color: #6E6E6E;">PA:</span> Wilson Kumar</div>
-                                <div><img src="asset/icons/correct.png" alt="Minus" style="height: 15px; width: 15px;"/></div>
+                                <div><img src="asset/icons/correct.png" alt="correct"
+                                        style="height: 15px; width: 15px;" /></div>
                             </div>
                             <div style="font-size: 14px;">No classes will be held on 21st Nov</div>
-                            <div style="display: flex; color: #6E6E6E; gap: 4px">
-                                <span></span>
+                            <div style="display: flex; color: #6E6E6E; gap: 4px; font-size: 12px;">
+                                <span><img src="asset/icons/attach.png" alt="attach" style="height: 13px; width: 13px;" /></span>
                                 <span>2 files are attached</span>
                                 <span style="margin-left: 25px;">15-Sep-2018 at 07:21 pm</span>
                             </div>
@@ -149,10 +157,11 @@
                         <div class="announce-items" style="background: #FFFFEE 0% 0% no-repeat padding-box;">
                             <div style="display: flex; justify-content: space-between; font-size: 12px;">
                                 <div><span style="color: #6E6E6E;">PA:</span> Samson White</div>
-                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;"/></div>
+                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;" />
+                                </div>
                             </div>
                             <div style="font-size: 14px;">Guest lecture on Geometry on 20th September</div>
-                            <div style="display: flex; color: #6E6E6E; gap: 4px">
+                            <div style="display: flex; color: #6E6E6E; gap: 4px; font-size: 12px;">
                                 <span></span>
                                 <span>2 files are attached</span>
                                 <span style="margin-left: 25px;">15-Sep-2018 at 07:21 pm</span>
@@ -162,11 +171,12 @@
                         <div class="announce-items">
                             <div style="display: flex; justify-content: space-between; font-size: 12px;">
                                 <div><span style="color: #6E6E6E;">PA:</span> Wilson Kumar</div>
-                                <div><img src="asset/icons/correct.png" alt="Minus" style="height: 15px; width: 15px;"/></div>
+                                <div><img src="asset/icons/correct.png" alt="Minus"
+                                        style="height: 15px; width: 15px;" /></div>
                             </div>
                             <div style="font-size: 14px;">Additional course materials available on request</div>
-                            <div style="color: #6E6E6E;">Course: Mathematics 101</div>
-                            <div style="display: flex; color: #6E6E6E;">
+                            <div style="color: #6E6E6E; font-size: 12px;">Course: Mathematics 101</div>
+                            <div style="display: flex; color: #6E6E6E; font-size: 12px;">
                                 <span style="margin-left: auto;">15-Sep-2018 at 07:21 pm</span>
                             </div>
                         </div>
@@ -174,10 +184,11 @@
                         <div class="announce-items" style="background: #FFFFEE 0% 0% no-repeat padding-box;">
                             <div style="display: flex; justify-content: space-between; font-size: 12px;">
                                 <div><span style="color: #6E6E6E;">PA:</span> Wilson Kumar</div>
-                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;"/></div>
+                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;" />
+                                </div>
                             </div>
                             <div style="font-size: 14px;">No classes will be held on 25th Dec</div>
-                            <div style="display: flex; color: #6E6E6E;">
+                            <div style="display: flex; color: #6E6E6E; font-size: 12px;">
                                 <span style="margin-left: auto;">15-Sep-2018 at 07:21 pm</span>
                             </div>
                         </div>
@@ -185,11 +196,12 @@
                         <div class="announce-items" style="background: #FFFFEE 0% 0% no-repeat padding-box;">
                             <div style="display: flex; justify-content: space-between; font-size: 12px;">
                                 <div><span style="color: #6E6E6E;">PA:</span> Wilson Kumar</div>
-                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;"/></div>
+                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;" />
+                                </div>
                             </div>
                             <div style="font-size: 14px;">Additional course materials available on request</div>
-                            <div style="color: #6E6E6E;">Course: Mathematics 101</div>
-                            <div style="display: flex; color: #6E6E6E;">
+                            <div style="color: #6E6E6E; font-size: 12px;">Course: Mathematics 101</div>
+                            <div style="display: flex; color: #6E6E6E; font-size: 12px;">
                                 <span style="margin-left: auto;">15-Sep-2018 at 07:21 pm</span>
                             </div>
                         </div>
@@ -197,10 +209,11 @@
                         <div class="announce-items" style="background: #FFFFEE 0% 0% no-repeat padding-box;">
                             <div style="display: flex; justify-content: space-between; font-size: 12px;">
                                 <div><span style="color: #6E6E6E;">PA:</span> Samson White</div>
-                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;"/></div>
+                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;" />
+                                </div>
                             </div>
                             <div style="font-size: 14px;">Guest lecture on Geometry on 20th September</div>
-                            <div style="display: flex; color: #6E6E6E; gap: 4px">
+                            <div style="display: flex; color: #6E6E6E; gap: 4px; font-size: 12px;">
                                 <span></span>
                                 <span>2 files are attached</span>
                                 <span style="margin-left: 25px;">15-Sep-2018 at 07:21 pm</span>
@@ -210,12 +223,12 @@
                         <div class="announce-items">
                             <div style="display: flex; justify-content: space-between; font-size: 12px;">
                                 <div><span style="color: #6E6E6E;">PA:</span> Wilson Kumar</div>
-                                <div><img src="asset/icons/correct.png" alt="Minus" style="height: 15px; width: 15px;"/></div>
-                                <!-- <div><i class="fa-solid fa-circle-check" style="color:#1F7A54;"></i></div> -->
+                                <div><img src="asset/icons/correct.png" alt="Minus"
+                                        style="height: 15px; width: 15px;" /></div>
                             </div>
                             <div style="font-size: 14px;">Additional course materials available on request</div>
-                            <div style="color: #6E6E6E;">Course: Mathematics 101</div>
-                            <div style="display: flex; color: #6E6E6E;">
+                            <div style="color: #6E6E6E; font-size: 12px;">Course: Mathematics 101</div>
+                            <div style="display: flex; color: #6E6E6E; font-size: 12px;">
                                 <span style="margin-left: auto;">15-Sep-2018 at 07:21 pm</span>
                             </div>
                         </div>
@@ -223,10 +236,11 @@
                         <div class="announce-items" style="background: #FFFFEE 0% 0% no-repeat padding-box;">
                             <div style="display: flex; justify-content: space-between; font-size: 12px;">
                                 <div><span style="color: #6E6E6E;">PA:</span> Wilson Kumar</div>
-                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;"/></div>
+                                <div><img src="asset/icons/minus.png" alt="Minus" style="height: 15px; width: 15px;" />
+                                </div>
                             </div>
                             <div style="font-size: 14px;">No classes will be held on 25th Dec</div>
-                            <div style="display: flex; color: #6E6E6E;">
+                            <div style="display: flex; color: #6E6E6E; font-size: 12px;">
                                 <span style="margin-left: auto;">15-Sep-2018 at 07:21 pm</span>
                             </div>
                         </div>
@@ -235,13 +249,9 @@
                             <button>Show All</button>
                             <div style="border-left: 1px solid #0000001F; opacity: 1; padding: 20px 0;"></div>
                             <button>Create New</button>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
-
-
-
-
 
                 <div class="image-div" onclick="switchiconTab(this, 'pfp')">
                     <img src="asset/icons/account_circle.svg" alt="Profile Picture" />
@@ -250,7 +260,7 @@
 
                 <div class="subnav">
                     <div class="image-div" onclick="switchiconTab(this, 'pfp')">
-                        <img src="asset/icons/hamburger-menu.svg" alt="hamburger-menu" />
+                        <img src="asset/icons/hamburger-menu.svg" alt="hamburger-menu" class="hamburger-image"/>
                     </div>
                     <div class="subnav-content">
                         <div class="subnav-items">
@@ -285,7 +295,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     </div>
@@ -323,7 +332,7 @@
 
         <div class="course-container">
             <div class="courses-grid">
-                <div class="course-card">
+                <!--<div class="course-card">
                     <div class="course-content">
                         <img src="asset/images/imageMask-1.svg" class="course-image" alt="imageMask-1" />
                         <div class="course-info">
@@ -348,7 +357,6 @@
                                     <span>21-Jan-2020 - 21-Aug-2020</span>
                                 </div>
                             </div>
-
                         </div>
                         <div class="star-icon"><img src="asset/icons/favourite.svg" alt="fav"></div>
                     </div>
@@ -466,7 +474,7 @@
                         <img src="asset/icons/grade submissions.svg" alt="submissions">
                         <img src="asset/icons/reports.svg" alt="reports">
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
     </div>
@@ -487,6 +495,9 @@
             </div>
         </div>
     </div>
+
+    <script src="./js/dashboard.js"></script>
+    <script src="./index.js"></script>
 </body>
 
 </html>
