@@ -56,7 +56,7 @@ body {
 }
 
 .header {
-  background-color: rgba(37, 49, 63, 0.8);
+  background-color: rgba(37, 49, 63, 0.9);
   height: 40px;
   padding: 8px 24px;
   display: flex;
@@ -417,7 +417,6 @@ body {
   justify-content: space-between;
   align-items: center;
   color: #686868;
-
 }
 
 #course {
@@ -437,20 +436,21 @@ body {
 }
 
 .lineing {
-  margin: 17px 0;
+  margin: 10px 0;
   border-bottom: 1px solid #686868;
   opacity: 0.12;
 }
 
 /******************** Cards ********************/
 .courses-grid {
+  margin-top: 24px;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(470px, 1fr));
+  gap: 24px;
 }
 
 .course-card {
-  padding: 24px 24px;
+  padding: 24px 24px 9px 24px;
   background: white;
   overflow: hidden;
   display: flex;
@@ -576,7 +576,7 @@ body {
   justify-content: center;
   align-items: center;
   margin-bottom: 16px;
-  gap: 16px;
+  gap: 10px;
 }
 
 .off-form a {

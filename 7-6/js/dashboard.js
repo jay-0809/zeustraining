@@ -26,18 +26,16 @@ function switchiconTab(clickedTab, type) {
     //         img.src = img.src.replace('_white', '');
     //     }
     //     );
-
     document
         .querySelectorAll(".nav-tab")
         .forEach((tab) => tab.classList.remove("active"));
-
     // clickedTab.classList.add("active");
     // const img = clickedTab.querySelector('img');
     // img.src = img.src.replace('.svg', '_white.svg');
     // console.log(img.src);
 }
 
-
+// ******** Aleart
 let alertButton = document.querySelector(".alert-container");
 let alertBox = document.querySelector(".alert-box");
 let alertCount = document.querySelector(".alert-counter");
@@ -70,7 +68,7 @@ function hideAleartMenu() {
 alertButton.addEventListener("mouseover", showAleartMenu);
 alertButton.addEventListener("mouseout", hideAleartMenu);
 
-
+// ********* Announce
 let announceButton = document.querySelector(".announce-container");
 let announceBox = document.querySelector(".announce-box");
 
@@ -98,6 +96,7 @@ function hideAnnounceMenu() {
 announceButton.addEventListener("mouseover", showAnnounceMenu);
 announceButton.addEventListener("mouseout", hideAnnounceMenu);
 
+//  *********** Hamburger
 let subnavButton = document.querySelector(".subnav");
 let subnavContent = document.querySelector(".subnav-content");
 
@@ -105,7 +104,6 @@ subnavButton.addEventListener('click', () => {
     alertBox.style.display = "none";
     announceBox.style.display = "none";
     subnavContent.style.display = "block";
-
 })
 
 function showHamburgerMenu() {

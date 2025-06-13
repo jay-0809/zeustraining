@@ -32,7 +32,7 @@ const card_data = [
     },
     {
         img: 'asset/images/imageMask.svg',
-        title: 'Introduction to Biology: Micro organisms and how they affect',
+        title: 'Introduction to Biology: Micro organisms and how they affect the other Life Systems in En...',
         meta: 'Biology',
         grade: 4,
         inc: 1,
@@ -184,7 +184,7 @@ const showAllCards = () => {
                         <img src=${card?.img} class="course-image" alt="imageMask-1" />
                         <div class="course-info">
                             <div class="course-header">
-                                <div class="course-title">${card?.title}</div>
+                                <div class="course-title" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">${card?.title}</div>
                                 <div class="course-meta">${card?.meta} <div
                                         style="display:flex; padding-left: 9px; border-left: 1px solid #d1d1d1;">Grade ${card?.grade}
                                         <div style="padding-left: 2px; color: #1F7A54;">+${card?.inc}</div>
@@ -240,7 +240,7 @@ const showAlerts = () => {
                                 <div><img src="asset/icons/${alert?.img}.png" alt="Minus" style="height: 15px; width: 15px;" />
                                 </div>
                             </div>
-                            ${alert?.course ? `<div style="font-size: 12px;"><span style="color: #6E6E6E;">Course: </span>${alert?.course}</div>` : ``}
+                            ${alert?.course ? `<div style="font-size: 12px;"><span style="color: #6E6E6E;">Course:  </span>${alert?.course}</div>` : ``}
                             <div style="display: flex; color: #6E6E6E; gap: 4px; font-size: 12px;">
                                 <span style="margin-left: auto;">${alert?.date}</span>
                             </div>
