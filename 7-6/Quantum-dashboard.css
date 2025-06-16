@@ -52,7 +52,7 @@ body {
 .header-section {
   background-image: url("asset/header_ pattern_svg.svg");
   height: 56px;
-  border-bottom: 2px solid #31B9E4;
+  /* border-bottom: 2px solid #31B9E4; */
 }
 
 .header {
@@ -100,7 +100,7 @@ body {
   /* margin: 10px 12px 0 0; */
 }
 
-.white-icon{
+.white-icon {
   filter: brightness(0) invert(1);
 }
 
@@ -548,8 +548,9 @@ body {
   margin-top: 8px;
   gap: 10px;
 }
-.no-classes{
-  color: #222222; 
+
+.no-classes {
+  color: #222222;
   opacity: 40%;
 }
 
@@ -643,14 +644,23 @@ body {
     font-size: 13px
   }
 
+  .header-section {
+    border-bottom: 2px solid #31B9E4;
+  }
+
   .navbar {
     gap: 22px;
   }
+
 }
 
 @media screen and (max-width: 768px) {
   body {
     font-size: 12px
+  }
+
+  .header-section {
+    border-bottom: 2px solid #31B9E4;
   }
 
   .course-container {

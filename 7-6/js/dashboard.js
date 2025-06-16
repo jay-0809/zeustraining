@@ -49,7 +49,7 @@ alertButton.addEventListener('click', () => {
 })
 
 function showAleartMenu() {
-    clearTimeout(hideTimeout);
+    // clearTimeout(hideTimeout);
     announceBox.style.display = "none";
     subnavContent.style.display = "none";
     alertBox.style.display = "block";
@@ -67,6 +67,17 @@ function hideAleartMenu() {
 
 alertButton.addEventListener("mouseover", showAleartMenu);
 alertButton.addEventListener("mouseout", hideAleartMenu);
+alertButton.addEventListener("click", () => {
+    if (alertBox.style.display === "block") {
+        alertBox.style.display = "none";
+        alertCount.style.display = "block";
+        alertImage.classList.remove("white-icon");
+    } else {
+        alertBox.style.display = "block";
+        alertCount.style.display = "none";
+        alertImage.classList.add("white-icon");
+    }
+})
 
 // ********* Announce
 let announceButton = document.querySelector(".announce-container");
@@ -77,7 +88,7 @@ announceButton.addEventListener('click', () => {
 })
 
 function showAnnounceMenu() {
-    clearTimeout(hideTimeout);
+    // clearTimeout(hideTimeout);
     alertBox.style.display = "none";
     subnavContent.style.display = "none";
     announceBox.style.display = "block";
