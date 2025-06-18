@@ -126,7 +126,93 @@ const parent2 = new ParentDiv("parent", "background-color: rgb(201, 135, 198);")
 const child2 = new ChildDiv(parent2.element, "child", "background-color: #331f7a;", "This is Child2");
 
 const parent3 = new ParentDiv("parent", "background-color: rgb(135, 201, 198);");
-const child3 = new ChildDiv(parent3.element, "child", "background-color:rgb(60, 122, 31);", "This is Child3");
+const child3 = new ChildDiv(parent3.element, "child", "background-color:rgb(122, 31, 73);", "This is Child3");
 
 const parent4 = new ParentDiv("parent", "background-color: rgb(139, 135, 201);");
-const child4 = new ChildDiv(parent4.element, "child", "background-color:rgb(122, 31, 73);", "This is Child4");
+const child4 = new ChildDiv(parent4.element, "child", "background-color:rgb(60, 122, 31);", "This is Child4");
+
+document.addEventListener("DOMContentLoaded", () => {
+    const parentRect = parent3.element.getBoundingClientRect();
+    let x = parseFloat(child3.element.style.left) || 0;
+    let y = parseFloat(child3.element.style.top) || 0;
+    let flagW:boolean, flagH: boolean = true;
+
+    setInterval(() => {
+        if (x >= parentRect.width-82) {
+            flagW = false;
+        } else {
+            if(x == 0){
+                flagW = true;
+            }
+        }
+        if (y >= parentRect.height-82) {
+            flagH = false;
+        } else {
+            if(y == 0){
+                flagH = true;
+            }
+        }
+        if (flagW) {
+            x += 2;
+        } else {           
+            x -= 2;
+        }
+        if (flagH) {
+            y += 2;
+        } else {           
+            y -= 2;
+        }
+        
+        x = Math.max(0, Math.min(x, parentRect.width - child3.element.offsetWidth));
+        y = Math.max(0, Math.min(y, parentRect.height - child3.element.offsetHeight));
+        
+        // console.log(x, flagW, parentRect.width, y, flagH, parentRect.height);
+        child3.element.style.left = `${x}px`;
+        child3.element.style.top = `${y}px`;
+    }, 25);
+})
+
+// document.addEventListener("DOMContentLoaded", function () {
+//     var parentRect = parent4.element.getBoundingClientRect();
+//     var x = parseFloat(child4.element.style.left) || 0;
+//     var y = parseFloat(child4.element.style.top) || 0;
+//     var flagW, flagH = true;
+//     // console.log(maxH, maxW, parentRect.width, parentRect.height);
+
+//     setInterval(() => {
+//         // console.log(x, flagW, parentRect.width, y, flagH, parentRect.height);
+//         if (x >= parentRect.width-82) {
+//             flagW = false;
+//         } else {
+//             if(x == 0){
+//                 flagW = true;
+//             }
+//         }
+//         if (y >= parentRect.height-82) {
+//             flagH = false;
+//         } else {
+//             if(y == 0){
+//                 flagH = true;
+//             }
+//         }
+//         if (flagW) {
+//             x += 2;
+//         } else {           
+//             x -= 2;
+//         }
+//         if (flagH) {
+//             y += 2;
+//         } else {           
+//             y -= 2;
+//         }
+        
+//         x = Math.max(0, Math.min(x, parentRect.width - child4.element.offsetWidth));
+//         y = Math.max(0, Math.min(y, parentRect.height - child4.element.offsetHeight));
+        
+//         console.log(x, flagW, parentRect.width, y, flagH, parentRect.height);
+
+//         child4.element.style.left = `${x}px`;
+//         child4.element.style.top = `${y}px`;
+//     }, 25);
+
+// });
