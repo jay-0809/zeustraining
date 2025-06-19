@@ -171,7 +171,6 @@ document.addEventListener("DOMContentLoaded", () => {
         child3.element.style.top = `${y}px`;
     }, 25);
 })
-
 // document.addEventListener("DOMContentLoaded", function () {
 //     var parentRect = parent4.element.getBoundingClientRect();
 //     var x = parseFloat(child4.element.style.left) || 0;
