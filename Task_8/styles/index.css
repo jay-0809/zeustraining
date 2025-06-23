@@ -1,12 +1,13 @@
+html,
 body {
   margin: 0;
   padding: 0;
-  background-color: #f5f5f5;
-  color: #000;
 }
+html .container,
 body .container {
   padding: 1px;
 }
+html .container .header,
 body .container .header {
   width: 100vw;
   padding: 10px 0;
@@ -15,9 +16,11 @@ body .container .header {
   align-items: center;
   position: relative;
 }
+html .container .header .header-title,
 body .container .header .header-title {
   font-size: 18px;
 }
+html .container .header .search,
 body .container .header .search {
   height: 10px;
   width: 20%;
@@ -31,13 +34,16 @@ body .container .header .search {
   outline: none;
   cursor: text;
 }
+html .container .header .search:hover,
 body .container .header .search:hover {
   background-color: #fff;
 }
+html .container .header .search:hover + #search-collaps,
 body .container .header .search:hover + #search-collaps {
   display: block;
   background-color: #fff;
 }
+html .container .header .search-tooltip,
 body .container .header .search-tooltip {
   display: none;
   position: absolute;
@@ -57,23 +63,34 @@ body .container .header .search-tooltip {
   animation-fill-mode: forwards;
   animation-timing-function: ease-in-out;
 }
-body .container .master-grid {
-  width: 5000px;
-  background-color: #ffffff;
+html #canvas-wrapper,
+body #canvas-wrapper {
+  position: relative;
 }
-body .container .master-grid .first {
-  background-color: #f5f5f5;
-  color: #e0e0e0;
-}
-body .container .master-grid .rows {
-  display: flex;
-}
-body .container .master-grid .rows .columns {
-  height: 20px;
-  width: 60px !important;
-  border: 1px solid #bdbdbd;
+html canvas,
+body canvas {
+  position: absolute;
+  background: #fff;
   cursor: cell;
 }
-body .container .master-grid .rows .columns:active {
-  border: 2px solid #107c41;
+html #cell-editor,
+body #cell-editor {
+  position: absolute;
+  display: none;
+  box-sizing: border-box;
+  font-size: 14px;
+  padding: 2px;
+  border: 4px solid #107c41;
+  background: #fff;
+  z-index: 1000;
+}
+html #resizer,
+body #resizer {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #107c41;
+  cursor: nwse-resize;
+  z-index: 1001;
+  display: none;
 }/*# sourceMappingURL=index.css.map */
