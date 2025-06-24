@@ -272,7 +272,9 @@
 
 
 import { Canvas } from './canvas.js';
+// import { handleClick } from './modulers.js';
 import { handleClick, handleEditorBlur, initResize } from './modulers.js';
+import { horizontalCanvas, verticalCanvas } from './headerCanvas.js';
 
 export class Grid {
     constructor(wrapper, rowsPerCanvas, colsPerCanvas, maxRows, maxCols, dataset) {
@@ -287,8 +289,8 @@ export class Grid {
 
         this.canvases = {};
         // console.log(this.canvases);
-        
-        this.editor = document.getElementById("cell-editor");
+
+        this.editor = document.getElementById("cell-input");
         this.resizer = document.getElementById("resizer");
 
         window.addEventListener("scroll", () => this.renderCanvases());
@@ -297,6 +299,12 @@ export class Grid {
 
         this.isResizing = false;
         initResize.call(this);
+
+        const horizontalHeader = horizontalCanvas();
+        const verticalHeader = verticalCanvas();
+        console.log(horizontalHeader);
+        console.log(verticalHeader);
+        // verticalCanvas(this);
 
         this.renderCanvases();
     }
@@ -321,7 +329,7 @@ export class Grid {
                 }
             }
         }
-        // console.log(":", coords);
+        console.log(":", coords);
         return coords;
     }
 

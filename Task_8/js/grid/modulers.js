@@ -2,6 +2,10 @@
 import { Canvas } from "./canvas.js";
 
 export function handleClick(e) {
+    // console.log(this, "mmm");
+    // const cell_input = document.createElement("input");
+    // this.wrapper.appendChild(cell_input);
+    // console.log(cell_input);
     const x = e.pageX;
     const y = e.pageY;
     const globalCol = Math.floor(x / this.cellWidth);
@@ -27,14 +31,14 @@ export function handleClick(e) {
 
     this.editor.style.display = "block";
     this.editor.style.left = `${globalCol * this.cellWidth - window.scrollX}px`;
-    this.editor.style.top = `${globalRow * this.cellHeight - window.scrollY}px`;
+    this.editor.style.top = `${globalRow * this.cellHeight - window.scrollY + 56}px`;
     this.editor.style.width = `${this.cellWidth}px`;
     this.editor.style.height = `${this.cellHeight}px`;
     this.editor.focus();
 
     this.resizer.style.display = "block";
     this.resizer.style.left = `${globalCol * this.cellWidth + this.cellWidth - 5 - window.scrollX}px`;
-    this.resizer.style.top = `${globalRow * this.cellHeight + this.cellHeight - 5 - window.scrollY}px`;
+    this.resizer.style.top = `${globalRow * this.cellHeight + this.cellHeight - 5 - window.scrollY + 56}px`;
 }
 
 export function handleEditorBlur() {
@@ -55,11 +59,11 @@ export function handleEditorBlur() {
     if (this.dataset[dataRowIndex] && columnKey) {
         this.dataset[dataRowIndex][columnKey] = val;
     }
-
     this.editor.style.display = "none";
     this.resizer.style.display = "none";
 
     this.invalidCanvas(key);
+//  this.wrapper.removeChild(cell_input);
 }
 
 export function initResize() {

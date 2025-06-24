@@ -9,7 +9,7 @@ const rowsPerCanvas = 50;
 const colsPerCanvas = 26;
 
 // Max row & col limits
-const maxRows = 70;
+const maxRows = 100;
 const maxCols = 50;
 
 // Generate dataset for the grid
