@@ -1,7 +1,11 @@
+:root {
+    --scroll-background: #e7e7e7;
+}
 html,
 body {
     margin: 0;
     padding: 0;
+    // --scroll-background: #070707;
 
     .container {
         padding: 1px;
@@ -78,20 +82,24 @@ body {
         position: absolute;
         display: none;
         box-sizing: border-box;
-        font-size: 14px;
+        font-size: 12px;
         padding: 2px;
-        border: 4px solid #107c41;
+        border: 2px solid #107c41;
         background: #fff;
         z-index: 1000;
-        // outline: none;
+        outline: none;
+
     }
 
     #resizer {
         position: absolute;
-        width: 10px;
-        height: 10px;
+        width: 4px;
+        height: 4px;
+        bottom: -3px;
         background: #107c41;
-        cursor: nwse-resize;
+        border: solid 1px #fff;
+        // cursor: nwse-resize; // ew-resize;
+        cursor: crosshair;
         z-index: 1001;
         display: none;
     }

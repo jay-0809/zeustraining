@@ -1,3 +1,7 @@
+:root {
+  --scroll-background: #e7e7e7;
+}
+
 html,
 body {
   margin: 0;
@@ -78,19 +82,22 @@ body #cell-editor {
   position: absolute;
   display: none;
   box-sizing: border-box;
-  font-size: 14px;
+  font-size: 12px;
   padding: 2px;
-  border: 4px solid #107c41;
+  border: 2px solid #107c41;
   background: #fff;
   z-index: 1000;
+  outline: none;
 }
 html #resizer,
 body #resizer {
   position: absolute;
-  width: 10px;
-  height: 10px;
+  width: 4px;
+  height: 4px;
+  bottom: -3px;
   background: #107c41;
-  cursor: nwse-resize;
+  border: solid 1px #fff;
+  cursor: crosshair;
   z-index: 1001;
   display: none;
 }/*# sourceMappingURL=index.css.map */
