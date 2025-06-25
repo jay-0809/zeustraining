@@ -2,13 +2,14 @@
 import { Canvas } from "./canvas.js";
 
 export function handleClick(e) {
-    // console.log(this, "mmm");
     const cell_input = document.createElement("input");
     cell_input.setAttribute("class", "cell-input")
-    // this.wrapper.appendChild(cell_input);
-    // console.log(cell_input);
-    const x = e.pageX;
-    const y = e.pageY;
+    const cib = document.createElement("div");
+    cib.setAttribute("class", "cell-input-block")
+
+    const x = e.pageX + window.screenX;
+    const y = e.pageY - 56 + window.scrollY;
+
     const globalCol = Math.floor(x / this.cellWidth);
     const globalRow = Math.floor(y / this.cellHeight);
     if (globalRow === 0 || globalCol === 0) return;
@@ -30,16 +31,31 @@ export function handleClick(e) {
 
     this.editor.value = value;
 
-    this.editor.style.display = "block";
-    this.editor.style.left = `${globalCol * this.cellWidth - window.scrollX}px`;
-    this.editor.style.top = `${globalRow * this.cellHeight - window.scrollY + 56}px`;
-    this.editor.style.width = `${this.cellWidth}px`;
-    this.editor.style.height = `${this.cellHeight}px`;
-    this.editor.focus();
+    cell_input.style.display = "block";
+    cell_input.style.left = `${globalCol * this.cellWidth - window.scrollX}px`;
 
-    this.resizer.style.display = "block";
-    this.resizer.style.left = `${globalCol * this.cellWidth + this.cellWidth - 5 - window.scrollX}px`;
-    this.resizer.style.top = `${globalRow * this.cellHeight + this.cellHeight - 5 - window.scrollY + 56}px`;
+    console.log("y-", y, "globalRow-", globalRow, "yIndex-", yIndex, "window.scrollY-", window.scrollY);
+    cell_input.style.top = `${globalRow * this.cellHeight - window.scrollY}px`;
+    cell_input.style.width = `${this.cellWidth}px`;
+    cell_input.style.height = `${this.cellHeight}px`;
+    cell_input.focus();
+    // this.editor.style.display = "block";
+    // this.editor.style.left = `${globalCol * this.cellWidth - window.scrollX}px`;
+    // this.editor.style.top = `${globalRow * this.cellHeight - window.scrollY + 56}px`;
+    // this.editor.style.width = `${this.cellWidth}px`;
+    // this.editor.style.height = `${this.cellHeight}px`;
+    // this.editor.focus();
+
+    cib.style.display = "block";
+    cib.style.left = `${globalCol * this.cellWidth + this.cellWidth - 5 - window.scrollX}px`;
+    cib.style.top = `${globalRow * this.cellHeight + this.cellHeight - 5 - window.scrollY}px`;
+    // this.resizer.style.display = "block";
+    // this.resizer.style.left = `${globalCol * this.cellWidth + this.cellWidth - 5 - window.scrollX}px`;
+    // this.resizer.style.top = `${globalRow * this.cellHeight + this.cellHeight - 5 - window.scrollY}px`;
+
+    this.wrapper.appendChild(cell_input);
+    this.wrapper.appendChild(cib);
+    console.log(cell_input);
 }
 
 export function handleEditorBlur() {
@@ -64,7 +80,7 @@ export function handleEditorBlur() {
     this.resizer.style.display = "none";
 
     this.invalidCanvas(key);
-//  this.wrapper.removeChild(cell_input);
+    //  this.wrapper.removeChild(cell_input);
 }
 
 export function initResize() {

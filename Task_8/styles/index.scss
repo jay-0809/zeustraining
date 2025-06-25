@@ -67,7 +67,7 @@ body {
         }
     }
 
-    #canvas-wrapper {
+    #wrapper-div {
         position: relative;
     }
 
@@ -90,7 +90,7 @@ body {
         outline: none;
     }
 
-    .resizer {
+    .cell-input-block {
         position: absolute;
         width: 4px;
         height: 4px;

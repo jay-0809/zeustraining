@@ -21,7 +21,7 @@ export class Grid {
 
         window.addEventListener("scroll", () => this.renderCanvases());
         window.addEventListener("click", (e) => handleClick.call(this, e));
-        this.editor.addEventListener("blur", () => handleEditorBlur.call(this));
+        window.addEventListener("blur", () => handleEditorBlur.call(this));
 
         this.isResizing = false;
         initResize.call(this);
@@ -38,6 +38,7 @@ export class Grid {
         // determine which canvases are in view
         const scrollX = window.scrollX;
         const scrollY = window.scrollY;
+        const scrollTop = window.scroll;
         const vw = window.innerWidth;
         const vh = window.innerHeight;
 
@@ -50,15 +51,16 @@ export class Grid {
         for (let y = startRow; y <= endRow; y++) {
             for (let x = startCol; x <= endCol; x++) {
                 if (y * this.rowsPerCanvas < this.maxRows && x * this.colsPerCanvas < this.maxCols) {
-                    coords.push([x,y]);
+                    coords.push([x, y]);
                 }
             }
         }
-        // console.log(":", coords);
+        // console.log("coords:", coords);
         return coords;
     }
 
     renderCanvases() {
+        // requestAnimationFrame(this.renderCanvases());
         const visible = this.getCanvasCoords();
         const visibleSet = new Set(visible);
 
@@ -69,16 +71,15 @@ export class Grid {
                 delete this.canvases[key];
             }
         }
-
+        
         // Render visible canvases
         visible.forEach(key => {
-            // console.log("key",key,"canvases:", this.canvases);
+            // console.log("key:",key,"canvases:", this.canvases);
             if (!this.canvases[key]) {
-                // console.log(x - 1, ":", y - 1 , "<--", x, ":", y - 1, "--->", x + 1, ":", y - 1);
-                // console.log(x - 1, ":", y, "Sec", x, ":", y, "--->", x + 1, ":", y);
-                // console.log(x - 1, ":", y + 1, "<--", x, ":", y + 1, "-->", x + 1, ":", y + 1);
+                // console.log(key[0] - 1, ":", key[1] - 1 , "<--", key[0], ":", key[1] - 1, "-->", key[0] + 1, ":", key[1] - 1);
+                // console.log(key[0] - 1, ":", key[1], "<==", key[0], ":", key[1], "==>", key[0] + 1, ":", key[1]);
+                // console.log(key[0] - 1, ":", key[1] + 1, "<--", key[0], ":", key[1] + 1, "-->", key[0] + 1, ":", key[1] + 1);
                 this.canvases[key] = new Canvas(this, key[0], key[1]);
-                console.log("canvases:", this.canvases);
             }
         });
     }
@@ -88,12 +89,12 @@ export class Grid {
         this.renderCanvases();
     }
 
-    // invalidCanvas(key) {
-    //     const canvas = this.canvases[key];
-    //     if (canvas) {
-    //         canvas.removeCanvas();
-    //         delete this.canvases[key];
-    //         this.canvases[key] = new Canvas(this, key[0], key[1]);
-    //     }
-    // }
+    invalidCanvas(key) {
+        const canvas = this.canvases[key];
+        if (canvas) {
+            canvas.removeCanvas();
+            delete this.canvases[key];
+            this.canvases[key] = new Canvas(this, key[0], key[1]);
+        }
+    }
 }

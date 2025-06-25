@@ -67,8 +67,8 @@ body .container .header .search-tooltip {
   animation-fill-mode: forwards;
   animation-timing-function: ease-in-out;
 }
-html #canvas-wrapper,
-body #canvas-wrapper {
+html #wrapper-div,
+body #wrapper-div {
   position: relative;
 }
 html canvas,
@@ -89,8 +89,8 @@ body .cell-input {
   z-index: 1000;
   outline: none;
 }
-html .resizer,
-body .resizer {
+html .cell-input-block,
+body .cell-input-block {
   position: absolute;
   width: 4px;
   height: 4px;
