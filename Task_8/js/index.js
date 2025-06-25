@@ -5,15 +5,15 @@ const wrapper = document.getElementById("canvas-wrapper");
 // console.log("wr: ", wrapper);
 
 // Controls how many cells per canvas
-const rowsPerCanvas = 50;
-const colsPerCanvas = 26;
+const rowsPerCanvas = 28;
+const colsPerCanvas = 30;
 
 // Max row & col limits
-const maxRows = 100;
-const maxCols = 50;
+const maxRows = 1000;
+const maxCols = 500;
 
 // Generate dataset for the grid
-const myData = generateData(1000);
+const myData = generateData(100);
 
 // Initializing grid
 new Grid(wrapper, rowsPerCanvas, colsPerCanvas, maxRows, maxCols, myData);

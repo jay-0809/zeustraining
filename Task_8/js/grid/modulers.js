@@ -3,7 +3,8 @@ import { Canvas } from "./canvas.js";
 
 export function handleClick(e) {
     // console.log(this, "mmm");
-    // const cell_input = document.createElement("input");
+    const cell_input = document.createElement("input");
+    cell_input.setAttribute("class", "cell-input")
     // this.wrapper.appendChild(cell_input);
     // console.log(cell_input);
     const x = e.pageX;

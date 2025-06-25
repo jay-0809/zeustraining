@@ -78,7 +78,7 @@ body {
         cursor: cell;
     }
 
-    #cell-input {
+    .cell-input {
         position: absolute;
         display: none;
         box-sizing: border-box;
@@ -90,7 +90,7 @@ body {
         outline: none;
     }
 
-    #resizer {
+    .resizer {
         position: absolute;
         width: 4px;
         height: 4px;

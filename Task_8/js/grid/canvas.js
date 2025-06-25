@@ -114,7 +114,7 @@ export class Canvas {
         }
     }
 
-    remove() {
+    removeCanvas() {
         this.canvas.remove();
     }
 }

@@ -77,8 +77,8 @@ body canvas {
   background: #fff;
   cursor: cell;
 }
-html #cell-input,
-body #cell-input {
+html .cell-input,
+body .cell-input {
   position: absolute;
   display: none;
   box-sizing: border-box;
@@ -89,8 +89,8 @@ body #cell-input {
   z-index: 1000;
   outline: none;
 }
-html #resizer,
-body #resizer {
+html .resizer,
+body .resizer {
   position: absolute;
   width: 4px;
   height: 4px;
