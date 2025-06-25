@@ -1,5 +1,10 @@
 
 // Horizontal header canvas 
+/**
+ * 
+ * @param {*} grid 
+ * @returns 
+ */
 export function horizontalCanvas(grid){
     const canvas = document.createElement("canvas");
     const ctx = canvas.getContext("2d");
@@ -10,6 +15,11 @@ export function horizontalCanvas(grid){
     return `im horizontal`;
 }
 
+/**
+ * 
+ * @param {*} grid 
+ * @returns 
+ */
 // Vertical header canvas 
 export function verticalCanvas(grid){
     const canvas = document.createElement("canvas");

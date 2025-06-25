@@ -1,7 +1,38 @@
 // Event handlers for interaction with canvas
 import { Canvas } from "./canvas.js";
+/**
+ * 
+ * @param {*} e 
+ * @returns 
+ */
+export function handleSelectionClick(e) {
+    const sct = document.createElement("div");
+    sct.setAttribute("class", "selection");
 
-export function handleClick(e) {
+    const x = e.pageX + window.screenX;
+    const y = e.pageY - 56 + window.scrollY;
+
+    const globalCol = Math.floor(x / this.cellWidth);
+    const globalRow = Math.floor(y / this.cellHeight);
+    if (globalRow === 0 || globalCol === 0) return;
+
+    sct.style.display = "block";
+    sct.style.left = `${globalCol * this.cellWidth - window.scrollX}px`;
+    sct.style.top = `${globalRow * this.cellHeight - window.scrollY}px`;
+    sct.style.width = `${this.cellWidth}px`;
+    sct.style.height = `${this.cellHeight}px`;
+    sct.focus();
+
+    this.wrapper.appendChild(sct);
+    sct.addEventListener("click", (e) => handleInputClick.call(this, e));
+    console.log(sct);
+} 
+/**
+ * 
+ * @param {*} e 
+ * @returns 
+ */
+export function handleInputClick(e) {
     const cell_input = document.createElement("input");
     cell_input.setAttribute("class", "cell-input")
     const cib = document.createElement("div");
@@ -20,16 +51,16 @@ export function handleClick(e) {
     const localRow = globalRow % this.rowsPerCanvas;
     const key = `${xIndex}_${yIndex}`;
 
-    this.editor.dataset.key = key;
-    this.editor.dataset.localRow = localRow;
-    this.editor.dataset.localCol = localCol;
+    cell_input.dataset.key = key;
+    cell_input.dataset.localRow = localRow;
+    cell_input.dataset.localCol = localCol;
 
     const dataRowIndex = globalRow - 2;
     const dataColIndex = globalCol - 1;
     const colName = Object.keys(this.dataset[0])[dataColIndex];
     const value = this.dataset[dataRowIndex]?.[colName] || "";
 
-    this.editor.value = value;
+    cell_input.value = value;
 
     cell_input.style.display = "block";
     cell_input.style.left = `${globalCol * this.cellWidth - window.scrollX}px`;
@@ -38,6 +69,7 @@ export function handleClick(e) {
     cell_input.style.top = `${globalRow * this.cellHeight - window.scrollY}px`;
     cell_input.style.width = `${this.cellWidth}px`;
     cell_input.style.height = `${this.cellHeight}px`;
+    cell_input.style.cursor = `text`;
     cell_input.focus();
     // this.editor.style.display = "block";
     // this.editor.style.left = `${globalCol * this.cellWidth - window.scrollX}px`;
@@ -49,6 +81,7 @@ export function handleClick(e) {
     cib.style.display = "block";
     cib.style.left = `${globalCol * this.cellWidth + this.cellWidth - 5 - window.scrollX}px`;
     cib.style.top = `${globalRow * this.cellHeight + this.cellHeight - 5 - window.scrollY}px`;
+    cib.style.cursor = 'text';
     // this.resizer.style.display = "block";
     // this.resizer.style.left = `${globalCol * this.cellWidth + this.cellWidth - 5 - window.scrollX}px`;
     // this.resizer.style.top = `${globalRow * this.cellHeight + this.cellHeight - 5 - window.scrollY}px`;
@@ -56,8 +89,11 @@ export function handleClick(e) {
     this.wrapper.appendChild(cell_input);
     this.wrapper.appendChild(cib);
     console.log(cell_input);
+    // return cell_input;
 }
-
+/**
+ * 
+ */
 export function handleEditorBlur() {
     const key = this.editor.dataset.key;
     const row = Number(this.editor.dataset.localRow);
@@ -82,7 +118,9 @@ export function handleEditorBlur() {
     this.invalidCanvas(key);
     //  this.wrapper.removeChild(cell_input);
 }
-
+/**
+ * 
+ */
 export function initResize() {
     let startX, startY;
     this.resizer.addEventListener("mousedown", (e) => {

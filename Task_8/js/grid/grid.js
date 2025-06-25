@@ -1,9 +1,17 @@
 import { Canvas } from './canvas.js';
-// import { handleClick } from './modulers.js';
-import { handleClick, handleEditorBlur, initResize } from './modulers.js';
+import {handleSelectionClick, handleInputClick, handleEditorBlur, initResize } from './modulers.js';
 import { horizontalCanvas, verticalCanvas } from './headerCanvas.js';
 
 export class Grid {
+    /**
+     * 
+     * @param {*} wrapper 
+     * @param {*} rowsPerCanvas 
+     * @param {*} colsPerCanvas 
+     * @param {*} maxRows 
+     * @param {*} maxCols 
+     * @param {*} dataset 
+     */
     constructor(wrapper, rowsPerCanvas, colsPerCanvas, maxRows, maxCols, dataset) {
         this.wrapper = wrapper;
         this.rowsPerCanvas = rowsPerCanvas;
@@ -16,11 +24,13 @@ export class Grid {
         this.canvases = {};
         // console.log(this.canvases);
 
-        this.editor = document.querySelector(".cell-input");
+        // this.editor = document.querySelector(".cell-input");
         this.resizer = document.querySelector(".resizer");
 
         window.addEventListener("scroll", () => this.renderCanvases());
-        window.addEventListener("click", (e) => handleClick.call(this, e));
+        window.addEventListener("click", (e) => handleSelectionClick.call(this, e));
+        // window.addEventListener("dblclick", (e) => handleInputClick.call(this, e));
+        // this.editor.addEventListener("blur", () => handleEditorBlur.call(this));
         window.addEventListener("blur", () => handleEditorBlur.call(this));
 
         this.isResizing = false;
@@ -34,11 +44,15 @@ export class Grid {
         this.renderCanvases();
     }
 
+    /**
+     * 
+     * @returns 
+     */
     getCanvasCoords() {
         // determine which canvases are in view
         const scrollX = window.scrollX;
         const scrollY = window.scrollY;
-        const scrollTop = window.scroll;
+
         const vw = window.innerWidth;
         const vh = window.innerHeight;
 
@@ -59,6 +73,9 @@ export class Grid {
         return coords;
     }
 
+    /**
+     * 
+     */
     renderCanvases() {
         // requestAnimationFrame(this.renderCanvases());
         const visible = this.getCanvasCoords();
@@ -84,11 +101,19 @@ export class Grid {
         });
     }
 
+    /**
+     * 
+     * @param {*} dataset 
+     */
     loadData(dataset) {
         this.dataset = dataset;
         this.renderCanvases();
     }
 
+    /**
+     * 
+     * @param {*} key 
+     */
     invalidCanvas(key) {
         const canvas = this.canvases[key];
         if (canvas) {

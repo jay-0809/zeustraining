@@ -1,5 +1,11 @@
 // Createing a single canvas block
 export class Canvas {
+    /**
+     * 
+     * @param {*} grid 
+     * @param {*} xIndex 
+     * @param {*} yIndex 
+     */
     constructor(grid, xIndex, yIndex) {
         this.grid = grid;
         this.xIndex = xIndex;
@@ -18,6 +24,9 @@ export class Canvas {
         this.craeteCanvas();
     }
 
+    /**
+     * 
+     */
     craeteCanvas() {
         const { ctx, grid } = this;
         const { cellWidth, cellHeight, dataset } = grid; // destructuring dataset

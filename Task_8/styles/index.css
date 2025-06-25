@@ -89,6 +89,18 @@ body .cell-input {
   z-index: 1000;
   outline: none;
 }
+html .selection,
+body .selection {
+  position: absolute;
+  display: none;
+  box-sizing: border-box;
+  font-size: 12px;
+  padding: 2px;
+  border: 2px solid #107c41;
+  background: #fff;
+  z-index: 1000;
+  outline: none;
+}
 html .cell-input-block,
 body .cell-input-block {
   position: absolute;
