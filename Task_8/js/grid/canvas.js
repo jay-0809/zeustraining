@@ -1,96 +1,72 @@
-// Createing a single canvas block
+// Class for createing a single canvas block
 export class Canvas {
     /**
-     * 
-     * @param {*} grid 
-     * @param {*} xIndex 
-     * @param {*} yIndex 
+     * Constructor for the Canvas instance
+     * @param {*} grid - Reference to the Grid instance
+     * @param {*} xIndex - The x-index (column) for the canvas block
+     * @param {*} yIndex - The y-index (row) for the canvas block
      */
     constructor(grid, xIndex, yIndex) {
+        // Store grid reference and indexes for canvas positioning
         this.grid = grid;
         this.xIndex = xIndex;
         this.yIndex = yIndex;
+
+        // Create the canvas element
         this.canvas = document.createElement("canvas");
         this.ctx = this.canvas.getContext("2d");
-
+        this.canvas.setAttribute("class", "canvas-div");
         this.canvas.width = grid.colsPerCanvas * grid.cellWidth;
         this.canvas.height = grid.rowsPerCanvas * grid.cellHeight;
-        this.canvas.style.position = "absolute";
-        this.canvas.style.left = `${xIndex * this.canvas.width}px`;
-        this.canvas.style.top = `${yIndex * this.canvas.height}px`;
 
+        this.canvas.style.position = "absolute";
+        this.canvas.style.left = `${xIndex * this.canvas.width + 80}px`;  // Offset by {80px} for positioning
+        this.canvas.style.top = `${yIndex * this.canvas.height + 25}px`;  // Offset by {25px} for positioning
+
+        // Append the canvas element to the wrapper
         grid.wrapper.appendChild(this.canvas);
 
+        // Initialize canvas by drawing the grid cells and content
         this.craeteCanvas();
     }
 
     /**
-     * 
+     * Method to create and render the canvas cells
      */
     craeteCanvas() {
-        const { ctx, grid } = this;
-        const { cellWidth, cellHeight, dataset } = grid; // destructuring dataset
-        // console.log(dataset);
-        const columnNames = dataset.length > 0 ? Object.keys(dataset[0]) : [];
+        const { ctx, grid } = this;  // Destructure grid and context
+        const { cellWidth, cellHeight, dataset } = grid;  // Destructure cell width, height, and dataset
+        const columnNames = dataset.length > 0 ? Object.keys(dataset[0]) : [];  // Get column names from dataset
         // console.log(columnNames);
 
         // Draw cells within a canvas block
         for (let r = 0; r < grid.rowsPerCanvas; r++) {
             for (let c = 0; c < grid.colsPerCanvas; c++) {
+                // Calculate the global row and column index for data mapping
                 const globalRow = this.yIndex * grid.rowsPerCanvas + r;
                 const globalCol = this.xIndex * grid.colsPerCanvas + c;
 
+                // Calculate the X and Y position for the current cell
                 const x = c * cellWidth;
                 const y = r * cellHeight;
 
+                // Draw top line
+                ctx.beginPath();
                 ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
-                ctx.strokeRect(x + 0.5, y + 0.5, cellWidth, cellHeight);
+                ctx.moveTo(x + 0.5, y + 0.5); 
+                ctx.lineTo(x + grid.cellWidth + 0.5, y + 0.5); 
+                ctx.stroke();
 
-                // Header cell (row 0 or column 0)
-                if (globalRow === 0 || globalCol === 0) {
-                    ctx.fillStyle = "#e7e7e7";
-                    ctx.fillRect(x, y, cellWidth, cellHeight);
-                    ctx.font = "11pt Aptos Narrow, Segoe UI, Calibri, Thonburi, Arial, Verdana, sans-serif, Mongolian Baiti, Microsoft Yi Baiti, Javanese Text";
-                    ctx.textAlign = globalCol === 0 ? "right" : "center";
-                    ctx.fillStyle = "#5e5e5e";
-                    ctx.textBaseline = "middle";
-                    // ctx.style.cursor = "ew-resize";
-                    ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
+                // Draw right line
+                ctx.beginPath();
+                ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
+                ctx.moveTo(x + grid.cellWidth + 0.5, y + 0.5); 
+                ctx.lineTo(x + grid.cellWidth + 0.5, y + grid.cellHeight + 0.5); 
+                ctx.stroke();
 
-                    // Skip top border for header row
-                    if (globalRow !== 0) {
-                        ctx.beginPath();
-                        // ctx.lineWidth = 0.5;
-                        ctx.moveTo(x + 0.5, y + 0.5);
-                        ctx.lineTo(x + cellWidth + 0.5, y + 0.5);
-                        ctx.stroke();
-                    }
-
-                    if (globalCol !== 0) {
-                        // Left border
-                        ctx.beginPath();
-                        ctx.moveTo(x + 0.5, y + 0.5);
-                        ctx.lineTo(x + 0.5, y + cellHeight + 0.5);
-                        ctx.stroke();
-                    }
-
-                    // Row0 header labels (A, B, C...)
-                    if (globalRow === 0 && globalCol > 0) {
-                        let label = "", index = globalCol;
-                        while (index > 0) {
-                            label = String.fromCharCode(((index - 1) % 26) + 65) + label;
-                            index = Math.floor((index - 1) / 26);
-                        }
-                        ctx.fillText(label, x + cellWidth / 2, y + cellHeight / 2);
-                    }
-                    // Col0 header labels (1, 2, 3...)
-                    if (globalCol === 0 && globalRow > 0) {
-                        ctx.fillText(globalRow.toString(), x + cellWidth / 2, y + cellHeight / 2);
-                    }
-                } else if (globalRow === 1) {
-                    const dataColIndex = globalCol - 1;  // col 0 = row number header
-                    // ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
-                    // ctx.strokeRect(x + 0.4, y + 0.4, cellWidth, cellHeight);
+                // Draw column names (first row)
+                if (globalRow === 0) {
+                    const dataColIndex = globalCol;
 
                     if (columnNames[dataColIndex]) {
                         ctx.fillStyle = "#000";
@@ -100,22 +76,19 @@ export class Canvas {
                         ctx.fillText(String(columnNames[dataColIndex]).toUpperCase().slice(0, 8), x + 4, y + cellHeight / 2);
                     }
                 } else {
-                    // Regular cell
-                    // ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
-                    // ctx.strokeRect(x + 0.5, y + 0.5, this.cellWidth, this.cellHeight);
+                    // Draw cell data for all other rows (excluding header)
+                    const dataRowIndex = globalRow - 1;  // row 0 = header, 1 = column names
+                    const dataColIndex = globalCol;  // col 0 = row number header
 
-                    const dataRowIndex = globalRow - 2;  // row 0 = header, 1 = column names
-                    const dataColIndex = globalCol - 1;  // col 0 = row number header
-
+                    // If there's data available 
                     if (dataset[dataRowIndex] && columnNames[dataColIndex]) {
                         const cellValue = dataset[dataRowIndex][columnNames[dataColIndex]];
-                        // console.log(cellValue);
                         if (cellValue !== undefined && cellValue !== null) {
                             ctx.fillStyle = "#000";
                             ctx.font = "14px Arial";
                             ctx.textAlign = "left";
                             ctx.textBaseline = "middle";
-                            ctx.fillText(String(cellValue).slice(0, 8), x + 4, y + cellHeight / 2);
+                            ctx.fillText(String(cellValue).slice(0, 8), x + 4, y + cellHeight / 2);  // Render the cell value
                         }
                     }
                 }
@@ -123,7 +96,10 @@ export class Canvas {
         }
     }
 
+    /**
+     * Method to remove the canvas element from the DOM 
+     */
     removeCanvas() {
-        this.canvas.remove();
+        this.canvas.remove();  
     }
 }

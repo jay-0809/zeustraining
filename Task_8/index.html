@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <link rel="shortcut icon"
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon"
         href="https://th.bing.com/th/id/OIP.6INpILSfB6MhnEYHlvEN4QHaG4?w=171&h=180&c=7&r=0&o=7&pid=1.7&rm=3"
         type="image/x-icon">
     <title>Excel</title>
-  <link rel="stylesheet" href="./styles/index.css">
+    <link rel="stylesheet" href="./styles/index.css">
 </head>
 <body>
     <div class="container">
@@ -19,15 +19,17 @@
         </div>
     </div>
 
-    <!-- <div class="header">
-        <div class="horizontal-header"></div>
-        <div class="vertical-header"></div>
-    </div> -->
-    <div id="wrapper-div"></div> 
-    <input type="text" class="cell-input" />
-    <div class="resizer"></div>
-    <div class="selection"></div>
+    <div id="scroll-wrapper">
+        <!-- Custom scrollbar -->
+        <div id="scrollbar-container">
+            <div id="vertical-scrollbar"></div>
+            <div id="horizontal-scrollbar"></div>
+        </div>
 
-    <script src="./js/index.js" type="module" ></script>
+        <div id="wrapper-div"></div>
+    </div>
+
+    <script type="module" src="./js/index.js"></script>
 </body>
 </html>
+
