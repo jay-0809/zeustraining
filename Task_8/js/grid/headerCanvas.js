@@ -2,27 +2,23 @@
 export function topDiv(grid) {
     const wrapper = grid.wrapper;
 
-    // --- Top-left corner ---
+    //  Top-left corner 
     const topDiv = document.createElement("div"); // Create top-left div 
     topDiv.style.position = "sticky"; 
     topDiv.style.top = "0"; 
     topDiv.style.left = "0"; 
-    topDiv.style.backgroundColor = "#e7e7e7"; 
-    topDiv.style.borderRight = "2px solid #dedfe0"; 
-    topDiv.style.borderBottom = "2px solid #dedfe0"; 
+    topDiv.style.backgroundColor = "#f5f5f5"; 
+    topDiv.style.borderRight = "2px solid #bdbdbd"; 
+    topDiv.style.borderBottom = "2px solid #bdbdbd"; 
     topDiv.style.zIndex = "100000";
     topDiv.style.width = `${grid.cellWidth - 2}px`; 
     topDiv.style.height = `${grid.cellHeight - 2}px`; 
+    topDiv.style.cursor = `cell`;
 
+    const topRect = document.createElement("div");
+    topRect.setAttribute("class", "top-rect");
+    topDiv.appendChild(topRect);
     wrapper.appendChild(topDiv); // Append the created topDiv to the grid wrapper
-
-    // --- Horizontal canvas ---
-    const hCanvas = horizontalCanvas(grid); // Create the horizontal canvas for column headers
-    wrapper.appendChild(hCanvas); // Append the horizontal canvas to the wrapper
-
-    // --- Vertical canvas ---
-    const vCanvas = verticalCanvas(grid); // Create the vertical canvas for row headers
-    wrapper.appendChild(vCanvas); // Append the vertical canvas to the wrapper
 }
 
 // Function to create the horizontal canvas for column headers
@@ -35,6 +31,7 @@ export function horizontalCanvas(grid) {
     canvas.style.top = "0"; 
     canvas.style.left = `${grid.cellWidth}px`; 
     canvas.style.zIndex = "1000";
+    canvas.style.cursor = "col-resize";
     canvas.width = grid.colsPerCanvas * grid.cellWidth;
     canvas.height = grid.cellHeight;
 
@@ -43,7 +40,7 @@ export function horizontalCanvas(grid) {
         const x = c * grid.cellWidth; // Calculate x-position for each column
         const y = 0 * grid.cellHeight; // Set y-position to 0 (first row)
 
-        ctx.fillStyle = "#e7e7e7";
+        ctx.fillStyle = "#f5f5f5";
         ctx.fillRect(x, 0, grid.cellWidth, grid.cellHeight);
 
         // Right line 
@@ -78,10 +75,11 @@ export function verticalCanvas(grid) {
     const ctx = canvas.getContext("2d");
 
     // Style the vertical canvas
-    canvas.style.position = "sticky"; 
+    canvas.style.position = "sticky";
     canvas.style.left = "0"; 
     canvas.style.top = `${grid.cellHeight}px`; 
     canvas.style.zIndex = "1000";
+    canvas.style.cursor = "row-resize";
     canvas.width = grid.cellWidth;
     canvas.height = grid.rowsPerCanvas * grid.cellHeight;
 
@@ -90,7 +88,7 @@ export function verticalCanvas(grid) {
         const y = r * grid.cellHeight; // Calculate y-position for each row
         const x = 0; // Set x-position to 0 (first column)
 
-        ctx.fillStyle = "#e7e7e7";
+        ctx.fillStyle = "#f5f5f5";
         ctx.fillRect(0, y, grid.cellWidth, grid.cellHeight);
 
         // Top line (except the first row)

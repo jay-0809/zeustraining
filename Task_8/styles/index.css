@@ -2,6 +2,8 @@ html,
 body {
   margin: 0;
   padding: 0;
+  position: relative;
+  background-color: #f5f5f5;
 }
 html .container,
 body .container {
@@ -15,7 +17,6 @@ body .container .header {
   display: flex;
   justify-content: space-evenly;
   align-items: center;
-  position: relative;
 }
 html .container .header .header-title,
 body .container .header .header-title {
@@ -27,10 +28,10 @@ body .container .header .search {
   width: 20%;
   font-size: 14px;
   padding: 16px 20px;
-  background-color: transparent;
+  background-color: #f7f7f7;
   border: 1px solid #f7f7f7;
   box-sizing: border-box;
-  box-shadow: 1px 1px 1px 1px #3d3d3d;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.14);
   border-radius: 5px;
   outline: none;
   cursor: text;
@@ -43,7 +44,7 @@ html .container .header .search:hover + #search-collaps,
 body .container .header .search:hover + #search-collaps {
   display: block;
   background-color: #ffffff;
-  z-index: 100000;
+  z-index: 1000000;
 }
 html .container .header .search-tooltip,
 body .container .header .search-tooltip {
@@ -58,7 +59,7 @@ body .container .header .search-tooltip {
   white-space: nowrap;
   text-align: center;
   border-radius: 5px;
-  z-index: 10;
+  z-index: 10000000;
   font-size: 16px;
   animation-name: down;
   animation-duration: 0.8s;
@@ -100,54 +101,60 @@ body #scroll-wrapper #scrollbar-container #horizontal-scrollbar {
   background-color: rgba(0, 0, 0, 0.2);
   cursor: pointer;
 }
-html #scroll-wrapper #wrapper-div,
-body #scroll-wrapper #wrapper-div {
+html #wrapper-div,
+body #wrapper-div {
   position: relative;
+  display: grid;
   width: 100%;
   height: 100%;
   top: 0;
   left: 0;
-  overflow: scroll;
 }
-html #scroll-wrapper #wrapper-div .canvas-div,
-body #scroll-wrapper #wrapper-div .canvas-div {
+html #wrapper-div .canvas-div,
+body #wrapper-div .canvas-div {
   position: absolute;
   background: #fff;
   cursor: cell;
 }
-html #scroll-wrapper #wrapper-div .cell-input,
-body #scroll-wrapper #wrapper-div .cell-input {
+html #wrapper-div .top-rect,
+body #wrapper-div .top-rect {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 10px;
+  height: 10px;
+  background: #b7b7b7;
+  transition: linear();
+  border: 2px solid #f5f5f5;
+}
+html #wrapper-div .cell-input,
+body #wrapper-div .cell-input {
   position: absolute;
   display: none;
   box-sizing: border-box;
   font-size: 12px;
   padding: 2px;
   border: 2px solid #107c41;
-  background: #fff;
-  z-index: 1000;
+  z-index: 1001;
   outline: none;
 }
-html #scroll-wrapper #wrapper-div .selection,
-body #scroll-wrapper #wrapper-div .selection {
+html #wrapper-div .selection,
+body #wrapper-div .selection {
   position: absolute;
   display: none;
   box-sizing: border-box;
   font-size: 12px;
   padding: 2px;
   border: 2px solid #107c41;
-  background: #fff;
-  z-index: 1000;
   outline: none;
 }
-html #scroll-wrapper #wrapper-div .cell-input-block,
-body #scroll-wrapper #wrapper-div .cell-input-block {
+html #wrapper-div .selection-block,
+body #wrapper-div .selection-block {
   position: absolute;
   width: 4px;
   height: 4px;
-  bottom: -1px;
   background: #107c41;
   border: 1px solid #fff;
   cursor: crosshair;
-  z-index: 1001;
   display: none;
 }/*# sourceMappingURL=index.css.map */

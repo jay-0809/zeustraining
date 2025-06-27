@@ -1,6 +1,8 @@
 import { Canvas } from './canvas.js';
-import { handleSelectionClick, handleInputClick, handleEditorBlur, initResize } from './modulers.js';
-import { topDiv } from './headerCanvas.js';
+// import { Row } from "../row.js";
+// import { Column } from "../column.js";
+import { handleSelectionClick } from './modulers.js';
+import { topDiv, horizontalCanvas, verticalCanvas } from './headerCanvas.js';
 
 /**
  * Grid class for rendering canvases.
@@ -19,36 +21,35 @@ export class Grid {
     constructor(wrapper, rowsPerCanvas, colsPerCanvas, maxRows, maxCols, dataset) {
         /** @type {HTMLElement} Wrapper element to hold the grid */
         this.wrapper = wrapper;
-
         /** @type {number} The number of rows per canvas */
         this.rowsPerCanvas = rowsPerCanvas;
-
         /** @type {number} The number of columns per canvas */
         this.colsPerCanvas = colsPerCanvas;
-
         /** @type {number} The maximum number of rows in the grid */
         this.maxRows = maxRows;
-
         /** @type {number} The maximum number of columns in the grid */
         this.maxCols = maxCols;
-
         /** @type {Array} The dataset that contains the values for the grid*/
         this.dataset = dataset || [];
-
         /** @type {number} Width of each grid cell */
         this.cellWidth = 80;
-
         /** @type {number} Height of each grid cell */
         this.cellHeight = 25;
-
         /** @type {Object} An object holding all the canvas instances */
         this.canvases = {};
 
-        window.addEventListener("scroll", () => this.renderCanvases());
-        window.addEventListener("click", (e) => handleSelectionClick.call(this, e));
-        // window.addEventListener("blur", () => handleEditorBlur.call(this));
-
         topDiv(this);
+        this.hCanvas = horizontalCanvas(this);
+        this.vCanvas = verticalCanvas(this);
+        this.wrapper.appendChild(this.hCanvas);
+        this.wrapper.appendChild(this.vCanvas);
+
+        window.addEventListener('scroll', () => {
+            this.renderCanvases();
+            this.updateHeaders();
+        });
+        window.addEventListener('click', (e) => handleSelectionClick.call(this, e));
+
         this.renderCanvases();
     }
 
@@ -59,7 +60,6 @@ export class Grid {
     getCanvasCoords() {
         const scrollX = window.scrollX;   // Current horizontal scroll position
         const scrollY = window.scrollY;   // Current vertical scroll position
-
         const vw = window.innerWidth;     // Viewport width
         const vh = window.innerHeight;    // Viewport height
 
@@ -70,7 +70,7 @@ export class Grid {
         const endRow = Math.floor((scrollY + vh) / (this.rowsPerCanvas * this.cellHeight));
 
         const coords = [];
-        
+
         // Loop through the rows and columns and store the visible coordinates
         for (let y = startRow; y <= endRow; y++) {
             for (let x = startCol; x <= endCol; x++) {
@@ -107,29 +107,23 @@ export class Grid {
         });
     }
 
-    /**
-     * Loads a new dataset into the grid and re-renders the canvases.
-     * @param {Array} dataset The new dataset.
-     */
-    loadData(dataset) {
-        /** @type {Array} The dataset */
-        this.dataset = dataset;
+    updateHeaders() {
+        const sx = window.scrollX;
+        const sy = window.scrollY;
+        this.hCanvas.style.transform = `translateX(${-sx}px)`;
+        this.vCanvas.style.transform = `translateY(${-sy}px)`;
+    }
 
+    loadData(dataset) {
+        this.dataset = dataset;
         this.renderCanvases();
     }
 
-    /**
-     * Invalidates and re-renders a specific canvas by key.
-     * @param {Array} key The key representing the canvas coordinates to invalidate ([x, y]).
-     */
-    invalidCanvas(key) {
-        const canvas = this.canvases[key];
-
-        if (canvas) {
-            // Remove the old canvas and replace it with a new one
-            canvas.removeCanvas();
-            delete this.canvases[key];
-            this.canvases[key] = new Canvas(this, key[0], key[1]);
+    invalidCanvas([x, y]) {
+        const key = JSON.stringify([x, y]);
+        if (this.canvases[key]) {
+            this.canvases[key].removeCanvas();
+            this.canvases[key] = new Canvas(this, x, y);
         }
     }
 }
