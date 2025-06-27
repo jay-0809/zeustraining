@@ -36,6 +36,8 @@ export class Canvas {
     craeteCanvas() {
         const { ctx, grid } = this;  // Destructure grid and context
         const { cellWidth, cellHeight, dataset } = grid;  // Destructure cell width, height, and dataset
+
+        // const columnNames = dataset.length > 0 ? dataset[0] : [];  // Get column names from dataset
         const columnNames = dataset.length > 0 ? Object.keys(dataset[0]) : [];  // Get column names from dataset
         // console.log(columnNames);
 
@@ -53,36 +55,37 @@ export class Canvas {
                 // Draw top line
                 ctx.beginPath();
                 ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
-                ctx.moveTo(x + 0.5, y + 0.5); 
-                ctx.lineTo(x + grid.cellWidth + 0.5, y + 0.5); 
+                ctx.moveTo(x + 0.5, y + 0.5);
+                ctx.lineTo(x + grid.cellWidth + 0.5, y + 0.5);
                 ctx.stroke();
 
                 // Draw right line
                 ctx.beginPath();
                 ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
-                ctx.moveTo(x + grid.cellWidth + 0.5, y + 0.5); 
-                ctx.lineTo(x + grid.cellWidth + 0.5, y + grid.cellHeight + 0.5); 
+                ctx.moveTo(x + grid.cellWidth + 0.5, y + 0.5);
+                ctx.lineTo(x + grid.cellWidth + 0.5, y + grid.cellHeight + 0.5);
                 ctx.stroke();
 
                 // Draw column names (first row)
                 if (globalRow === 0) {
-                    const dataColIndex = globalCol;
+                    // const dataColIndex = globalCol;
 
-                    if (columnNames[dataColIndex]) {
-                        ctx.fillStyle = "#000";
-                        ctx.font = "bold 14px Arial";
-                        ctx.textAlign = "left";
-                        ctx.textBaseline = "middle";
-                        ctx.fillText(String(columnNames[dataColIndex]).toUpperCase().slice(0, 8), x + 4, y + cellHeight / 2);
-                    }
+                    // if (columnNames[dataColIndex]) {
+                    //     ctx.fillStyle = "#000";
+                    //     ctx.font = "bold 14px Arial";
+                    //     ctx.textAlign = "left";
+                    //     ctx.textBaseline = "middle";
+                    //     ctx.fillText(String(columnNames[dataColIndex]).toUpperCase().slice(0, 8), x + 4, y + cellHeight / 2);
+                    // }
                 } else {
                     // Draw cell data for all other rows (excluding header)
-                    const dataRowIndex = globalRow - 1;  // row 0 = header, 1 = column names
+                    const dataRowIndex = globalRow-1;  // row 0 = header, 1 = column names
                     const dataColIndex = globalCol;  // col 0 = row number header
-
+                    // console.log("dataRowIndex", dataRowIndex, "dataColIndex", dataColIndex);
                     // If there's data available 
                     if (dataset[dataRowIndex] && columnNames[dataColIndex]) {
-                        const cellValue = dataset[dataRowIndex][columnNames[dataColIndex]];
+                        const cellValue = dataset[dataRowIndex][dataColIndex];
+                        // console.log("cellValue", cellValue);
                         if (cellValue !== undefined && cellValue !== null) {
                             ctx.fillStyle = "#000";
                             ctx.font = "14px Arial";
@@ -92,6 +95,26 @@ export class Canvas {
                         }
                     }
                 }
+
+                // // Draw cell data for all other rows (excluding header)
+                // const dataRowIndex = globalRow;  // row 0 = header, 1 = column names
+                // const dataColIndex = globalCol;  // col 0 = row number header
+                // // console.log("dataRowIndex", dataRowIndex, "dataColIndex", dataColIndex);
+                // // If there's data available 
+                // if (dataset[dataRowIndex] && columnNames[dataColIndex]) {
+                //     const cellValue = dataset[dataRowIndex][dataColIndex];
+                //     console.log("cellValue", cellValue);
+                //     if (cellValue !== undefined && cellValue !== null) {
+                //         ctx.fillStyle = "#000";
+                //         if (globalRow === 0) {
+                //             ctx.font = "bold 14px Arial";
+                //         }
+                //         ctx.font = "14px Arial";
+                //         ctx.textAlign = "left";
+                //         ctx.textBaseline = "middle";
+                //         ctx.fillText(String(cellValue).slice(0, 8), x + 4, y + cellHeight / 2);  // Render the cell value
+                //     }
+                // }
             }
         }
     }
@@ -100,6 +123,6 @@ export class Canvas {
      * Method to remove the canvas element from the DOM 
      */
     removeCanvas() {
-        this.canvas.remove();  
+        this.canvas.remove();
     }
 }

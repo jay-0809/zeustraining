@@ -8,18 +8,11 @@ import { Canvas } from "./canvas.js";
 export function handleSelectionClick(e) {
     let slct = document.getElementsByClassName("selection");
     let block = document.getElementsByClassName("selection-block");
-    // let Cellinput = document.getElementsByClassName("cell-input");
-    console.log(slct);
-    console.log(block);
-    // console.log(Cellinput);
 
     if (slct.length !== 0 || block.length !== 0) {
         this.wrapper.removeChild(slct[0]);
         this.wrapper.removeChild(block[0]);
     }
-    // if(Cellinput.length!==0){
-    //     this.wrapper.removeChild(Cellinput[0]);
-    // }
 
     // Create a selection box div
     const select = document.createElement("div");
@@ -36,8 +29,10 @@ export function handleSelectionClick(e) {
     const globalCol = Math.floor(x / this.cellWidth);
     const globalRow = Math.floor(y / this.cellHeight);
 
+    // console.log("X:",x,"Y:",y,"GlobalCOl:",globalCol,"GlobalRow:",globalRow);
+
     // Prevent selecting cells in the header row or column
-    if (globalRow === 0 || globalCol === 0) return;
+    if (globalRow === 0 || globalCol === 0 || globalRow < 0 || globalCol < 0) return;
 
     // Position and display the selection box
     select.style.display = "block";
@@ -75,17 +70,17 @@ export function handleSelectionClick(e) {
         // // Skip editing in header row/column
         // if (globalRow === 0 || globalCol === 0) return;
 
-        // // Determine the canvas block index and local position within the cell
-        // const xIndex = Math.floor(globalCol / this.colsPerCanvas);
-        // const yIndex = Math.floor(globalRow / this.rowsPerCanvas);
-        // const localCol = globalCol % this.colsPerCanvas;
-        // const localRow = globalRow % this.rowsPerCanvas;
-        // const key = `${xIndex}_${yIndex}`;
+        // Determine the canvas block index and local position within the cell
+        const xIndex = Math.floor(globalCol / this.colsPerCanvas);
+        const yIndex = Math.floor(globalRow / this.rowsPerCanvas);
+        const localCol = globalCol % this.colsPerCanvas;
+        const localRow = globalRow % this.rowsPerCanvas;
+        const canvasKey = `${xIndex}_${yIndex}`;
 
-        // // Set data attributes on the input field for identification
-        // cell_input.dataset.key = key;
-        // cell_input.dataset.localRow = localRow;
-        // cell_input.dataset.localCol = localCol;
+        // Set data attributes on the input field for identification
+        cell_input.dataset.canvasKey = canvasKey;
+        cell_input.dataset.localRow = localRow;
+        cell_input.dataset.localCol = localCol;
 
         // Get the column name from the dataset and set the initial value of the input field
         const dataRowIndex = globalRow - 2;
@@ -93,6 +88,8 @@ export function handleSelectionClick(e) {
         const colName = Object.keys(this.dataset[0])[dataColIndex];
         const value = this.dataset[dataRowIndex]?.[colName] || "";
 
+        // console.log("xIndex:", xIndex, "yIndex:", yIndex, "globalCol:", globalCol, "globalRow:", globalRow, "localCol:", localCol, "localRow:", localRow, "canvasKey:", canvasKey);
+        // console.log("cell_input.dataset:", cell_input.dataset, "dataRowIndex:", dataRowIndex, "dataColIndex:", dataColIndex, "colName:", colName, "value:", value);
         // Set the input field's value and position it correctly on the grid
         cell_input.value = value;
         cell_input.style.display = "block";
@@ -113,6 +110,33 @@ export function handleSelectionClick(e) {
 
         // Handle click outside to remove input
         const handleClickOutside = (event) => {
+            // console.log("New value",cell_input.value);
+
+            // Calculate the global row and column based on the canvas index
+            const [xIndex, yIndex] = canvasKey.split("_").map(Number);
+            const globalRow = yIndex * this.rowsPerCanvas + localRow;
+            const globalCol = xIndex * this.colsPerCanvas + localCol;
+
+            // Find the corresponding row and column in the dataset
+            const dataRowIndex = globalRow - 2;
+            const dataColIndex = globalCol - 1;
+
+            // console.log("COL",this.dataset[0].length, "dataRowIndex", dataRowIndex, "dataColIndex", dataColIndex);
+            if ( dataColIndex => this.dataset[0].length) {
+                for (let i = this.dataset[0].length ; i <= dataColIndex; i++) {
+                    this.dataset[0].push("");
+                }
+                // console.log(this.dataset[0]);
+            }
+
+            // Get the column names from the dataset and update the value
+            const columnNames = Object.keys(this.dataset[0]);
+            const columnKey = columnNames[dataColIndex];
+            if (this.dataset[dataRowIndex] && columnKey) {
+                this.dataset[dataRowIndex][columnKey] = cell_input.value;
+            }
+            this.renderCanvases();
+
             if (!cell_input.contains(event.target)) {
                 if (this.wrapper.contains(cell_input)) {
                     this.wrapper.removeChild(cell_input);
@@ -122,7 +146,7 @@ export function handleSelectionClick(e) {
         };
         document.addEventListener("mousedown", handleClickOutside);
     });
-    console.log(select);
+    // console.log(select);
 }
 
 /**
