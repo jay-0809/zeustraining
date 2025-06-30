@@ -15,5 +15,7 @@ export function generateData(rows) {
     data.push([i, firstName, lastName, age, salary]);
   }
 
+  // console.log(data);
+  
   return data;
 }

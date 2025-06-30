@@ -1,4 +1,4 @@
-// Class for createing a single canvas block
+// Class for creating a single canvas block
 export class Canvas {
     /**
      * Constructor for the Canvas instance
@@ -20,26 +20,24 @@ export class Canvas {
         this.canvas.height = grid.rowsPerCanvas * grid.cellHeight;
 
         this.canvas.style.position = "absolute";
-        this.canvas.style.left = `${xIndex * this.canvas.width + 80}px`;  // Offset by {80px} for positioning
-        this.canvas.style.top = `${yIndex * this.canvas.height + 25}px`;  // Offset by {25px} for positioning
+        this.canvas.style.left = `${xIndex * this.canvas.width + 80}px`;  // Offset by 80px for positioning
+        this.canvas.style.top = `${yIndex * this.canvas.height + 25}px`;  // Offset by 25px for positioning
 
         // Append the canvas element to the wrapper
         grid.wrapper.appendChild(this.canvas);
 
         // Initialize canvas by drawing the grid cells and content
-        this.craeteCanvas();
+        this.createCanvas();
     }
 
     /**
      * Method to create and render the canvas cells
      */
-    craeteCanvas() {
+    createCanvas() {
         const { ctx, grid } = this;  // Destructure grid and context
         const { cellWidth, cellHeight, dataset } = grid;  // Destructure cell width, height, and dataset
 
-        // const columnNames = dataset.length > 0 ? dataset[0] : [];  // Get column names from dataset
-        const columnNames = dataset.length > 0 ? Object.keys(dataset[0]) : [];  // Get column names from dataset
-        // console.log(columnNames);
+        // ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         // Draw cells within a canvas block
         for (let r = 0; r < grid.rowsPerCanvas; r++) {
@@ -56,65 +54,33 @@ export class Canvas {
                 ctx.beginPath();
                 ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
                 ctx.moveTo(x + 0.5, y + 0.5);
-                ctx.lineTo(x + grid.cellWidth + 0.5, y + 0.5);
+                ctx.lineTo(x + cellWidth + 0.5, y + 0.5);
                 ctx.stroke();
 
                 // Draw right line
                 ctx.beginPath();
                 ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
-                ctx.moveTo(x + grid.cellWidth + 0.5, y + 0.5);
-                ctx.lineTo(x + grid.cellWidth + 0.5, y + grid.cellHeight + 0.5);
+                ctx.moveTo(x + cellWidth + 0.5, y + 0.5);
+                ctx.lineTo(x + cellWidth + 0.5, y + cellHeight + 0.5);
                 ctx.stroke();
 
-                // Draw column names (first row)
-                if (globalRow === 0) {
-                    // const dataColIndex = globalCol;
+                // Draw cell data for all rows (including header)
+                if (dataset.length > 0) {
+                    ctx.fillStyle = "#000";
+                    ctx.font = (globalRow === 0) ? "bold 14px Arial" : "14px Arial";
+                    ctx.textAlign = "left";
+                    ctx.textBaseline = "middle";
 
-                    // if (columnNames[dataColIndex]) {
-                    //     ctx.fillStyle = "#000";
-                    //     ctx.font = "bold 14px Arial";
-                    //     ctx.textAlign = "left";
-                    //     ctx.textBaseline = "middle";
-                    //     ctx.fillText(String(columnNames[dataColIndex]).toUpperCase().slice(0, 8), x + 4, y + cellHeight / 2);
-                    // }
-                } else {
-                    // Draw cell data for all other rows (excluding header)
-                    const dataRowIndex = globalRow-1;  // row 0 = header, 1 = column names
-                    const dataColIndex = globalCol;  // col 0 = row number header
-                    // console.log("dataRowIndex", dataRowIndex, "dataColIndex", dataColIndex);
-                    // If there's data available 
-                    if (dataset[dataRowIndex] && columnNames[dataColIndex]) {
-                        const cellValue = dataset[dataRowIndex][dataColIndex];
-                        // console.log("cellValue", cellValue);
-                        if (cellValue !== undefined && cellValue !== null) {
-                            ctx.fillStyle = "#000";
-                            ctx.font = "14px Arial";
-                            ctx.textAlign = "left";
-                            ctx.textBaseline = "middle";
-                            ctx.fillText(String(cellValue).slice(0, 8), x + 4, y + cellHeight / 2);  // Render the cell value
-                        }
-                    }
+                    // check dataset globalRow and globalCol bounds
+                    const rowData = dataset[globalRow] || [];
+                    const cellData = rowData[globalCol] || "";
+
+                    const text = (globalRow === 0)
+                        ? String(cellData).toUpperCase().slice(0, 8) 
+                        : String(cellData).slice(0, 8);
+
+                    ctx.fillText(text, x + 4, y + cellHeight / 2);
                 }
-
-                // // Draw cell data for all other rows (excluding header)
-                // const dataRowIndex = globalRow;  // row 0 = header, 1 = column names
-                // const dataColIndex = globalCol;  // col 0 = row number header
-                // // console.log("dataRowIndex", dataRowIndex, "dataColIndex", dataColIndex);
-                // // If there's data available 
-                // if (dataset[dataRowIndex] && columnNames[dataColIndex]) {
-                //     const cellValue = dataset[dataRowIndex][dataColIndex];
-                //     console.log("cellValue", cellValue);
-                //     if (cellValue !== undefined && cellValue !== null) {
-                //         ctx.fillStyle = "#000";
-                //         if (globalRow === 0) {
-                //             ctx.font = "bold 14px Arial";
-                //         }
-                //         ctx.font = "14px Arial";
-                //         ctx.textAlign = "left";
-                //         ctx.textBaseline = "middle";
-                //         ctx.fillText(String(cellValue).slice(0, 8), x + 4, y + cellHeight / 2);  // Render the cell value
-                //     }
-                // }
             }
         }
     }
