@@ -8,7 +8,7 @@ body {
 
     .container {
         padding: 1px;
-        position: relative;
+        position: sticky;
 
         .header {
             width: 100vw;
@@ -101,7 +101,7 @@ body {
         }       
     }
     #wrapper-div {
-            position: relative;
+            position: sticky;
             display: grid;
             min-width: 100%;
             min-height: 100%;

@@ -16,12 +16,14 @@ export class Canvas {
         this.canvas = document.createElement("canvas");
         this.ctx = this.canvas.getContext("2d");
         this.canvas.setAttribute("class", "canvas-div");
-        this.canvas.width = grid.colsPerCanvas * grid.cellWidth;
-        this.canvas.height = grid.rowsPerCanvas * grid.cellHeight;
+        
+        this.canvas.width = (grid.colsPerCanvas * grid.cellWidth);
+        this.canvas.height = (grid.rowsPerCanvas * grid.cellHeight);
 
         this.canvas.style.position = "absolute";
-        this.canvas.style.left = `${xIndex * this.canvas.width + 80}px`;  // Offset by 80px for positioning
-        this.canvas.style.top = `${yIndex * this.canvas.height + 25}px`;  // Offset by 25px for positioning
+        this.canvas.style.left = `${xIndex * this.canvas.width + grid.cellWidth}px`;  // Offset by 80px for positioning
+
+        this.canvas.style.top = `${yIndex * this.canvas.height + grid.cellHeight}px`;  // Offset by 25px for positioning
 
         // Append the canvas element to the wrapper
         grid.wrapper.appendChild(this.canvas);
@@ -47,8 +49,8 @@ export class Canvas {
                 const globalCol = this.xIndex * grid.colsPerCanvas + c;
 
                 // Calculate the X and Y position for the current cell
-                const x = c * cellWidth;
-                const y = r * cellHeight;
+                const x = Math.floor(c * cellWidth);
+                const y = Math.floor(r * cellHeight);
 
                 // Draw top line
                 ctx.beginPath();
@@ -68,12 +70,18 @@ export class Canvas {
                 if (dataset.length > 0) {
                     ctx.fillStyle = "#000";
                     ctx.font = (globalRow === 0) ? "bold 14px Arial" : "14px Arial";
-                    ctx.textAlign = "left";
                     ctx.textBaseline = "middle";
-
+                    
                     // check dataset globalRow and globalCol bounds
                     const rowData = dataset[globalRow] || [];
                     const cellData = rowData[globalCol] || "";
+                    
+                    if (Number(cellData)) {
+                        ctx.textAlign = "left";
+                    } else{
+                        ctx.textAlign = "left";
+                    }
+                    
 
                     const text = (globalRow === 0)
                         ? String(cellData).toUpperCase().slice(0, 8) 
