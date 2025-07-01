@@ -1,4 +1,4 @@
-import { Canvas } from "./canvas.js";
+import { HorizontalCanvas } from "./HeaderCanvases.js";
 // import { selection } from "./selection.js";
 
 /**
@@ -24,7 +24,7 @@ export function handleSelectionClick(e) {
     let globalCol = Math.floor(x / this.cellWidth);
     let globalRow = Math.floor(y / this.cellHeight);
 
-    // console.log("X:", x, "Y:", y, "GlobalCol:", globalCol, "GlobalRow:", globalRow);
+    // console.log("GlobalCol:", globalCol, "GlobalRow:", globalRow);
 
     const selection = (globalCol, globalRow) => {
         // Remove any existing selection or input blocks
@@ -35,6 +35,9 @@ export function handleSelectionClick(e) {
             this.wrapper.removeChild(slct[0]);
             this.wrapper.removeChild(block[0]);
         }
+
+        // HorizontalCanvas.updateHCanvas(globalCol, globalRow);
+        this.renderUpdatedHeaders(globalCol, globalRow)
 
         // Prevent selecting cells with negative indices (outside grid)
         if (globalRow < 0 || globalCol < 0) return;

@@ -29,12 +29,12 @@ export class HorizontalCanvas {
      * @param {*} xIndex - The x-index (column) for the canvas block
      * @param {*} yIndex - The y-index (row) for the canvas block
      */
-    constructor(grid, xIndex, yIndex) {
+    constructor(grid, xIndex, yIndex, globalCol) {
         // Store grid reference and indexes for canvas positioning
         this.grid = grid;
         this.xIndex = xIndex;
         this.yIndex = yIndex;
-        // console.log(xIndex, yIndex);
+        this.globalCol = globalCol || null;
 
         this.canvas = document.createElement("canvas");
         this.ctx = this.canvas.getContext("2d");
@@ -62,7 +62,7 @@ export class HorizontalCanvas {
      * Method to create and render the horizontal header
      */
     createHCanvas() {
-        const { ctx, grid } = this;
+        const { ctx, grid, globalCol } = this;
         const { cellWidth, cellHeight } = grid;
 
         // Draw the horizontal header columns (A, B, C, ...)
@@ -70,16 +70,32 @@ export class HorizontalCanvas {
             // Calculate the X and Y position for the current cell
             const x = c * cellWidth;
             const y = 0;
-            // Draw the header cell
-            ctx.fillStyle = "#f5f5f5";
-            ctx.fillRect(x, y, cellWidth, cellHeight);
 
-            // Draw right line
-            ctx.beginPath();
-            ctx.strokeStyle = "rgba(33, 62, 64, 0.2)";
-            ctx.moveTo(x + cellWidth, y + 2);
-            ctx.lineTo(x + cellWidth, y + cellHeight + 2);
-            ctx.stroke();
+            // Draw the header cell
+            if (c + 1 === (globalCol % grid.colsPerCanvas)) {
+                // console.log((globalCol % 26), c);
+                ctx.fillStyle = "#caead8";
+                ctx.fillRect(x, y, cellWidth, cellHeight);
+
+                // Draw right line
+                ctx.beginPath();
+                ctx.strokeStyle = "#107c41";
+                ctx.lineWidth = 5;
+                ctx.moveTo(x, y + cellHeight + 0.5);
+                ctx.lineTo(x + cellWidth, y + cellHeight + 0.5);
+                ctx.stroke();
+                ctx.lineWidth = 1;
+            } else {
+                ctx.fillStyle = "#f5f5f5";
+                ctx.fillRect(x, y, cellWidth, cellHeight);
+
+                // Draw right line
+                ctx.beginPath();
+                ctx.strokeStyle = "rgba(33, 62, 64, 0.2)";
+                ctx.moveTo(x + cellWidth, y + 2);
+                ctx.lineTo(x + cellWidth, y + cellHeight + 2);
+                ctx.stroke();
+            }
 
             // Generate the label for the column header (A, B, C, ...)
             let label = "", index = c + 1 + (this.xIndex * grid.colsPerCanvas);
@@ -89,6 +105,7 @@ export class HorizontalCanvas {
                 label = String.fromCharCode(((index - 1) % 26) + 65) + label;
                 index = Math.floor((index - 1) / 26);
             }
+
             // Draw the label in the center of each header cell
             ctx.fillStyle = "#333";
             ctx.font = "11pt Segoe UI, sans-serif";
@@ -97,6 +114,7 @@ export class HorizontalCanvas {
             ctx.fillText(label, x + cellWidth / 2, cellHeight / 2);
         }
     }
+
     /**
     * Method to remove the horizontal canvas from the DOM
     */
@@ -111,11 +129,13 @@ export class VerticalCanvas {
      * Constructor for the HorizontalCanvas instance
      * @param {*} grid - Reference to the Grid instance
      */
-    constructor(grid, xIndex, yIndex) {
+    constructor(grid, xIndex, yIndex, globalRow) {
         // Store grid reference and indexes for canvas positioning
         this.grid = grid;
         this.xIndex = xIndex;
         this.yIndex = yIndex;
+        this.globalRow = globalRow || null;
+
         this.canvas = document.createElement("canvas");
         this.ctx = this.canvas.getContext("2d");
 
@@ -141,7 +161,7 @@ export class VerticalCanvas {
      * Method to create and render the horizontal header
      */
     createVCanvas() {
-        const { ctx, grid } = this;
+        const { ctx, grid, globalRow } = this;
 
         // Draw the vertical header rows (1, 2, 3, ...)
         for (let r = 0; r < grid.rowsPerCanvas; r++) {
@@ -149,22 +169,42 @@ export class VerticalCanvas {
             const y = r * grid.cellHeight;
             const x = 0;
 
-            ctx.fillStyle = "#f5f5f5";
-            ctx.fillRect(0, y, grid.cellWidth, grid.cellHeight);
-            // Top line (except the first row)
-            ctx.beginPath();
-            ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
-            ctx.moveTo(x + 0.5, y + 0.5);
-            ctx.lineTo(x + grid.cellWidth + 0.5, y + 0.5);
-            ctx.stroke();
+            // Draw the header cell
+            if (r + 1 === (globalRow % grid.rowsPerCanvas)) {
+                // console.log((globalRow%50), r);
+                ctx.fillStyle = "#caead8";
+                ctx.fillRect(x, y, grid.cellWidth, grid.cellHeight);
 
-            // Right line
-            ctx.beginPath();
-            ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
-            ctx.lineWidth = 1;
-            ctx.moveTo(x + grid.cellWidth, y);
-            ctx.lineTo(x + grid.cellWidth, y + grid.cellHeight);
-            ctx.stroke();
+                // Right line
+                ctx.beginPath();
+                ctx.strokeStyle = "#107c41";
+                ctx.lineWidth = 5;
+                ctx.moveTo(x + grid.cellWidth + 0.5, y);
+                ctx.lineTo(x + grid.cellWidth + 0.5, y + grid.cellHeight);
+                ctx.stroke();
+                ctx.lineWidth = 1;
+
+            } else {
+                ctx.fillStyle = "#f5f5f5";
+                ctx.fillRect(x, y, grid.cellWidth, grid.cellHeight);
+
+                // Top line (except the first row)
+                ctx.beginPath();
+                ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
+                ctx.moveTo(x + 0.5, y + 0.5);
+                ctx.lineTo(x + grid.cellWidth + 0.5, y + 0.5);
+                ctx.stroke();
+
+                // Right line
+                ctx.beginPath();
+                ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
+                ctx.lineWidth = 1;
+                ctx.moveTo(x + grid.cellWidth, y);
+                ctx.lineTo(x + grid.cellWidth, y + grid.cellHeight);
+                ctx.stroke();
+            }
+
+
 
             // Draw the row number in the right of each header cell
             ctx.fillStyle = "#333";

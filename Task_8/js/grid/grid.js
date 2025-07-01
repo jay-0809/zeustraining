@@ -84,8 +84,8 @@ export class Grid {
         return coords;
     }
     /**
-         * Renders the visible headers based on Coordinates.
-         */
+     * Renders the visible headers based on Coordinates.
+     */
     renderHeaders() {
         const visible = this.getCanvasCoords();
         const visibleSet = new Set(visible);
@@ -117,6 +117,43 @@ export class Grid {
         visible.forEach(key => {
             if (!this.vCanvases[key]) {
                 this.vCanvases[key] = new VerticalCanvas(this, key[0], key[1]);
+            }
+        });
+    }
+    /**
+     * Renders headers when selection active for header color change.
+     */
+    renderUpdatedHeaders(globalCol, globalRow) {
+        const visible = this.getCanvasCoords();
+        const visibleSet = new Set(visible);        
+
+        // Remove non-visible horizontal canvas
+        for (let key in this.hCanvases) {
+            if (!visibleSet.has(key)) {
+                this.hCanvases[key].removeCanvas();
+                delete this.hCanvases[key];
+            }
+        }
+
+        // Render visible horizontal canvas
+        visible.forEach(key => {
+            if (!this.hCanvases[key]) {
+                this.hCanvases[key] = new HorizontalCanvas(this, key[0], key[1], globalCol);
+            }
+        });
+
+        // Remove non-visible vertical canvas
+        for (let key in this.vCanvases) {
+            if (!visibleSet.has(key)) {
+                this.vCanvases[key].removeCanvas();
+                delete this.vCanvases[key];
+            }
+        }
+
+        // Render visible vertical canvas
+        visible.forEach(key => {
+            if (!this.vCanvases[key]) {
+                this.vCanvases[key] = new VerticalCanvas(this, key[0], key[1], globalRow);
             }
         });
     }
