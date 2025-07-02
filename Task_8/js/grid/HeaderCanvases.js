@@ -21,7 +21,7 @@ export function topDiv(grid) {
     wrapper.appendChild(topDiv); // Append the created topDiv to the grid wrapper
 }
 
-// Class for creating the horizontal canvas (column headers)
+// Class for creating the horizontal canvas (column headers) 
 export class HorizontalCanvas {
     /**
      * Constructor for the HorizontalCanvas instance
@@ -29,13 +29,13 @@ export class HorizontalCanvas {
      * @param {*} xIndex - The x-index (column) for the canvas block
      * @param {*} yIndex - The y-index (row) for the canvas block
      */
-    constructor(grid, xIndex, yIndex, globalCol) {
+    constructor(grid, xIndex, yIndex, globalCol, globalRow) {
         // Store grid reference and indexes for canvas positioning
         this.grid = grid;
         this.xIndex = xIndex;
         this.yIndex = yIndex;
         this.globalCol = globalCol || null;
-
+        this.globalRow = globalRow || null;
         this.canvas = document.createElement("canvas");
         this.ctx = this.canvas.getContext("2d");
 
@@ -62,7 +62,7 @@ export class HorizontalCanvas {
      * Method to create and render the horizontal header
      */
     createHCanvas() {
-        const { ctx, grid, globalCol } = this;
+        const { ctx, grid, globalCol, globalRow } = this;
         const { cellWidth, cellHeight } = grid;
 
         // Draw the horizontal header columns (A, B, C, ...)
@@ -72,19 +72,42 @@ export class HorizontalCanvas {
             const y = 0;
 
             // Draw the header cell
-            if (c + 1 === (globalCol % grid.colsPerCanvas)) {
-                // console.log((globalCol % 26), c);
+            if (((c + 1) + (this.xIndex * grid.colsPerCanvas)) === globalCol && globalRow === null) {
+                ctx.fillStyle = "#107c41";
+                ctx.fillRect(x, y, cellWidth, cellHeight);
+            } else if (globalRow !== null && globalCol === null) {
                 ctx.fillStyle = "#caead8";
                 ctx.fillRect(x, y, cellWidth, cellHeight);
 
                 // Draw right line
                 ctx.beginPath();
                 ctx.strokeStyle = "#107c41";
+                ctx.moveTo(x + cellWidth, y + 2);
+                ctx.lineTo(x + cellWidth, y + cellHeight + 2);
+                ctx.stroke();
+
+                // Draw bottom line
+                ctx.beginPath();
+                ctx.strokeStyle = "#107c41";
                 ctx.lineWidth = 5;
                 ctx.moveTo(x, y + cellHeight + 0.5);
                 ctx.lineTo(x + cellWidth, y + cellHeight + 0.5);
                 ctx.stroke();
-                ctx.lineWidth = 1;
+                ctx.lineWidth = 0.5;
+            }
+            else if (((c + 1) + (this.xIndex * grid.colsPerCanvas)) === globalCol) {
+                // console.log((globalCol % 26), c);
+                ctx.fillStyle = "#caead8";
+                ctx.fillRect(x, y, cellWidth, cellHeight);
+
+                // Draw bottom line
+                ctx.beginPath();
+                ctx.strokeStyle = "#107c41";
+                ctx.lineWidth = 5;
+                ctx.moveTo(x, y + cellHeight + 0.5);
+                ctx.lineTo(x + cellWidth, y + cellHeight + 0.5);
+                ctx.stroke();
+                ctx.lineWidth = 0.5;
             } else {
                 ctx.fillStyle = "#f5f5f5";
                 ctx.fillRect(x, y, cellWidth, cellHeight);
@@ -107,8 +130,16 @@ export class HorizontalCanvas {
             }
 
             // Draw the label in the center of each header cell
-            ctx.fillStyle = "#333";
-            ctx.font = "11pt Segoe UI, sans-serif";
+            if (globalRow !== null && globalCol === null) {
+                ctx.fillStyle = "#107c41";
+            } else {
+                ctx.fillStyle = c + 1 === (globalCol % grid.colsPerCanvas) && globalRow === null ? "#fff" : "#333";
+            }
+            if (globalRow !== null && globalCol === null) {
+                ctx.font = "bold 11pt Segoe UI, sans-serif";
+            } else {
+                ctx.font = c + 1 === (globalCol % grid.colsPerCanvas) && globalRow === null ? "bold 11pt Segoe UI, sans-serif" : "11pt Segoe UI, sans-serif";
+            }
             ctx.textAlign = "center";
             ctx.textBaseline = "middle";
             ctx.fillText(label, x + cellWidth / 2, cellHeight / 2);
@@ -129,11 +160,12 @@ export class VerticalCanvas {
      * Constructor for the HorizontalCanvas instance
      * @param {*} grid - Reference to the Grid instance
      */
-    constructor(grid, xIndex, yIndex, globalRow) {
+    constructor(grid, xIndex, yIndex, globalCol, globalRow) {
         // Store grid reference and indexes for canvas positioning
         this.grid = grid;
         this.xIndex = xIndex;
         this.yIndex = yIndex;
+        this.globalCol = globalCol || null;
         this.globalRow = globalRow || null;
 
         this.canvas = document.createElement("canvas");
@@ -161,7 +193,7 @@ export class VerticalCanvas {
      * Method to create and render the horizontal header
      */
     createVCanvas() {
-        const { ctx, grid, globalRow } = this;
+        const { ctx, grid, globalCol, globalRow } = this;
 
         // Draw the vertical header rows (1, 2, 3, ...)
         for (let r = 0; r < grid.rowsPerCanvas; r++) {
@@ -169,8 +201,34 @@ export class VerticalCanvas {
             const y = r * grid.cellHeight;
             const x = 0;
 
+            // console.log(((r + 1) + (this.yIndex * grid.rowsPerCanvas)), globalRow);
+            
             // Draw the header cell
-            if (r + 1 === (globalRow % grid.rowsPerCanvas)) {
+            if (((r + 1) + (this.yIndex * grid.rowsPerCanvas)) === globalRow && globalCol === null) {
+                ctx.fillStyle = "#107c41";
+                ctx.fillRect(x, y, grid.cellWidth, grid.cellHeight);
+            } else if (globalRow === null && globalCol !== null) {
+                ctx.fillStyle = "#caead8";
+                ctx.fillRect(x, y, grid.cellWidth, grid.cellHeight);
+
+                // Top line (except the first row)
+                ctx.beginPath();
+                ctx.strokeStyle = "#107c41";
+                // ctx.lineWidth = 0.5;
+                ctx.moveTo(x , y + 0.5);
+                ctx.lineTo(x + grid.cellWidth, y + 0.5);
+                ctx.stroke();
+
+                // Right line
+                ctx.beginPath();
+                ctx.strokeStyle = "#107c41";
+                ctx.lineWidth = 3;
+                ctx.moveTo(x + grid.cellWidth + 0.5, y);
+                ctx.lineTo(x + grid.cellWidth + 0.5, y + grid.cellHeight);
+                ctx.stroke();
+                ctx.lineWidth = 0.5;
+            }
+            else if (((r + 1) + (this.yIndex * grid.rowsPerCanvas)) === globalRow) {
                 // console.log((globalRow%50), r);
                 ctx.fillStyle = "#caead8";
                 ctx.fillRect(x, y, grid.cellWidth, grid.cellHeight);
@@ -191,24 +249,32 @@ export class VerticalCanvas {
                 // Top line (except the first row)
                 ctx.beginPath();
                 ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
-                ctx.moveTo(x + 0.5, y + 0.5);
-                ctx.lineTo(x + grid.cellWidth + 0.5, y + 0.5);
+                ctx.moveTo(x , y + 0.5);
+                ctx.lineTo(x + grid.cellWidth, y + 0.5);
                 ctx.stroke();
 
                 // Right line
                 ctx.beginPath();
                 ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
                 ctx.lineWidth = 1;
-                ctx.moveTo(x + grid.cellWidth, y);
-                ctx.lineTo(x + grid.cellWidth, y + grid.cellHeight);
+                ctx.moveTo(x + grid.cellWidth - 0.5, y);
+                ctx.lineTo(x + grid.cellWidth - 0.5, y + grid.cellHeight);
                 ctx.stroke();
             }
 
 
 
             // Draw the row number in the right of each header cell
-            ctx.fillStyle = "#333";
-            ctx.font = "11pt Segoe UI, sans-serif";
+            if (globalRow === null && globalCol !== null) {
+                ctx.fillStyle = "#107c41";
+            } else {
+                ctx.fillStyle = r + 1 === (globalRow % grid.rowsPerCanvas) && globalCol === null ? "#fff" : "#333";
+            }
+            if (globalRow === null && globalCol !== null) {
+                ctx.font = "bold 11pt Segoe UI, sans-serif";
+            } else {
+                ctx.font = r + 1 === (globalRow % grid.rowsPerCanvas) && globalCol === null ? "bold 11pt Segoe UI, sans-serif" : "11pt Segoe UI, sans-serif";
+            }
             ctx.textAlign = "right";
             ctx.textBaseline = "middle";
             ctx.fillText((r + 1 + (this.yIndex * grid.rowsPerCanvas)).toString(), grid.cellWidth / 2, y + grid.cellHeight / 2);

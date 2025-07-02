@@ -51,7 +51,7 @@ body .container .header .search-tooltip {
   display: none;
   position: absolute;
   width: 10%;
-  top: 90%;
+  top: 40%;
   left: 60%;
   background-color: #f1f1f1;
   color: #333;
@@ -66,6 +66,41 @@ body .container .header .search-tooltip {
   animation-timing-function: linear;
   animation-fill-mode: forwards;
   animation-timing-function: ease-in-out;
+}
+html .container .headerInputs,
+body .container .headerInputs {
+  width: 100vw;
+  margin: 10px 0;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+html .container .headerInputs .cellNum,
+body .container .headerInputs .cellNum {
+  width: 5%;
+  padding: 5px 10px;
+  border: 1px solid rgba(33, 62, 64, 0.2);
+  background: #fff;
+  color: #000;
+  border-radius: 3px;
+  text-transform: uppercase;
+  outline: none;
+}
+html .container .headerInputs .cellValue,
+body .container .headerInputs .cellValue {
+  width: 90%;
+  padding: 5px 10px;
+  border-radius: 3px;
+  border: 1px solid rgba(33, 62, 64, 0.2);
+  background: #fff;
+  color: #000;
+  outline: none;
+  cursor: text;
+}
+html .container .headerInputs .cellValue:hover,
+body .container .headerInputs .cellValue:hover {
+  border: 1px solid #333;
 }
 html #scroll-wrapper,
 body #scroll-wrapper {

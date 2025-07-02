@@ -6,12 +6,13 @@ export class GridEventHandler {
     }
 
     eventLisners() {
-        window.addEventListener('scroll', () => {
+        window.addEventListener('scroll', (e) => {
+            // e.preventDefault();
             this.grid.renderCanvases();
             this.grid.renderHeaders();
         });
 
-        window.addEventListener('click', (e) => handleSelectionClick.call(this.grid, e));      
+        this.grid.wrapper.addEventListener('click', (e) => handleSelectionClick.call(this.grid, e));
     }
 
     display() {

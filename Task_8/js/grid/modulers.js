@@ -5,28 +5,29 @@ import { HorizontalCanvas } from "./HeaderCanvases.js";
  * Handles selection click events on the grid for selecting a cell.
  * When a user clicks on a cell, it creates an input box for editing the cell value.
  * @param {*} e - event.
- */
+ */   
 export function handleSelectionClick(e) {
     // Create a selection box div
     const select = document.createElement("div");
     select.setAttribute("class", "selection");
-
+    
     // Create the input block div
     const sblock = document.createElement("div");
     sblock.setAttribute("class", "selection-block");
-
+    
     // Calculate the x and y position of the click relative to the wrapper and Use getBoundingClientRect for accurate positioning within the wrapper
     const rect = this.wrapper.getBoundingClientRect();
     const x = e.clientX - rect.left + this.wrapper.scrollLeft;
     const y = e.clientY - rect.top + this.wrapper.scrollTop;
-
+    
     // Determine the global column and row based on click position
     let globalCol = Math.floor(x / this.cellWidth);
     let globalRow = Math.floor(y / this.cellHeight);
-
+    
     // console.log("GlobalCol:", globalCol, "GlobalRow:", globalRow);
-
+    
     const selection = (globalCol, globalRow) => {
+        e.preventDefault();
         // Remove any existing selection or input blocks
         let slct = document.getElementsByClassName("selection");
         let block = document.getElementsByClassName("selection-block");
@@ -36,11 +37,12 @@ export function handleSelectionClick(e) {
             this.wrapper.removeChild(block[0]);
         }
 
-        // HorizontalCanvas.updateHCanvas(globalCol, globalRow);
-        this.renderUpdatedHeaders(globalCol, globalRow)
+        // console.log(globalCol, globalRow);
+        this.renderCanvases(globalCol, globalRow);
+        this.renderHeaders(globalCol, globalRow);
 
         // Prevent selecting cells with negative indices (outside grid)
-        if (globalRow < 0 || globalCol < 0) return;
+        if (globalRow <= 0 || globalCol <= 0) return;
 
         // Position and display the selection box
         select.style.display = "block";
@@ -111,6 +113,18 @@ export function handleSelectionClick(e) {
                 break;
             case "Enter":
                 globalRow = Math.min(this.maxRows, globalRow + 1);
+                break;
+            case "c":
+                if (e.ctrlKey) {
+                    handled = false;
+                    // console.log("ctrl + c");
+                }
+                break;
+            case "v":
+                if (e.ctrlKey) {
+                    handled = false;
+                    // console.log("ctrl + v");
+                }
                 break;
             default:
                 handled = false;
@@ -198,8 +212,7 @@ export function handleSelectionClick(e) {
                     }
                 }
             }
-            this.renderCanvases();
-
+            
             // Remove input field
             if (this.wrapper.contains(cell_input)) {
                 this.wrapper.removeChild(cell_input);
@@ -217,13 +230,9 @@ export function handleSelectionClick(e) {
         });
 
         // Handle click outside to remove input and save value
-        const handleClickOutside = (event) => {
-            if (!cell_input.contains(event.target)) {
-                saveValue();
-                document.removeEventListener("mousedown", handleClickOutside);
-            }
-        };
-
-        document.addEventListener("mousedown", handleClickOutside);
+        cell_input.addEventListener("blur", (e)=>{
+            saveValue();
+        })
+        
     });
 }
