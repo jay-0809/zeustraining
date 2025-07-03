@@ -5,7 +5,7 @@ export class GridEventHandler {
         this.grid = grid;
     }
 
-    eventLisners() {
+    eventListeners() {
         window.addEventListener('scroll', (e) => {
             // e.preventDefault();
             this.grid.renderCanvases();

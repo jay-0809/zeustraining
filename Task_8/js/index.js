@@ -14,7 +14,7 @@ const maxRows = 100000;
 const maxCols = 500;
 
 // Generate dataset for the grid
-const myData = generateData(10);
+const myData = generateData(100000);
 // console.log("myData:",myData);
 
 // Initializing grid
