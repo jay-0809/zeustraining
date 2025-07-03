@@ -11,6 +11,8 @@ export class Grid {
     /**
      * Initializes the Grid object.
      * @param {HTMLElement} wrapper Wrapper element to hold the grid.
+     * @param {HTMLElement} cellNum cellNum element to hold the cell number(column row).
+     * @param {HTMLElement} cellValue cellValue element to hold cell value.
      * @param {number} rowsPerCanvas The number of rows per canvas.
      * @param {number} colsPerCanvas The number of columns per canvas.
      * @param {number} maxRows The maximum number of rows in the grid.
@@ -92,10 +94,11 @@ export class Grid {
     /**
      * Renders the visible headers based on Coordinates.
      */
-    renderHeaders(globalCol=1, globalRow=1) {
+    renderHeaders(globalCol = 1, globalRow = 1) {
         const visible = this.getCanvasCoords();
         const visibleSet = new Set(visible);
 
+        // set header cellNum
         let index = globalCol === 0 ? 1 : globalCol, label = "";
         while (index > 0) {
             label = String.fromCharCode(((index - 1) % 26) + 65) + label;
@@ -103,9 +106,16 @@ export class Grid {
         }
         this.cellNum.value = `${label}${globalRow === 0 ? 1 : globalRow}`;
 
-        // check dataset globalRow and globalCol bounds
-        const rowData = this.dataset[globalRow - 1] || [];
-        const cellData = rowData[globalCol - 1] || "";
+        // set header cellValue
+        const row = this.dataset[globalRow-1];
+        let cellData = "";
+        // Check if the Row and Cell exist, then fetch the cell value
+        if (row && typeof row.getCell === "function") {
+            const cell = row.getCell(globalCol-1);
+            if (cell && typeof cell.getValue === "function") {
+                cellData = cell.getValue();
+            }
+        }
         this.cellValue.value = cellData;
 
         // Remove non-visible horizontal canvas
@@ -138,16 +148,16 @@ export class Grid {
             }
         });
     }
-    
+
     /**
      * Renders the visible canvases based on Coordinates.
      * It will remove non-visible canvases and create new ones for the visible areas.
      */
-    renderCanvases(globalCol=0, globalRow=0) {
+    renderCanvases(globalCol = 0, globalRow = 0) {
         const visible = this.getCanvasCoords();
         const visibleSet = new Set(visible);
 
-        console.log(visible);
+        // console.log(visible);
 
 
         // Remove non-visible canvases

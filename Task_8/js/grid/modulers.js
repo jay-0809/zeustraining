@@ -1,41 +1,40 @@
-import { HorizontalCanvas } from "./HeaderCanvases.js";
-// import { selection } from "./selection.js";
+import { Row } from "../structure/row.js";
+import { Cell } from "../structure/cell.js";
 
 /**
  * Handles selection click events on the grid for selecting a cell.
  * When a user clicks on a cell, it creates an input box for editing the cell value.
  * @param {*} e - event.
- */   
+ */
 export function handleSelectionClick(e) {
     // Create a selection box div
     const select = document.createElement("div");
     select.setAttribute("class", "selection");
-    
-    // Create the input block div
+
+    // Create the select block div
     const sblock = document.createElement("div");
     sblock.setAttribute("class", "selection-block");
-    
+
     // Calculate the x and y position of the click relative to the wrapper and Use getBoundingClientRect for accurate positioning within the wrapper
     const rect = this.wrapper.getBoundingClientRect();
     const x = e.clientX - rect.left + this.wrapper.scrollLeft;
     const y = e.clientY - rect.top + this.wrapper.scrollTop;
-    
+
     // Determine the global column and row based on click position
     let globalCol = Math.floor(x / this.cellWidth);
     let globalRow = Math.floor(y / this.cellHeight);
-    
     // console.log("GlobalCol:", globalCol, "GlobalRow:", globalRow);
-    
-    const selection = (globalCol, globalRow) => {
-        e.preventDefault();
-        // Remove any existing selection or input blocks
-        let slct = document.getElementsByClassName("selection");
-        let block = document.getElementsByClassName("selection-block");
 
-        if (slct.length !== 0 || block.length !== 0) {
-            this.wrapper.removeChild(slct[0]);
-            this.wrapper.removeChild(block[0]);
-        }
+    // Remove selection and input divs
+    const clearSelection = () => {
+        document.querySelectorAll(".selection, .selection-block, .cell-input").forEach(el => {
+            if (this.wrapper.contains(el)) this.wrapper.removeChild(el);
+        });
+    };
+
+    const selection = (globalCol, globalRow) => {
+        // e.preventDefault();
+        clearSelection();
 
         // console.log(globalCol, globalRow);
         this.renderCanvases(globalCol, globalRow);
@@ -65,6 +64,102 @@ export function handleSelectionClick(e) {
 
     selection(globalCol, globalRow);
 
+    function inputField(grid, val="") {
+        console.log("click");
+        // Create the input field for editing
+        const cell_input = document.createElement("input");
+        cell_input.setAttribute("class", "cell-input");
+
+        // Determine the canvas block index and local position within the cell
+        const xIndex = Math.floor(globalCol / grid.colsPerCanvas);
+        const yIndex = Math.floor(globalRow / grid.rowsPerCanvas);
+        const localCol = globalCol % grid.colsPerCanvas;
+        const localRow = globalRow % grid.rowsPerCanvas;
+        const canvasKey = `${xIndex}_${yIndex}`;
+
+        // Set data attributes on the input field for identification
+        cell_input.dataset.canvasKey = canvasKey;
+        cell_input.dataset.localRow = localRow;
+        cell_input.dataset.localCol = localCol;
+
+        // Adjust data row/col indexes relative to dataset structure
+        const dataRowIndex = globalRow - 1;
+        const dataColIndex = globalCol - 1;
+
+        // Check if row exists, create if not
+        let row = grid.dataset[dataRowIndex];
+        if (!row) {
+            row = new Row(dataRowIndex);
+            grid.dataset[dataRowIndex] = row;
+        }
+
+        // Check if cell exists in the row, create if not
+        let cell = row.getCell(dataColIndex);
+        if (!cell) {
+            cell = new Cell(dataRowIndex, dataColIndex, "");
+            row.addCell(cell);
+        }
+
+        // Set the value of the input field
+        let value = cell.getValue();
+        cell_input.value = value || val;
+
+        // Position the input field
+        cell_input.style.display = "block";
+        cell_input.style.left = `${globalCol * grid.cellWidth}px`;
+        cell_input.style.top = `${globalRow * grid.cellHeight}px`;
+        cell_input.style.width = `${grid.cellWidth}px`;
+        cell_input.style.height = `${grid.cellHeight}px`;
+
+        clearSelection();
+        // Append the input element to the wrapper
+        grid.wrapper.appendChild(cell_input);
+
+        // Focus the input field after it has been inserted
+        setTimeout(() => {
+            cell_input.focus();
+            // cell_input.select();  // Select all content for editing
+        }, 0);
+
+        let inputRemoved = false;
+        // save value to cell and remove input field
+        const saveValue = () => {
+            if (inputRemoved) return; // Prevent duplicate remove
+            inputRemoved = true;
+
+            // Set the value of the cell when the user presses Enter or clicks outside
+            cell.setValue(cell_input.value);
+
+            // Remove the input field after saving the value
+            if (grid.wrapper.contains(cell_input)) {
+                grid.wrapper.removeChild(cell_input);
+            }
+        };
+
+        // Update input value by Enter click and discard update by Escape
+        cell_input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+                saveValue();
+            } else if (e.key === "Escape") {
+                if (inputRemoved) return; // Prevent duplicate remove
+                inputRemoved = true;
+
+                cell_input.value = "";
+                // Remove the input field after saving the value
+                if (grid.wrapper.contains(cell_input)) {
+                    grid.wrapper.removeChild(cell_input);
+                    selection(globalCol, globalRow);
+                }
+                // clearSelection();
+            }
+        });
+
+        // Handle click outside to remove input and save value
+        cell_input.addEventListener("blur", (e) => {
+            saveValue();
+        })
+    }
+
     document.addEventListener("keydown", (e) => {
         const activeElement = document.activeElement;
         const isInputFocused = activeElement && (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA");
@@ -80,7 +175,6 @@ export function handleSelectionClick(e) {
         switch (e.key) {
             case "ArrowUp":
                 globalRow = Math.max(1, globalRow - 1);
-                
                 break;
             case "ArrowDown":
                 globalRow = Math.min(this.maxRows, globalRow + 1);
@@ -117,17 +211,22 @@ export function handleSelectionClick(e) {
             case "c":
                 if (e.ctrlKey) {
                     handled = false;
-                    // console.log("ctrl + c");
                 }
                 break;
             case "v":
                 if (e.ctrlKey) {
                     handled = false;
-                    // console.log("ctrl + v");
                 }
                 break;
             default:
-                handled = false;
+                // Detect alphanumeric input
+                if (/^[a-zA-Z0-9]$/.test(e.key)) {
+                    handled = false;
+                    inputField(this, e.key);
+                    // console.log("Alphanumeric key:", e.key);
+                } else {
+                    handled = false;
+                }
                 break;
         }
 
@@ -136,103 +235,5 @@ export function handleSelectionClick(e) {
             selection(globalCol, globalRow);
         }
     };
-
-    select.addEventListener('dblclick', (e) => {
-        // e.stopPropagation(); // prevent bubbling up
-
-        // Create the input field for editing
-        const cell_input = document.createElement("input");
-        cell_input.setAttribute("class", "cell-input");
-
-        // Determine the canvas block index and local position within the cell
-        const xIndex = Math.floor(globalCol / this.colsPerCanvas);
-        const yIndex = Math.floor(globalRow / this.rowsPerCanvas);
-        const localCol = globalCol % this.colsPerCanvas;
-        const localRow = globalRow % this.rowsPerCanvas;
-        const canvasKey = `${xIndex}_${yIndex}`;
-
-        // Set data attributes on the input field for identification
-        cell_input.dataset.canvasKey = canvasKey;
-        cell_input.dataset.localRow = localRow;
-        cell_input.dataset.localCol = localCol;
-
-        // Adjust data row/col indexes relative to dataset structure
-        const dataRowIndex = globalRow - 1;
-        const dataColIndex = globalCol - 1;
-
-        // Defensive: check dataRowIndex and dataColIndex bounds
-        let value = "";
-        if (this.dataset.length > dataRowIndex && this.dataset[dataRowIndex]) {
-            value = this.dataset[dataRowIndex][Object.keys(this.dataset[dataRowIndex])[dataColIndex]] || "";
-        }
-
-        // Set the input field's value and position it correctly on the grid
-        cell_input.value = value;
-        cell_input.style.display = "block";
-        cell_input.style.left = `${globalCol * this.cellWidth}px`;
-        cell_input.style.top = `${globalRow * this.cellHeight}px`;
-        cell_input.style.width = `${this.cellWidth}px`;
-        cell_input.style.height = `${this.cellHeight}px`;
-
-        // Append the input element to the wrapper
-        this.wrapper.appendChild(cell_input);
-
-        // Ensure focus happens after DOM insertion
-        setTimeout(() => {
-            cell_input.focus();
-            cell_input.select(); // Select all content for editing
-        }, 0);
-
-        const saveValue = () => {
-            const [xIdx, yIdx] = canvasKey.split("_").map(Number);
-            const gRow = yIdx * this.rowsPerCanvas + localRow;
-            const gCol = xIdx * this.colsPerCanvas + localCol;
-
-            const dataRowIdx = gRow - 1;
-            const dataColIdx = gCol - 1;
-
-            if (dataColIdx >= this.dataset[0].length) {
-                for (let i = this.dataset[0].length; i <= dataColIdx; i++) {
-                    this.dataset[0].push("");
-                }
-            }
-
-            const columnNames = Object.keys(this.dataset[0]);
-            const columnKey = columnNames[dataColIndex];
-            if (this.dataset[dataRowIndex] && columnKey) {
-                this.dataset[dataRowIndex][columnKey] = cell_input.value;
-            }
-
-            if (this.dataset.length > dataRowIdx) {
-                const dataRow = this.dataset[dataRowIdx];
-                if (dataRow) {
-                    const colKey = Object.keys(dataRow)[dataColIdx];
-                    if (colKey) {
-                        dataRow[colKey] = cell_input.value;
-                    }
-                }
-            }
-            
-            // Remove input field
-            if (this.wrapper.contains(cell_input)) {
-                this.wrapper.removeChild(cell_input);
-            }
-        };
-
-        // Update input value by Enter click and discard update by Escape
-        cell_input.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-                saveValue();
-            } else if (e.key === "Escape") {
-                cell_input.value = "";
-                this.wrapper.removeChild(cell_input);
-            }
-        });
-
-        // Handle click outside to remove input and save value
-        cell_input.addEventListener("blur", (e)=>{
-            saveValue();
-        })
-        
-    });
+    select.addEventListener('dblclick', (e)=>{inputField(this)});
 }

@@ -37,11 +37,12 @@ export class Canvas {
 
     /**
      * Method to create and render the canvas cells
-     */
+    */
     createCanvas() {
         const { ctx, grid, selectCol, selectRow } = this;  // Destructure grid and context
         const { cellWidth, cellHeight, dataset } = grid;  // Destructure cell width, height, and dataset
 
+        // console.log("data:", dataset);
         // ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
         // Draw cells within a canvas block
@@ -91,59 +92,69 @@ export class Canvas {
                     // Draw top line
                     ctx.beginPath();
                     ctx.strokeStyle = "#107c41";
-                    ctx.moveTo(x , y + 0.5);
+                    ctx.moveTo(x, y + 0.5);
                     ctx.lineTo(x + cellWidth, y + 0.5);
                     ctx.stroke();
 
                     // Draw top line
                     ctx.beginPath();
                     ctx.strokeStyle = "#107c41";
-                    ctx.moveTo(x + 0.5, y + cellHeight );
-                    ctx.lineTo(x + cellWidth + 0.5, y + cellHeight );
+                    ctx.moveTo(x, y + cellHeight + 0.5);
+                    ctx.lineTo(x + cellWidth, y + cellHeight + 0.5);
                     ctx.stroke();
 
                     // Draw right line
                     ctx.beginPath();
-                    ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
-                    ctx.moveTo(x + cellWidth + 0.5, y );
-                    ctx.lineTo(x + cellWidth + 0.5, y + cellHeight );
+                    ctx.strokeStyle = "rgba(33, 62, 64, 0.3)";
+                    ctx.moveTo(x + cellWidth + 0.3, y);
+                    ctx.lineTo(x + cellWidth + 0.3, y + cellHeight);
                     ctx.stroke();
                 } else {
                     // Draw top line
                     ctx.beginPath();
                     ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
-                    ctx.moveTo(x , y + 0.5);
-                    ctx.lineTo(x + cellWidth , y + 0.5);
+                    ctx.moveTo(x, y + 0.5);
+                    ctx.lineTo(x + cellWidth, y + 0.5);
                     ctx.stroke();
 
                     // Draw right line
                     ctx.beginPath();
                     ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
                     ctx.moveTo(x + cellWidth + 0.5, y);
-                    ctx.lineTo(x + cellWidth + 0.5, y + cellHeight );
+                    ctx.lineTo(x + cellWidth + 0.5, y + cellHeight);
                     ctx.stroke();
                 }
                 // Draw cell data for all rows (including header)
                 if (dataset.length > 0) {
+                    let cellData = "";
+                    // Get the Row object for the globalRow
+                    const row = dataset[globalRow];
+                    
+                    // Check if the Row and Cell exist, then fetch the cell value
+                    if (row && typeof row.getCell === "function") {
+                        const cell = row.getCell(globalCol);
+                        if (cell && typeof cell.getValue === "function") {
+                            cellData = cell.getValue();
+                            // console.log(globalRow, globalCol, cellData);
+                        }
+                    }
+
+                    // Set text style (bold for header row)
                     ctx.fillStyle = "#000";
                     ctx.font = (globalRow === 0) ? "bold 14px Arial" : "14px Arial";
                     ctx.textBaseline = "middle";
-
-                    // check dataset globalRow and globalCol bounds
-                    const rowData = dataset[globalRow] || [];
-                    const cellData = rowData[globalCol] || "";
-
                     if (Number(cellData)) {
                         ctx.textAlign = "left";
                     } else {
                         ctx.textAlign = "left";
                     }
 
-
+                    // Limit text to 8 characters and render it
                     const text = (globalRow === 0)
                         ? String(cellData).toUpperCase().slice(0, 8)
                         : String(cellData).slice(0, 8);
 
+                    // Draw the text inside the cell
                     ctx.fillText(text, x + 4, y + cellHeight / 2);
                 }
             }
