@@ -1,7 +1,7 @@
 // import { Canvas } from './canvas.js';
 // import { GridEventHandler } from './gridEventHandler.js';
 // import { topDiv, HorizontalCanvas, VerticalCanvas } from './HeaderCanvases.js';
-// // import { handleSelectionClick } from './modulers.js';
+// import { handleSelectionClick } from './modulers.js';
 
 // /**
 //  * Grid class for rendering canvases.
@@ -51,12 +51,10 @@
 //         // Initialize horizontal and vertical header canvases
 //         this.hCanvases = {};
 //         this.vCanvases = {};
-//         // this.hCanvas = new HorizontalCanvas(this);
-//         // this.vCanvas = new VerticalCanvas(this);
 
 //         // scroll, click, keyDown - All EventListeners
 //         this.GridEventHandler = new GridEventHandler(this);
-//         this.GridEventHandler.eventLisners();
+//         this.GridEventHandler.eventListeners();
 
 //         this.renderHeaders();
 //         this.renderCanvases();
@@ -193,12 +191,8 @@
 import { Canvas } from './canvas.js';
 import { GridEventHandler } from './gridEventHandler.js';
 import { topDiv, HorizontalCanvas, VerticalCanvas } from './HeaderCanvases.js';
-
-/**
- * Grid class for rendering canvases and handling selection.
- */
 export class Grid {
-    constructor(wrapper, cellNum, cellValue, rowsPerCanvas, colsPerCanvas, maxRows, maxCols, dataset) {
+    constructor(wrapper, cellNum, cellValue, rowsPerCanvas, colsPerCanvas, cellWidth, cellHeight, maxRows, maxCols, dataset) {
         this.wrapper = wrapper;
         this.cellNum = cellNum;
         this.cellValue = cellValue;
@@ -206,20 +200,19 @@ export class Grid {
         this.colsPerCanvas = colsPerCanvas;
         this.maxRows = maxRows;
         this.maxCols = maxCols;
-        this.dataset = dataset || [];
+        this.dataset = dataset || new Map();  // Changed from Array to Map
+        
 
-        this.cellWidth = 80;
-        this.cellHeight = 25;
+        this.colWidths = Array(maxCols).fill(cellWidth);
+        this.rowHeights = Array(maxRows).fill(cellHeight);
+
         this.canvases = {};
-        this.hCanvases = {};
-        this.vCanvases = {};
-
-        this.selectedCols = new Set();
-        this.selectedRows = new Set();
-
-        this.dpr = window.devicePixelRatio || 1;
+        this.dpr = window.devicePixelRatio || 1;     
 
         topDiv(this);
+
+        this.hCanvases = {};
+        this.vCanvases = {};
 
         this.GridEventHandler = new GridEventHandler(this);
         this.GridEventHandler.eventListeners();
@@ -234,10 +227,10 @@ export class Grid {
         const vw = window.innerWidth;
         const vh = window.innerHeight;
 
-        const startCol = Math.floor(scrollX / (this.colsPerCanvas * this.cellWidth));
-        const endCol = Math.floor((scrollX + vw) / (this.colsPerCanvas * this.cellWidth));
-        const startRow = Math.floor(scrollY / (this.rowsPerCanvas * this.cellHeight));
-        const endRow = Math.floor((scrollY + vh) / (this.rowsPerCanvas * this.cellHeight));
+        const startCol = Math.floor(scrollX / (this.colsPerCanvas * this.colWidths[0]));
+        const endCol = Math.floor((scrollX + vw) / (this.colsPerCanvas * this.colWidths[0]));
+        const startRow = Math.floor(scrollY / (this.rowsPerCanvas * this.rowHeights[0]));
+        const endRow = Math.floor((scrollY + vh) / (this.rowsPerCanvas * this.rowHeights[0]));
 
         const coords = [];
         for (let y = startRow; y <= endRow; y++) {
@@ -252,9 +245,8 @@ export class Grid {
 
     renderHeaders(globalCol = 1, globalRow = 1) {
         const visible = this.getCanvasCoords();
-        const visibleKeys = new Set(visible.map(c => JSON.stringify(c)));
+        const visibleSet = new Set(visible);
 
-        // Update header cellNum value (like "A1", "B2")
         let index = globalCol === 0 ? 1 : globalCol, label = "";
         while (index > 0) {
             label = String.fromCharCode(((index - 1) % 26) + 65) + label;
@@ -262,67 +254,58 @@ export class Grid {
         }
         this.cellNum.value = `${label}${globalRow === 0 ? 1 : globalRow}`;
 
-        // Update header cellValue from dataset if available
-        const row = this.dataset[globalRow - 1];
+        // Updated logic: get cell value from Map
         let cellData = "";
-        if (row && typeof row.getCell === "function") {
-            const cell = row.getCell(globalCol - 1);
-            if (cell && typeof cell.getValue === "function") {
-                cellData = cell.getValue();
+        const rowMap = this.dataset.get(globalRow - 1);
+        if (rowMap instanceof Map) {
+            const value = rowMap.get(globalCol - 1);
+            if (value !== undefined) {
+                cellData = value;
             }
         }
         this.cellValue.value = cellData;
 
-        // Remove non-visible horizontal canvases
+        // Clean up and render horizontal canvases
         for (let key in this.hCanvases) {
-            if (!visibleKeys.has(key)) {
+            if (!visibleSet.has(key)) {
                 this.hCanvases[key].removeCanvas();
                 delete this.hCanvases[key];
             }
         }
-
-        // Render visible horizontal canvases
         visible.forEach(key => {
-            const keyStr = JSON.stringify(key);
-            if (!this.hCanvases[keyStr]) {
-                this.hCanvases[keyStr] = new HorizontalCanvas(this, key[0], key[1]);
+            if (!this.hCanvases[key]) {
+                this.hCanvases[key] = new HorizontalCanvas(this, key[0], key[1], globalCol, globalRow);
             }
         });
 
-        // Remove non-visible vertical canvases
+        // Clean up and render vertical canvases
         for (let key in this.vCanvases) {
-            if (!visibleKeys.has(key)) {
+            if (!visibleSet.has(key)) {
                 this.vCanvases[key].removeCanvas();
                 delete this.vCanvases[key];
             }
         }
-
-        // Render visible vertical canvases
         visible.forEach(key => {
-            const keyStr = JSON.stringify(key);
-            if (!this.vCanvases[keyStr]) {
-                this.vCanvases[keyStr] = new VerticalCanvas(this, key[0], key[1]);
+            if (!this.vCanvases[key]) {
+                this.vCanvases[key] = new VerticalCanvas(this, key[0], key[1], globalCol, globalRow);
             }
         });
     }
 
     renderCanvases(globalCol = 0, globalRow = 0) {
         const visible = this.getCanvasCoords();
-        const visibleKeys = new Set(visible.map(c => JSON.stringify(c)));
+        const visibleSet = new Set(visible);
 
-        // Remove non-visible canvases
         for (let key in this.canvases) {
-            if (!visibleKeys.has(key)) {
+            if (!visibleSet.has(key)) {
                 this.canvases[key].removeCanvas();
                 delete this.canvases[key];
             }
         }
 
-        // Render visible canvases
         visible.forEach(key => {
-            const keyStr = JSON.stringify(key);
-            if (!this.canvases[keyStr]) {
-                this.canvases[keyStr] = new Canvas(this, key[0], key[1]);
+            if (!this.canvases[key]) {
+                this.canvases[key] = new Canvas(this, key[0], key[1], globalCol, globalRow);
             }
         });
     }
@@ -337,19 +320,6 @@ export class Grid {
         if (this.canvases[key]) {
             this.canvases[key].removeCanvas();
             this.canvases[key] = new Canvas(this, x, y);
-        }
-    }
-
-    // New method to redraw all headers and canvases after selection changes
-    redrawAll() {
-        for (let key in this.hCanvases) {
-            this.hCanvases[key].createHCanvas();
-        }
-        for (let key in this.vCanvases) {
-            this.vCanvases[key].createVCanvas();
-        }
-        for (let key in this.canvases) {
-            this.canvases[key].createCanvas();
         }
     }
 }

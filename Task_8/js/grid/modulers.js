@@ -65,7 +65,6 @@
 //     selection(globalCol, globalRow);
 
 //     function inputField(grid, val="") {
-//         console.log("click");
 //         // Create the input field for editing
 //         const cell_input = document.createElement("input");
 //         cell_input.setAttribute("class", "cell-input");
@@ -121,11 +120,11 @@
 //             // cell_input.select();  // Select all content for editing
 //         }, 0);
 
-//         let inputRemoved = false;
+//         // let inputRemoved = false;
 //         // save value to cell and remove input field
 //         const saveValue = () => {
-//             if (inputRemoved) return; // Prevent duplicate remove
-//             inputRemoved = true;
+//             // if (inputRemoved) return; // Prevent duplicate remove
+//             // inputRemoved = true;
 
 //             // Set the value of the cell when the user presses Enter or clicks outside
 //             cell.setValue(cell_input.value);
@@ -139,10 +138,12 @@
 //         // Update input value by Enter click and discard update by Escape
 //         cell_input.addEventListener("keydown", (e) => {
 //             if (e.key === "Enter") {
+//                 console.log("Enter");
 //                 saveValue();
 //             } else if (e.key === "Escape") {
-//                 if (inputRemoved) return; // Prevent duplicate remove
-//                 inputRemoved = true;
+//                 console.log("excape");
+//                 // if (inputRemoved) return; // Prevent duplicate remove
+//                 // inputRemoved = true;
 
 //                 cell_input.value = "";
 //                 // Remove the input field after saving the value
@@ -150,13 +151,15 @@
 //                     grid.wrapper.removeChild(cell_input);
 //                     selection(globalCol, globalRow);
 //                 }
-//                 // clearSelection();
 //             }
 //         });
 
 //         // Handle click outside to remove input and save value
 //         cell_input.addEventListener("blur", (e) => {
-//             saveValue();
+//             setTimeout(() => {
+//                 console.log("blur");
+//                 saveValue();
+//             }, 20);
 //         })
 //     }
 
@@ -219,7 +222,7 @@
 //                 }
 //                 break;
 //             default:
-//                 // Detect alphanumeric input
+//                 // on alphanumeric input
 //                 if (/^[a-zA-Z0-9]$/.test(e.key)) {
 //                     handled = false;
 //                     inputField(this, e.key);
@@ -237,198 +240,155 @@
 //     };
 //     select.addEventListener('dblclick', (e)=>{inputField(this)});
 // }
-import { Row } from "../structure/row.js";
-import { Cell } from "../structure/cell.js";
 
-/**
- * Handles selection click events on the grid for selecting and editing a cell.
- * Creates a selection box and allows editing by showing an input field.
- * @param {MouseEvent} e - Mouse event of the click
- */
 export function handleSelectionClick(e) {
-    // 'this' should be bound to Grid instance
+    const select = document.createElement("div");
+    select.setAttribute("class", "selection");
 
-    // Remove any existing selection/input elements first
+    const sblock = document.createElement("div");
+    sblock.setAttribute("class", "selection-block");
+
+    const rect = this.wrapper.getBoundingClientRect();
+    const x = e.clientX - rect.left + window.scrollX;
+    const y = e.clientY - rect.top + window.scrollY;
+
+    // ✅ Account for headers
+    const offsetX = x - this.colWidths[0]; // Skip row header column
+    const offsetY = y - this.rowHeights[0]; // Skip column header row
+
+    let globalCol = -1, globalRow = -1;
+    let xCursor = 0, yCursor = 0;
+
+    for (let i = 1; i < this.colWidths.length; i++) {
+        xCursor += this.colWidths[i];
+        if (offsetX < xCursor) {
+            globalCol = i;
+            break;
+        }
+    }
+
+    for (let j = 1; j < this.rowHeights.length; j++) {
+        yCursor += this.rowHeights[j];
+        if (offsetY < yCursor) {
+            globalRow = j;
+            break;
+        }
+    }
+
     const clearSelection = () => {
         document.querySelectorAll(".selection, .selection-block, .cell-input").forEach(el => {
             if (this.wrapper.contains(el)) this.wrapper.removeChild(el);
         });
     };
 
-    // Calculate click position relative to wrapper and scroll
-    const rect = this.wrapper.getBoundingClientRect();
-    const x = e.clientX - rect.left + this.wrapper.scrollLeft;
-    const y = e.clientY - rect.top + this.wrapper.scrollTop;
+    const getCellPosition = (colIndex, rowIndex) => {
+        const left = this.colWidths.slice(0, colIndex + 1).reduce((sum, w) => sum + w, 0);
+        const top = this.rowHeights.slice(0, rowIndex + 1).reduce((sum, h) => sum + h, 0);
+        return {
+            left,
+            top,
+            width: this.colWidths[colIndex + 1],
+            height: this.rowHeights[rowIndex + 1]
+        };
+    };
 
-    // Determine the global column and row index (1-based for display)
-    // Adjust by subtracting the header offset (first column and row reserved for headers)
-    let globalCol = Math.floor(x / this.cellWidth);
-    let globalRow = Math.floor(y / this.cellHeight);
-
-    // Clamp to valid range, at least 1 because 0 is header or outside
-    if (globalCol < 1) globalCol = 1;
-    if (globalRow < 1) globalRow = 1;
-    if (globalCol > this.maxCols) globalCol = this.maxCols;
-    if (globalRow > this.maxRows) globalRow = this.maxRows;
-
-    // Create selection div and selection-block div for visual highlight
-    const select = document.createElement("div");
-    select.className = "selection";
-
-    const sblock = document.createElement("div");
-    sblock.className = "selection-block";
-
-    // Position and show selection box
-    select.style.position = "absolute";
-    select.style.left = `${globalCol * this.cellWidth}px`;
-    select.style.top = `${globalRow * this.cellHeight}px`;
-    select.style.width = `${this.cellWidth}px`;
-    select.style.height = `${this.cellHeight}px`;
-    select.style.cursor = "cell";
-    select.style.display = "block";
-
-    // Position selection-block (corner drag handle style)
-    sblock.style.position = "absolute";
-    sblock.style.left = `${globalCol * this.cellWidth + this.cellWidth - 5}px`;
-    sblock.style.top = `${globalRow * this.cellHeight + this.cellHeight - 5}px`;
-    sblock.style.display = "block";
-
-    // Clear old selections and add new highlights
-    clearSelection();
-    this.wrapper.appendChild(select);
-    this.wrapper.appendChild(sblock);
-
-    // Update grid rendering for selection highlights
-    this.selectedCols.clear();
-    this.selectedRows.clear();
-    this.selectedCols.add(globalCol);
-    this.selectedRows.add(globalRow);
-    this.redrawAll();
-
-    // Helper to create and show input field for editing the cell
-    const inputField = (grid, val = "") => {
+    const selection = (col, row) => {
         clearSelection();
+        this.renderHeaders(col, row);
+        this.renderCanvases(col, row);
 
-        const cellInput = document.createElement("input");
-        cellInput.className = "cell-input";
-        cellInput.style.position = "absolute";
-        cellInput.style.left = `${globalCol * grid.cellWidth}px`;
-        cellInput.style.top = `${globalRow * grid.cellHeight}px`;
-        cellInput.style.width = `${grid.cellWidth}px`;
-        cellInput.style.height = `${grid.cellHeight}px`;
-        cellInput.value = val;
+        if (row < 1 || col < 1) return;
 
-        // Calculate dataset indices (0-based)
+        const pos = getCellPosition(col - 1, row - 1);
+        select.style.display = `block`;
+        select.style.left = `${pos.left}px`;
+        select.style.top = `${pos.top}px`;
+        select.style.width = `${pos.width}px`;
+        select.style.height = `${pos.height}px`;
+        select.style.cursor = "cell";
+
+        sblock.style.display = `block`;
+        sblock.style.left = `${pos.left + pos.width - 5}px`;
+        sblock.style.top = `${pos.top + pos.height - 5}px`;
+
+        this.wrapper.appendChild(select);
+        this.wrapper.appendChild(sblock);
+    };
+
+    selection(globalCol, globalRow);
+
+    function inputField(grid, val = "") {
+        const cell_input = document.createElement("input");
+        cell_input.setAttribute("class", "cell-input");
+
         const dataRowIndex = globalRow - 1;
         const dataColIndex = globalCol - 1;
 
-        // Ensure row exists
-        let row = grid.dataset[dataRowIndex];
-        if (!row) {
-            row = new Row(dataRowIndex);
-            grid.dataset[dataRowIndex] = row;
+        if (!grid.dataset.has(dataRowIndex)) {
+            grid.dataset.set(dataRowIndex, new Map());
         }
+        const rowMap = grid.dataset.get(dataRowIndex);
+        const value = rowMap.has(dataColIndex) ? rowMap.get(dataColIndex) : val;
+        cell_input.value = value;
 
-        // Ensure cell exists
-        let cell = row.getCell(dataColIndex);
-        if (!cell) {
-            cell = new Cell(dataRowIndex, dataColIndex, "");
-            row.addCell(cell);
-        }
+        const pos = getCellPosition(dataColIndex, dataRowIndex);
+        cell_input.style.display = `block`;
+        cell_input.style.left = `${pos.left}px`;
+        cell_input.style.top = `${pos.top}px`;
+        cell_input.style.width = `${pos.width}px`;
+        cell_input.style.height = `${pos.height}px`;
+        cell_input.style.display = "block";
 
-        // If no initial value given, populate from cell
-        if (!val) {
-            cellInput.value = cell.getValue() || "";
-        }
+        clearSelection();
+        grid.wrapper.appendChild(cell_input);
 
-        grid.wrapper.appendChild(cellInput);
-        cellInput.focus();
-        cellInput.select();
-
-        let inputRemoved = false;
+        setTimeout(() => cell_input.focus(), 0);
 
         const saveValue = () => {
-            if (inputRemoved) return;
-            inputRemoved = true;
-
-            cell.setValue(cellInput.value);
-            if (grid.wrapper.contains(cellInput)) {
-                grid.wrapper.removeChild(cellInput);
+            rowMap.set(dataColIndex, cell_input.value);
+            if (grid.wrapper.contains(cell_input)) {
+                grid.wrapper.removeChild(cell_input);
             }
-            grid.redrawAll();
         };
 
-        cellInput.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") {
-                saveValue();
-            } else if (e.key === "Escape") {
-                inputRemoved = true;
-                if (grid.wrapper.contains(cellInput)) {
-                    grid.wrapper.removeChild(cellInput);
+        cell_input.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") saveValue();
+            else if (e.key === "Escape") {
+                cell_input.value = "";
+                if (grid.wrapper.contains(cell_input)) {
+                    grid.wrapper.removeChild(cell_input);
+                    selection(globalCol, globalRow);
                 }
-                // Restore selection box after cancel
-                clearSelection();
-                grid.selectedCols.add(globalCol);
-                grid.selectedRows.add(globalRow);
-                grid.redrawAll();
             }
         });
 
-        cellInput.addEventListener("blur", () => {
-            saveValue();
+        cell_input.addEventListener("blur", () => {
+            setTimeout(saveValue, 20);
         });
-    };
+    }
 
-    // Double click on selection box to open input for editing
-    select.addEventListener("dblclick", () => {
-        inputField(this);
-    });
-
-    // Keyboard navigation and editing support
     const keyNavigation = (e) => {
-        if (document.activeElement && (document.activeElement.tagName === "INPUT" || document.activeElement.tagName === "TEXTAREA")) {
-            return; // Ignore if editing already
-        }
-
         let handled = true;
 
         switch (e.key) {
-            case "ArrowUp":
-                globalRow = Math.max(1, globalRow - 1);
-                break;
-            case "ArrowDown":
-                globalRow = Math.min(this.maxRows, globalRow + 1);
-                break;
-            case "ArrowLeft":
-                globalCol = Math.max(1, globalCol - 1);
-                break;
-            case "ArrowRight":
-                globalCol = Math.min(this.maxCols, globalCol + 1);
-                break;
+            case "ArrowUp": globalRow = Math.max(1, globalRow - 1); break;
+            case "ArrowDown": globalRow = Math.min(this.maxRows, globalRow + 1); break;
+            case "ArrowLeft": globalCol = Math.max(1, globalCol - 1); break;
+            case "ArrowRight": globalCol = Math.min(this.maxCols, globalCol + 1); break;
             case "Home":
-                if (e.ctrlKey) {
-                    globalCol = 1;
-                    globalRow = 1;
-                } else {
-                    globalCol = 1;
-                }
+                if (e.ctrlKey) { globalCol = 1; globalRow = 1; }
+                else globalCol = 1;
                 break;
             case "Tab":
-                if (e.shiftKey) {
-                    globalCol = Math.max(1, globalCol - 1);
-                } else {
-                    globalCol++;
-                    if (globalCol > this.maxCols) {
-                        globalCol = 1;
-                        globalRow = Math.min(this.maxRows, globalRow + 1);
-                    }
+                globalCol += e.shiftKey ? -1 : 1;
+                if (globalCol <= 0) globalCol = 1;
+                if (globalCol >= this.maxCols) {
+                    globalCol = 1;
+                    globalRow = Math.min(this.maxRows - 1, globalRow + 1);
                 }
                 break;
-            case "Enter":
-                globalRow = Math.min(this.maxRows, globalRow + 1);
-                break;
+            case "Enter": globalRow = Math.min(this.maxRows, globalRow + 1); break;
             default:
-                // For alphanumeric keys, start editing directly with that character
                 if (/^[a-zA-Z0-9]$/.test(e.key)) {
                     handled = false;
                     inputField(this, e.key);
@@ -440,23 +400,184 @@ export function handleSelectionClick(e) {
 
         if (handled) {
             e.preventDefault();
-
-            // Update selection and redraw
-            this.selectedCols.clear();
-            this.selectedRows.clear();
-            this.selectedCols.add(globalCol);
-            this.selectedRows.add(globalRow);
-            this.redrawAll();
-
-            // Move selection box
-            select.style.left = `${globalCol * this.cellWidth}px`;
-            select.style.top = `${globalRow * this.cellHeight}px`;
-
-            sblock.style.left = `${globalCol * this.cellWidth + this.cellWidth - 5}px`;
-            sblock.style.top = `${globalRow * this.cellHeight + this.cellHeight - 5}px`;
+            selection(globalCol, globalRow);
         }
     };
 
-    // Attach keydown listener on document for navigation keys
-    document.addEventListener("keydown", keyNavigation, { once: false });
+    document.addEventListener("keydown", (e) => {
+        const activeElement = document.activeElement;
+        const isInputFocused = activeElement &&
+            (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA");
+
+        if (!isInputFocused) keyNavigation(e);
+    });
+
+    select.addEventListener("dblclick", () => inputField(this));
 }
+
+
+
+
+// /**
+//  * Handles selection click events on the grid for selecting a cell.
+//  * When a user clicks on a cell, it creates an input box for editing the cell value.
+//  * @param {*} e - event.
+//  */
+// export function handleSelectionClick(e) {
+//     const select = document.createElement("div");
+//     select.setAttribute("class", "selection");
+
+//     const sblock = document.createElement("div");
+//     sblock.setAttribute("class", "selection-block");
+
+//     const rect = this.wrapper.getBoundingClientRect();
+//     const x = e.clientX - rect.left + this.wrapper.scrollLeft;
+//     const y = e.clientY - rect.top + this.wrapper.scrollTop;
+
+//     let globalCol = Math.floor(x / this.cellWidth);
+//     let globalRow = Math.floor(y / this.cellHeight);
+
+//     const clearSelection = () => {
+//         document.querySelectorAll(".selection, .selection-block, .cell-input").forEach(el => {
+//             if (this.wrapper.contains(el)) this.wrapper.removeChild(el);
+//         });
+//     };
+
+//     const selection = (globalCol, globalRow) => {
+//         clearSelection();
+//         this.renderCanvases(globalCol, globalRow);
+//         this.renderHeaders(globalCol, globalRow);
+
+//         if (globalRow <= 0 || globalCol <= 0) return;
+
+//         select.style.display = "block";
+//         select.style.left = `${globalCol * this.cellWidth}px`;
+//         select.style.top = `${globalRow * this.cellHeight}px`;
+//         select.style.width = `${this.cellWidth}px`;
+//         select.style.height = `${this.cellHeight}px`;
+//         select.style.cursor = "cell";
+//         select.focus();
+
+//         sblock.style.display = "block";
+//         sblock.style.left = `${globalCol * this.cellWidth + this.cellWidth - 5}px`;
+//         sblock.style.top = `${globalRow * this.cellHeight + this.cellHeight - 5}px`;
+
+//         this.wrapper.appendChild(select);
+//         this.wrapper.appendChild(sblock);
+//     };
+
+//     selection(globalCol, globalRow);
+
+//     function inputField(grid, val = "") {
+//         const cell_input = document.createElement("input");
+//         cell_input.setAttribute("class", "cell-input");
+
+//         const xIndex = Math.floor(globalCol / grid.colsPerCanvas);
+//         const yIndex = Math.floor(globalRow / grid.rowsPerCanvas);
+//         const localCol = globalCol % grid.colsPerCanvas;
+//         const localRow = globalRow % grid.rowsPerCanvas;
+//         const canvasKey = `${xIndex}_${yIndex}`;
+//         cell_input.dataset.canvasKey = canvasKey;
+//         cell_input.dataset.localRow = localRow;
+//         cell_input.dataset.localCol = localCol;
+
+//         const dataRowIndex = globalRow - 1;
+//         const dataColIndex = globalCol - 1;
+
+//         // Create or retrieve row Map
+//         if (!grid.dataset.has(dataRowIndex)) {
+//             grid.dataset.set(dataRowIndex, new Map());
+//         }
+//         const rowMap = grid.dataset.get(dataRowIndex);
+
+//         // Get existing value
+//         const value = rowMap.has(dataColIndex) ? rowMap.get(dataColIndex) : val;
+//         cell_input.value = value || "";
+
+//         cell_input.style.display = `block`;
+//         cell_input.style.left = `${globalCol * grid.cellWidth}px`;
+//         cell_input.style.top = `${globalRow * grid.cellHeight}px`;
+//         cell_input.style.width = `${grid.cellWidth}px`;
+//         cell_input.style.height = `${grid.cellHeight}px`;
+
+//         clearSelection();
+//         grid.wrapper.appendChild(cell_input);
+
+//         setTimeout(() => cell_input.focus(), 0);
+
+//         const saveValue = () => {
+//             rowMap.set(dataColIndex, cell_input.value);
+//             if (grid.wrapper.contains(cell_input)) {
+//                 grid.wrapper.removeChild(cell_input);
+//             }
+//         };
+
+//         cell_input.addEventListener("keydown", (e) => {
+//             if (e.key === "Enter") {
+//                 saveValue();
+//             } else if (e.key === "Escape") {
+//                 cell_input.value = "";
+//                 if (grid.wrapper.contains(cell_input)) {
+//                     grid.wrapper.removeChild(cell_input);
+//                     selection(globalCol, globalRow);
+//                 }
+//             }
+//         });
+
+//         cell_input.addEventListener("blur", () => {
+//             setTimeout(saveValue, 20);
+//         });
+//     }
+
+//     document.addEventListener("keydown", (e) => {
+//         const activeElement = document.activeElement;
+//         const isInputFocused = activeElement && (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA");
+
+//         if (!isInputFocused) keyNavigation(e);
+//     });
+
+//     const keyNavigation = (e) => {
+//         let handled = true;
+
+//         switch (e.key) {
+//             case "ArrowUp": globalRow = Math.max(1, globalRow - 1); break;
+//             case "ArrowDown": globalRow = Math.min(this.maxRows, globalRow + 1); break;
+//             case "ArrowLeft": globalCol = Math.max(1, globalCol - 1); break;
+//             case "ArrowRight": globalCol = Math.min(this.maxCols, globalCol + 1); break;
+//             case "Home":
+//                 if (e.ctrlKey) {
+//                     globalCol = 1;
+//                     globalRow = 1;
+//                 } else {
+//                     globalCol = 1;
+//                 }
+//                 break;
+//             case "Tab":
+//                 globalCol += e.shiftKey ? -1 : 1;
+//                 if (globalCol <= 0) globalCol = 1;
+//                 if (globalCol >= this.maxCols) {
+//                     globalCol = 1;
+//                     globalRow = Math.min(this.maxRows - 1, globalRow + 1);
+//                 }
+//                 break;
+//             case "Enter":
+//                 globalRow = Math.min(this.maxRows, globalRow + 1);
+//                 break;
+//             default:
+//                 if (/^[a-zA-Z0-9]$/.test(e.key)) {
+//                     handled = false;
+//                     inputField(this, e.key);
+//                 } else {
+//                     handled = false;
+//                 }
+//                 break;
+//         }
+
+//         if (handled) {
+//             e.preventDefault();
+//             selection(globalCol, globalRow);
+//         }
+//     };
+
+//     select.addEventListener("dblclick", () => inputField(this));
+// }

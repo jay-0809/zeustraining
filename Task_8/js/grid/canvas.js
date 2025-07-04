@@ -43,7 +43,6 @@
 //         const { cellWidth, cellHeight, dataset } = grid;  // Destructure cell width, height, and dataset
 
 //         // console.log("data:", dataset);
-//         // ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
 //         // Draw cells within a canvas block
 //         for (let r = 0; r < grid.rowsPerCanvas; r++) {
@@ -129,7 +128,7 @@
 //                     let cellData = "";
 //                     // Get the Row object for the globalRow
 //                     const row = dataset[globalRow];
-                    
+
 //                     // Check if the Row and Cell exist, then fetch the cell value
 //                     if (row && typeof row.getCell === "function") {
 //                         const cell = row.getCell(globalCol);
@@ -168,75 +167,269 @@
 //         this.canvas.remove();
 //     }
 // }
+
 export class Canvas {
-    constructor(grid, xIndex, yIndex) {
+    constructor(grid, xIndex, yIndex, selectCol, selectRow) {
         this.grid = grid;
         this.xIndex = xIndex;
         this.yIndex = yIndex;
+        this.selectCol = selectCol || null;
+        this.selectRow = selectRow || null;
+
+        const { colWidths, rowHeights, colsPerCanvas, rowsPerCanvas } = grid;
+
+        // Calculate dynamic width
+        let width = 0;
+        for (let c = 0; c < colsPerCanvas; c++) {
+            width += colWidths[xIndex * colsPerCanvas + c] || 0;
+        }
+        // Calculate dynamic height
+        let height = 0;
+        for (let r = 0; r < rowsPerCanvas; r++) {
+            height += rowHeights[yIndex * rowsPerCanvas + r] || 0;
+        }
 
         this.canvas = document.createElement("canvas");
         this.ctx = this.canvas.getContext("2d");
+        this.canvas.setAttribute("class", "canvas-div");
 
-        this.canvas.width = grid.colsPerCanvas * grid.cellWidth;
-        this.canvas.height = grid.rowsPerCanvas * grid.cellHeight;
+        this.canvas.width = width;
+        this.canvas.height = height;
+
+        // Calculate position offsets
+        let leftOffset = grid.colWidths[0]; // Space for row header
+        for (let i = 0; i < xIndex * colsPerCanvas; i++) {
+            leftOffset += colWidths[i] || 0;
+        }
+
+        let topOffset = grid.rowHeights[0]; // Space for column header
+        for (let i = 0; i < yIndex * rowsPerCanvas; i++) {
+            topOffset += rowHeights[i] || 0;
+        }
 
         this.canvas.style.position = "absolute";
-        this.canvas.style.left = `${this.xIndex * this.canvas.width + grid.cellWidth}px`;
-        this.canvas.style.top = `${this.yIndex * this.canvas.height + grid.cellHeight}px`;
+        this.canvas.style.left = `${leftOffset}px`;
+        this.canvas.style.top = `${topOffset}px`;
 
         grid.wrapper.appendChild(this.canvas);
-
         this.createCanvas();
     }
 
+    // constructor(grid, xIndex, yIndex, selectCol, selectRow) {
+    //     this.grid = grid;
+    //     this.xIndex = xIndex;
+    //     this.yIndex = yIndex;
+    //     this.selectCol = selectCol || null;
+    //     this.selectRow = selectRow || null;
+
+    //     this.canvas = document.createElement("canvas");
+    //     this.ctx = this.canvas.getContext("2d");
+    //     this.canvas.setAttribute("class", "canvas-div");
+
+    //     this.canvas.width = grid.colsPerCanvas * grid.cellWidth;
+    //     this.canvas.height = grid.rowsPerCanvas * grid.cellHeight;
+
+    //     this.canvas.style.position = "absolute";
+    //     this.canvas.style.left = `${xIndex * this.canvas.width + grid.cellWidth}px`;
+    //     this.canvas.style.top = `${yIndex * this.canvas.height + grid.cellHeight}px`;
+
+    //     grid.wrapper.appendChild(this.canvas);
+    //     this.createCanvas();
+    // }
+
+    // createCanvas() {
+    //     const { ctx, grid, selectCol, selectRow } = this;
+    //     const { cellWidth, cellHeight, dataset, rowsPerCanvas, colsPerCanvas } = grid;
+
+    //     ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    //     const startRow = this.yIndex * rowsPerCanvas;
+    //     const startCol = this.xIndex * colsPerCanvas;
+
+    //     // Highlight cell (optional, same logic)
+    //     for (let r = 0; r < rowsPerCanvas; r++) {
+    //         for (let c = 0; c < colsPerCanvas; c++) {
+    //             const globalRow = startRow + r;
+    //             const globalCol = startCol + c;
+
+    //             const x = c * cellWidth;
+    //             const y = r * cellHeight;
+
+    //             const isColSelected = selectRow === null && selectCol === globalCol + 1;
+    //             const isRowSelected = selectCol === null && selectRow === globalRow + 1;
+
+    //             if (isColSelected || isRowSelected) {
+    //                 ctx.fillStyle = "#caead8";
+    //                 ctx.fillRect(x, y, cellWidth, cellHeight);
+    //             }
+
+    //             // Draw cell value
+    //             const rowMap = dataset.get(globalRow);
+    //             let cellData = rowMap instanceof Map ? rowMap.get(globalCol) || "" : "";
+
+    //             ctx.fillStyle = "#000";
+    //             ctx.font = globalRow === 0 ? "bold 14px Arial" : "14px Arial";
+    //             ctx.textBaseline = "middle";
+    //             ctx.textAlign = Number(cellData) ? "right" : "left";
+    //             const text = globalRow === 0 ? String(cellData).slice(0, 8).toUpperCase() : String(cellData).slice(0, 8);
+    //             Number(cellData) ? ctx.fillText(text, x + cellWidth - 5, y + cellHeight / 2) : ctx.fillText(text, x + 4, y + cellHeight / 2);
+    //         }
+    //     }
+
+
+    //     // Draw row lines (horizontal)
+    //     for (let r = 0; r <= rowsPerCanvas; r++) {
+    //         ctx.beginPath();
+    //         if ((selectCol === null && selectRow !== null) && (selectRow === (r + (this.yIndex * grid.rowsPerCanvas)) || selectRow === (r + 1 + (this.yIndex * grid.rowsPerCanvas)))) {
+    //             ctx.strokeStyle = "#107c41";
+    //         } else {
+    //             ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
+    //         }
+    //         const y = r * cellHeight + 0.5;
+    //         ctx.moveTo(0, y);
+    //         ctx.lineTo(colsPerCanvas * cellWidth, y);
+    //         ctx.stroke();
+    //     }
+
+    //     // Draw column lines (vertical)
+    //     for (let c = 0; c <= colsPerCanvas; c++) {
+    //         ctx.beginPath();
+    //         if ((selectCol !== null && selectRow == null) && (selectCol === (c + (this.xIndex * grid.colsPerCanvas)) || selectCol === (c + 1 + (this.xIndex * grid.colsPerCanvas)))) {
+    //             ctx.strokeStyle = "#107c41";
+    //         } else {
+    //             ctx.strokeStyle = "rgba(33, 62, 64, 0.1)";
+    //         }
+    //         const x = c * cellWidth + 0.5;
+    //         ctx.moveTo(x, 0);
+    //         ctx.lineTo(x, rowsPerCanvas * cellHeight);
+    //         ctx.stroke();
+    //     }
+
+    // }
+
     createCanvas() {
-        const { ctx, grid, canvas, xIndex, yIndex } = this;
+        const { ctx, grid, selectCol, selectRow } = this;
+        const { dataset, rowsPerCanvas, colsPerCanvas, colWidths, rowHeights } = grid;
 
-        // ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        for (let r = 0; r < grid.rowsPerCanvas; r++) {
-            for (let c = 0; c < grid.colsPerCanvas; c++) {
-                const globalRow = yIndex * grid.rowsPerCanvas + r + 1;
-                const globalCol = xIndex * grid.colsPerCanvas + c + 1;
+        const startRow = this.yIndex * rowsPerCanvas;
+        const startCol = this.xIndex * colsPerCanvas;
 
-                const x = c * grid.cellWidth;
-                const y = r * grid.cellHeight;
+        let y = 0;
+        for (let r = 0; r < rowsPerCanvas; r++) {
+            let rowHeight = rowHeights[startRow + r];
+            let x = 0;
+            for (let c = 0; c < colsPerCanvas; c++) {
+                let colWidth = colWidths[startCol + c];
+                const globalRow = startRow + r;
+                const globalCol = startCol + c;
 
-                // Highlight if selected column or row
-                if (grid.selectedCols.has(globalCol) || grid.selectedRows.has(globalRow)) {
-                    ctx.fillStyle = "#D0F0D8"; // light green highlight
-                    ctx.fillRect(x, y, grid.cellWidth, grid.cellHeight);
-                } else {
-                    ctx.fillStyle = "#fff";
-                    ctx.fillRect(x, y, grid.cellWidth, grid.cellHeight);
+                const isColSelected = selectRow === null && selectCol === globalCol + 1;
+                const isRowSelected = selectCol === null && selectRow === globalRow + 1;
+
+                if (isColSelected || isRowSelected) {
+                    ctx.fillStyle = "#caead8";
+                    ctx.fillRect(x, y, colWidth, rowHeight);
                 }
 
-                ctx.strokeStyle = "#ccc";
-                ctx.strokeRect(x+0.5, y+0.5, grid.cellWidth + 0.5, grid.cellHeight + 0.5);
-
-                // Draw cell text if available
-                const rowData = grid.dataset[globalRow - 1];
-                let text = "";
-                if (rowData && typeof rowData.getCell === "function") {
-                    const cell = rowData.getCell(globalCol - 1);
-                    if (cell && typeof cell.getValue === "function") {
-                        text = cell.getValue();
-                    }
-                }
+                const rowMap = dataset.get(globalRow);
+                let cellData = rowMap instanceof Map ? rowMap.get(globalCol) || "" : "";
 
                 ctx.fillStyle = "#000";
-                ctx.font = "10pt Segoe UI, sans-serif";
+                ctx.font = globalRow === 0 ? "bold 14px Arial" : "14px Arial";
                 ctx.textBaseline = "middle";
-                ctx.textAlign = "left";
+                ctx.textAlign = Number(cellData) ? "right" : "left";
+                const text = globalRow === 0 ? String(cellData).slice(0, 8).toUpperCase() : String(cellData).slice(0, 8);
+                const textX = Number(cellData) ? x + colWidth - 5 : x + 4;
+                ctx.fillText(text, textX, y + rowHeight / 2);
 
-                ctx.fillText(text, x + 5, y + grid.cellHeight / 2);
+                x += colWidth;
             }
+            y += rowHeight;
+        }
+
+        // Horizontal lines
+        y = 0;
+        for (let r = 0; r <= rowsPerCanvas; r++) {
+            ctx.beginPath();
+            const globalRowIndex = r + startRow;
+            ctx.strokeStyle = (selectCol === null && selectRow !== null &&
+                (selectRow === globalRowIndex || selectRow === globalRowIndex + 1))
+                ? "#107c41" : "rgba(33, 62, 64, 0.1)";
+            ctx.moveTo(0, y + 0.5);
+            ctx.lineTo(this.canvas.width, y + 0.5);
+            ctx.stroke();
+            y += rowHeights[startRow + r] || 0;
+        }
+
+        // Vertical lines
+        let x = 0;
+        for (let c = 0; c <= colsPerCanvas; c++) {
+            ctx.beginPath();
+            const globalColIndex = c + startCol;
+            ctx.strokeStyle = (selectCol !== null && selectRow === null &&
+                (selectCol === globalColIndex || selectCol === globalColIndex + 1))
+                ? "#107c41" : "rgba(33, 62, 64, 0.1)";
+            ctx.moveTo(x + 0.5, 0);
+            ctx.lineTo(x + 0.5, this.canvas.height);
+            ctx.stroke();
+            x += colWidths[startCol + c] || 0;
         }
     }
 
+
+    // createCanvas() {
+    //     const { ctx, grid, selectCol, selectRow } = this;
+    //     const { cellWidth, cellHeight, dataset } = grid;
+
+    //     for (let r = 0; r < grid.rowsPerCanvas; r++) {
+    //         for (let c = 0; c < grid.colsPerCanvas; c++) {
+    //             const globalRow = this.yIndex * grid.rowsPerCanvas + r;
+    //             const globalCol = this.xIndex * grid.colsPerCanvas + c;
+    //             const x = c * cellWidth;
+    //             const y = r * cellHeight;
+
+    //             // Highlighting logic
+    //             const isColSelected = selectRow === null && selectCol === globalCol + 1;
+    //             const isRowSelected = selectCol === null && selectRow === globalRow + 1;
+
+    //             if (isColSelected || isRowSelected) {
+    //                 ctx.fillStyle = "#caead8";
+    //                 ctx.fillRect(x, y, cellWidth, cellHeight);
+    //             }
+
+    //             // Border styles
+    //             ctx.beginPath();
+    //             ctx.strokeStyle = isRowSelected ? "#107c41" : "rgba(33, 62, 64, 0.1)";
+    //             ctx.moveTo(x, y + 0.5);
+    //             ctx.lineTo(x + cellWidth, y + 0.5);
+    //             ctx.stroke();
+
+    //             ctx.beginPath();
+    //             ctx.strokeStyle = isColSelected ? "#107c41" : "rgba(33, 62, 64, 0.1)";
+    //             ctx.moveTo(x + cellWidth + 0.5, y);
+    //             ctx.lineTo(x + cellWidth + 0.5, y + cellHeight);
+    //             ctx.stroke();
+
+    //             // Data rendering
+    //             const rowMap = dataset.get(globalRow);
+    //             let cellData = "";
+    //             if (rowMap instanceof Map && rowMap.has(globalCol)) {
+    //                 cellData = rowMap.get(globalCol);
+    //             }
+
+    //             ctx.fillStyle = "#000";
+    //             ctx.font = (globalRow === 0) ? "bold 14px Arial" : "14px Arial";
+    //             ctx.textBaseline = "middle";
+    //             ctx.textAlign = "left";
+    //             const text = (globalRow === 0) ? String(cellData).slice(0, 8).toUpperCase() : String(cellData).slice(0, 8);
+    //             ctx.fillText(text, x + 4, y + cellHeight / 2);
+    //         }
+    //     }
+    // }
+
     removeCanvas() {
-        if (this.canvas.parentElement) {
-            this.canvas.parentElement.removeChild(this.canvas);
-        }
+        this.canvas.remove();
     }
 }

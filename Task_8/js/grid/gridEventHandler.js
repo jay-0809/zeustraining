@@ -7,7 +7,6 @@ export class GridEventHandler {
 
     eventListeners() {
         window.addEventListener('scroll', (e) => {
-            // e.preventDefault();
             this.grid.renderCanvases();
             this.grid.renderHeaders();
         });

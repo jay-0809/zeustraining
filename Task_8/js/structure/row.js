@@ -2,7 +2,7 @@ export class Row {
   constructor(index, height = 25) {
     this.index = index;
     this.height = height;
-    this.cells = new Map(); // Initialize cells as a Map
+    this.cells = new Map();
   }
 
   resize(newHeight) {

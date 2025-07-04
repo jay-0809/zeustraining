@@ -1,4 +1,4 @@
-import { Grid } from "./grid/grid.js";  
+import { Grid } from "./grid/grid.js";
 import { generateData } from "./data.js";
 
 const wrapper = document.getElementById("wrapper-div");
@@ -9,6 +9,9 @@ const cellValue = document.querySelector(".cellValue");
 const rowsPerCanvas = 50;
 const colsPerCanvas = 26;
 
+const cellWidth = 80;
+const cellHeight = 25;
+
 // Max row & col limits
 const maxRows = 100000;
 const maxCols = 500;
@@ -18,5 +21,5 @@ const myData = generateData(100000);
 // console.log("myData:",myData);
 
 // Initializing grid
-new Grid(wrapper, cellNum, cellValue, rowsPerCanvas, colsPerCanvas, maxRows, maxCols, myData);
-// new Grid(wrapper, rowsPerCanvas, colsPerCanvas, maxRows, maxCols, myData);
+new Grid(wrapper, cellNum, cellValue, rowsPerCanvas, colsPerCanvas, cellWidth, cellHeight, maxRows, maxCols, myData);
+
