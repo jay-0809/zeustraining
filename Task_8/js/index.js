@@ -1,5 +1,6 @@
 import { Grid } from "./grid/grid.js";
 import { generateData } from "./data.js";
+import { GridResizeHandler } from "./grid/resize.js";
 
 const wrapper = document.getElementById("wrapper-div");
 const cellNum = document.querySelector(".cellNum");
@@ -21,5 +22,7 @@ const myData = generateData(100000);
 // console.log("myData:",myData);
 
 // Initializing grid
-new Grid(wrapper, cellNum, cellValue, rowsPerCanvas, colsPerCanvas, cellWidth, cellHeight, maxRows, maxCols, myData);
+const grid = new Grid(wrapper, cellNum, cellValue, rowsPerCanvas, colsPerCanvas, cellWidth, cellHeight, maxRows, maxCols, myData);
 
+// Add resize handler
+new GridResizeHandler(grid);
