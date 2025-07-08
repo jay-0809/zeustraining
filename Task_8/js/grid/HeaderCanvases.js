@@ -1,59 +1,60 @@
 // Function to create and append the top-left sticky corner, horizontal, and vertical canvases
 export function topDiv(grid) {
-    const wrapper = grid.wrapper;
+  const wrapper = grid.wrapper;
 
-    //  Top-left corner 
-    const topDiv = document.createElement("div"); // Create top-left div 
-    topDiv.style.position = "sticky";
-    topDiv.style.top = "0";
-    topDiv.style.left = "0";
-    topDiv.style.backgroundColor = "#f5f5f5";
-    topDiv.style.borderRight = "2px solid #bdbdbd";
-    topDiv.style.borderBottom = "2px solid #bdbdbd";
-    topDiv.style.zIndex = "100000";
-    topDiv.style.width = `${grid.colWidths[0] - 2}px`;
-    topDiv.style.height = `${grid.rowHeights[0] - 2}px`;
-    topDiv.style.cursor = `cell`;
+  //  Top-left corner 
+  const topDiv = document.createElement("div"); // Create top-left div 
+  topDiv.style.position = "sticky";
+  topDiv.style.top = "0";
+  topDiv.style.left = "0";
+  topDiv.style.backgroundColor = "#f5f5f5";
+  topDiv.style.borderRight = "2px solid #bdbdbd";
+  topDiv.style.borderBottom = "2px solid #bdbdbd";
+  topDiv.style.zIndex = "100000";
+  topDiv.style.width = `${grid.colWidths[0] - 2}px`;
+  topDiv.style.height = `${grid.rowHeights[0] - 2}px`;
+  topDiv.style.cursor = `cell`;
 
-    const topRect = document.createElement("div");
-    topRect.setAttribute("class", "top-rect");
-    topDiv.appendChild(topRect);
-    wrapper.appendChild(topDiv); // Append the created topDiv to the grid wrapper
+  const topRect = document.createElement("div");
+  topRect.setAttribute("class", "top-rect");
+  topDiv.appendChild(topRect);
+  wrapper.appendChild(topDiv); // Append the created topDiv to the grid wrapper
 }
 
 // Class for creating the horizontal canvas (column headers)
 export class HorizontalCanvas {
-        /**
-     * Constructor for the HorizontalCanvas instance
-     * @param {*} grid - Reference to the Grid instance
-     * @param {*} xIndex - The x-index (column) for the canvas block
-     * @param {*} yIndex - The y-index (row) for the canvas block
-     */
+  /**
+* Constructor for the HorizontalCanvas instance
+* @param {*} grid - Reference to the Grid instance
+* @param {*} xIndex - The x-index (column) for the canvas block
+* @param {*} yIndex - The y-index (row) for the canvas block
+*/
   constructor(grid, xIndex, yIndex, globalCol, globalRow) {
     // Store grid reference and indexes for canvas positioning
-    this.grid      = grid;
-    this.xIndex    = xIndex;
-    this.yIndex    = yIndex;
+    this.grid = grid;
+    this.xIndex = xIndex;
+    this.yIndex = yIndex;
     this.globalCol = globalCol;
     this.globalRow = globalRow;
 
     const { colWidths, colsPerCanvas, rowHeights } = grid;
+    // console.log(globalCol, globalRow);
 
     // compute tile width
     let tileW = 0;
-    for (let c = 0; c < colsPerCanvas; c++) { 
+    for (let c = 0; c < colsPerCanvas; c++) {
       tileW += colWidths[xIndex * colsPerCanvas + c] || 0;
     }
 
     // make the canvas
     this.canvas = document.createElement("canvas");
-    this.ctx    = this.canvas.getContext("2d");
-    this.canvas.width  = tileW;
+    this.ctx = this.canvas.getContext("2d");
+    this.canvas.width = tileW;
     this.canvas.height = rowHeights[0];
     this.canvas.style.position = "absolute";
-    this.canvas.style.top      = "0";
-    this.canvas.style.zIndex   = "1000";
-    this.canvas.style.cursor   = "col-resize";
+    this.canvas.style.top = "0";
+    this.canvas.style.zIndex = "1000";
+    this.canvas.style.cursor = "cell";
 
     // mark it for resize‐hit
     this.canvas.classList.add("h-canvas");
@@ -67,74 +68,88 @@ export class HorizontalCanvas {
     }
     this.canvas.style.left = `${leftOffset}px`;
 
-        // Append the canvas element to the wrapper
-        grid.wrapper.appendChild(this.canvas);
+    // Append the canvas element to the wrapper
+    grid.wrapper.appendChild(this.canvas);
 
-        // Initial drawing of the horizontal header
-        this.createHCanvas();
+    // Initial drawing of the horizontal header
+    this.createHCanvas();
   }
 
-    /**
-     * Method to create and render the horizontal header
-     */
+  /**
+   * Method to create and render the horizontal header
+   */
   createHCanvas() {
     const { ctx, grid, xIndex, globalCol, globalRow } = this;
-    const { colWidths, colsPerCanvas, rowHeights }   = grid;
+    const { colWidths, colsPerCanvas, rowHeights } = grid;
     const headerH = rowHeights[0];
     const startCol = xIndex * colsPerCanvas;
 
     ctx.clearRect(0, 0, this.canvas.width, headerH);
     // console.log("globalCol", globalCol, "globalRow", globalRow);
-    // console.log("grid", grid.multiSelect);
 
     // Draw the horizontal header columns (A, B, C, ...)
-    let x = 0, y=0;
+    let x = 0, y = 0;
     for (let c = 0; c < colsPerCanvas; c++) {
-        const colIdx = startCol + c;
-        const w      = colWidths[colIdx+1];
-        const sel    = globalCol === colIdx + 1 && globalRow == null;
-        
-        ctx.fillStyle = sel ? "#107c41" : "#f5f5f5";
+      const colIdx = startCol + c;
+      const w = colWidths[colIdx + 1];
+      const sel = globalCol === colIdx + 1 && globalRow == null;
+
+      ctx.fillStyle = sel ? "#107c41" : "#f5f5f5";
+      ctx.fillRect(x, 0, w, headerH);
+
+      // console.log(colIdx, globalCol);
+
+      if (((c + 1) + (this.xIndex * grid.colsPerCanvas)) === globalCol && globalRow === 0) {
+        ctx.fillStyle = "#107c41";
+        ctx.fillRect(x, y, w, headerH);
+      } else if ((((c + 1) + (xIndex * colsPerCanvas)) === globalCol && globalRow !== 0) || globalRow !== 0 && globalCol === 0) {
+        // console.log((globalCol % 26), c);
+        ctx.fillStyle = "#caead8";
         ctx.fillRect(x, 0, w, headerH);
 
-        // console.log(colIdx, globalCol);
-        
-        if (((c + 1) + (this.xIndex * grid.colsPerCanvas)) === globalCol && globalRow === 0) {
-            ctx.fillStyle = "#107c41";
-            ctx.fillRect(x, y, w, headerH);
-        } else if ((((c + 1) + (xIndex * colsPerCanvas)) === globalCol && globalRow !== 0) || globalRow !== 0 && globalCol === 0) {
-            // console.log((globalCol % 26), c);
-            ctx.fillStyle = "#caead8";
-            ctx.fillRect(x, 0, w, headerH);
+        // Draw bottom line
+        ctx.beginPath();
+        ctx.strokeStyle = "#107c41";
+        ctx.lineWidth = 5;
+        ctx.moveTo(x, headerH + 0.5);
+        ctx.lineTo(x + w, headerH + 0.5);
+        ctx.stroke();
+        ctx.lineWidth = 0.5;
+      } else if ((grid.cellSelector?.cellRange?.isValid() && grid.cellSelector?.dragged && grid.multiEditing) &&
+        ((c >= grid.multiSelect.startCol && c <= grid.multiSelect.endCol) ||
+          (c <= grid.multiSelect.startCol && c >= grid.multiSelect.endCol))) {
+        // console.log((globalCol % 26), c);
+        ctx.fillStyle = "#caead8";
+        ctx.fillRect(x, 0, w, headerH);
 
-            // Draw bottom line
-            ctx.beginPath();
-            ctx.strokeStyle = "#107c41";
-            ctx.lineWidth = 5;
-            ctx.moveTo(x, headerH + 0.5);
-            ctx.lineTo(x + w, headerH + 0.5);
-            ctx.stroke();
-            ctx.lineWidth = 0.5;
-        }
+        // Draw bottom line
+        ctx.beginPath();
+        ctx.strokeStyle = "#107c41";
+        ctx.lineWidth = 5;
+        ctx.moveTo(x, headerH + 0.5);
+        ctx.lineTo(x + w, headerH + 0.5);
+        ctx.stroke();
+        ctx.lineWidth = 0.5;
+      }
 
-        // label A, B, C...
-        let label = "", idx = colIdx + 1;
-        while (idx > 0) {
-            label = String.fromCharCode(((idx - 1) % 26) + 65) + label;
-            idx   = Math.floor((idx - 1) / 26);
-        }
+      // label A, B, C...
+      let label = "", idx = colIdx + 1;
+      while (idx > 0) {
+        label = String.fromCharCode(((idx - 1) % 26) + 65) + label;
+        idx = Math.floor((idx - 1) / 26);
+      }
 
-        if (globalRow !== 1 && globalCol === 0) {
-            ctx.fillStyle = "#107c41";
-        } else {
-            ctx.fillStyle = c + 1 === (globalCol % grid.colsPerCanvas) && globalRow === 0 ? "#fff" : "#333";
-        }
-        ctx.font = sel ? "bold 11pt Segoe UI" : "11pt Segoe UI";
-        ctx.textAlign    = "center";
-        ctx.textBaseline = "middle";
-        ctx.fillText(label, x + w/2, headerH/2);
+      if (globalRow !== 1 && globalCol === 0) {
+        ctx.fillStyle = "#107c41";
+      } else {
+        ctx.fillStyle = c + 1 === (globalCol % grid.colsPerCanvas) && globalRow === 0 ? "#fff" : "#333";
+      }
+      ctx.font = sel ? "bold 11pt Segoe UI" : "11pt Segoe UI";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(label, x + w / 2, headerH / 2);
 
-        x += w;
+      x += w;
     }
 
     // draw the vertical grid lines
@@ -148,9 +163,9 @@ export class HorizontalCanvas {
     }
     ctx.stroke();
   }
-    /**
-    * Method to remove the horizontal canvas from the DOM
-    */
+  /**
+  * Method to remove the horizontal canvas from the DOM
+  */
   removeCanvas() {
     this.canvas.remove();
   }
@@ -158,11 +173,11 @@ export class HorizontalCanvas {
 
 export class VerticalCanvas {
   constructor(grid, xIndex, yIndex, globalCol, globalRow) {
-    this.grid      = grid;
-    this.xIndex    = xIndex;
-    this.yIndex    = yIndex;
-        this.globalCol = globalCol || null;
-        this.globalRow = globalRow || null;
+    this.grid = grid;
+    this.xIndex = xIndex;
+    this.yIndex = yIndex;
+    this.globalCol = globalCol || null;
+    this.globalRow = globalRow || null;
 
     const { rowHeights, rowsPerCanvas, colWidths } = grid;
 
@@ -174,13 +189,13 @@ export class VerticalCanvas {
 
     // make the canvas
     this.canvas = document.createElement("canvas");
-    this.ctx    = this.canvas.getContext("2d");
-    this.canvas.width  = colWidths[0];
+    this.ctx = this.canvas.getContext("2d");
+    this.canvas.width = colWidths[0];
     this.canvas.height = height;
     this.canvas.style.position = "absolute";
-    this.canvas.style.left     = "0";
-    this.canvas.style.zIndex   = "1000";
-    this.canvas.style.cursor   = "row-resize";
+    this.canvas.style.left = "0";
+    this.canvas.style.zIndex = "1000";
+    this.canvas.style.cursor = "cell";
 
     // mark it for resize‐hit
     this.canvas.classList.add("v-canvas");
@@ -200,52 +215,67 @@ export class VerticalCanvas {
 
   createVCanvas() {
     const { ctx, grid, yIndex, globalCol, globalRow } = this;
-    const { rowHeights, rowsPerCanvas, colWidths }    = grid;
+    const { rowHeights, rowsPerCanvas, colWidths } = grid;
     const headerW = colWidths[0];
     const startRow = yIndex * rowsPerCanvas;
 
     ctx.clearRect(0, 0, headerW, this.canvas.height);
 
     // console.log("globalCol", globalCol, "globalRow", globalRow);
-    
-    let x=0, y = 0;
+
+    let x = 0, y = 0;
     for (let r = 0; r < rowsPerCanvas; r++) {
-        const rowIdx = startRow + r;
-        const h      = rowHeights[rowIdx+1];
-        const sel    = globalRow === rowIdx + 1 && globalCol == null;
+      const rowIdx = startRow + r;
+      const h = rowHeights[rowIdx + 1];
+      const sel = globalRow === rowIdx + 1 && globalCol == null;
+
+      ctx.fillStyle = sel ? "#107c41" : "#f5f5f5";
+      ctx.fillRect(0, y, headerW, h);
+
+      // Special case for mixed selection
+      if (((r + 1) + (yIndex * rowsPerCanvas)) === globalRow && globalCol === null) {
+        ctx.fillStyle = "#107c41";
+        ctx.fillRect(x, y, headerW, h);
+      } else if ((((r + 1) + (yIndex * rowsPerCanvas)) === globalRow && globalCol !== null) || globalRow === null && globalCol !== null) {
+        // console.log((globalRow%50), r);
+        ctx.fillStyle = "#caead8";
+        ctx.fillRect(x, y, headerW, h);
+
+        // Right line
+        ctx.beginPath();
+        ctx.strokeStyle = "#107c41";
+        ctx.lineWidth = 5;
+        ctx.moveTo(x + headerW + 0.5, y);
+        ctx.lineTo(x + headerW + 0.5, y + h);
+        ctx.stroke();
+        ctx.lineWidth = 1;
+      } else if ((grid.cellSelector?.cellRange?.isValid() && grid.cellSelector?.dragged && grid.multiEditing) &&
+      ((r >= grid.multiSelect.startRow && r <= grid.multiSelect.endRow) ||
+      (r <= grid.multiSelect.startRow && r >= grid.multiSelect.endRow))) {
+        // console.log((globalRow%50), r);
+        ctx.fillStyle = "#caead8";
+        ctx.fillRect(x, y, headerW, h);
         
-        ctx.fillStyle = sel ? "#107c41" : "#f5f5f5";
-        ctx.fillRect(0, y, headerW, h);
+        // Right line
+        ctx.beginPath();
+        ctx.strokeStyle = "#107c41";
+        ctx.lineWidth = 5;
+        ctx.moveTo(x + headerW + 0.5, y);
+        ctx.lineTo(x + headerW + 0.5, y + h);
+        ctx.stroke();
+        ctx.lineWidth = 1;
+      }
+      if (globalRow === null && globalCol !== null) {
+        ctx.fillStyle = "#107c41";
+      } else {
+        ctx.fillStyle = r + 1 === (globalRow % grid.rowsPerCanvas) && globalCol === null ? "#fff" : "#333";
+      }
+      ctx.font = sel ? "bold 11pt Segoe UI" : "11pt Segoe UI";
+      ctx.textAlign = "right";
+      ctx.textBaseline = "middle";
+      ctx.fillText(rowIdx + 1, headerW - 8, y + h / 2);
 
-        // Special case for mixed selection
-        if (((r + 1) + (yIndex * rowsPerCanvas)) === globalRow && globalCol === null) {
-            ctx.fillStyle = "#107c41";
-            ctx.fillRect(x, y, headerW, h);
-        } else if ((((r + 1) + (yIndex * rowsPerCanvas)) === globalRow && globalCol !== null) || globalRow===null && globalCol!==null) {
-            // console.log((globalRow%50), r);
-            ctx.fillStyle = "#caead8";
-            ctx.fillRect(x, y, headerW, h);
-
-            // Right line
-            ctx.beginPath();
-            ctx.strokeStyle = "#107c41";
-            ctx.lineWidth = 5;
-            ctx.moveTo(x + headerW + 0.5, y);
-            ctx.lineTo(x + headerW + 0.5, y + h);
-            ctx.stroke();
-            ctx.lineWidth = 1;
-        }
-        if (globalRow === null && globalCol !== null) {
-            ctx.fillStyle = "#107c41";
-        } else {
-            ctx.fillStyle = r + 1 === (globalRow % grid.rowsPerCanvas) && globalCol === null ? "#fff" : "#333";
-        }
-        ctx.font = sel ? "bold 11pt Segoe UI" : "11pt Segoe UI";
-        ctx.textAlign    = "right";
-        ctx.textBaseline = "middle";
-        ctx.fillText(rowIdx + 1, headerW - 8, y + h/2);
-
-        y += h;
+      y += h;
     }
 
     // draw the horizontal grid lines
@@ -259,9 +289,9 @@ export class VerticalCanvas {
     }
     ctx.stroke();
   }
-    /**
-    * Method to remove the vertical canvas from the DOM
-    */
+  /**
+  * Method to remove the vertical canvas from the DOM
+  */
   removeCanvas() {
     this.canvas.remove();
   }

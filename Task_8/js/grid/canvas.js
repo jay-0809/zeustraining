@@ -1,3 +1,5 @@
+// import { GridResizeHandler } from "./resize.js";
+
 // Class for creating a single canvas block
 export class Canvas {
     /**
@@ -12,6 +14,10 @@ export class Canvas {
         this.yIndex = yIndex;
         this.selectCol = selectCol || null;
         this.selectRow = selectRow || null;
+
+        // this.gridResizeHandler = new GridResizeHandler(grid);
+        // console.log(this.gridResizeHandler.canvasDragLine);
+        
 
         const { colWidths, rowHeights, colsPerCanvas, rowsPerCanvas } = grid;
 
@@ -65,7 +71,11 @@ export class Canvas {
         const startRow = this.yIndex * rowsPerCanvas;
         const startCol = this.xIndex * colsPerCanvas;
 
-        if (this.grid.cellSelector?.cellRange?.isValid() && this.grid.cellSelector?.dragged) {
+        
+        
+        if (this.grid.cellSelector?.cellRange?.isValid() && grid.cellSelector?.dragged && grid.multiEditing) {
+            
+            console.log(this.grid.cellSelector?.cellRange?.isValid(), grid.cellSelector?.dragged , grid.multiEditing);
             this.drawMultiSelection(this.grid.cellSelector.cellRange);
         }
 
@@ -158,6 +168,7 @@ export class Canvas {
                 let col = startCol + c;
                 let colWidth = colWidths[col + 1];
                 if (cellRange.contains(row, col) && (r!==cellRange.startRow || c!==cellRange.startCol)) {
+                // if (cellRange.contains(row, col)) {
                     ctx.fillStyle = "rgba(16, 124, 65, 0.12)";
                     ctx.fillRect(x, y, colWidth, rowHeight);
                 }

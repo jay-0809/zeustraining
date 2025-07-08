@@ -1,7 +1,11 @@
 import { Canvas } from './canvas.js';
 import { GridEventHandler } from './gridEventHandler.js';
 import { topDiv, HorizontalCanvas, VerticalCanvas } from './HeaderCanvases.js';
+import { PointerHandler } from './pointerHandler.js';
+import { GridResizeHandler } from './resize.js';
 import { CellSelector } from './selection.js';
+
+
 /**
  * Grid class for rendering canvases.
  * It handles the rendering and removing canvases, loading data.
@@ -54,12 +58,17 @@ export class Grid {
 
         this.renderHeaders();
         this.renderCanvases();
-
+        
         // scroll, click, keyDown - All EventListeners
-        this.GridEventHandler = new GridEventHandler(this);
-        this.GridEventHandler.eventListeners();
+        // this.GridEventHandler = new GridEventHandler(this);
+        // this.GridEventHandler.eventListeners();
         
         this.cellSelector = new CellSelector(this);
+        this.resizeHandler  = new GridResizeHandler(this);
+        this.pointer = new PointerHandler(this);
+        console.log(this.pointer);
+        
+        this.pointer.registerHandlers();
     }
     /**
      * Gets the coordinates of the canvase based on the current scroll position.
@@ -88,10 +97,10 @@ export class Grid {
         }
         return coords;
     }
-    //     /**
-    //      * Renders the visible headers based on Coordinates.
-    //      */
-    renderHeaders(globalCol=1, globalRow=1) {
+    /**
+     * Renders the visible headers based on Coordinates.
+     */
+    renderHeaders(globalCol = 1, globalRow = 1) {
         const visible = this.getCanvasCoords();
         const visibleSet = new Set(visible);
         // set header cellNum
@@ -104,9 +113,9 @@ export class Grid {
 
         // get cell value from Map
         let cellData = "";
-        const rowMap = this.dataset.get(globalRow - 1);
+        const rowMap = this.multiEditing ? this.dataset.get(globalRow) : this.dataset.get(globalRow - 1);
         if (rowMap instanceof Map) {
-            const value = rowMap.get(globalCol - 1);
+            const value = this.multiEditing ? rowMap.get(globalCol) : rowMap.get(globalCol - 1);
             if (value !== undefined) {
                 cellData = value;
             }
@@ -161,7 +170,7 @@ export class Grid {
                 this.canvases[key] = new Canvas(this, key[0], key[1], globalCol, globalRow);
             }
             // console.log(this.cellSelector?.cellRange?.isValid() && this.cellSelector?.dragged);
-            
+
             if (this.cellSelector?.cellRange?.isValid() && this.cellSelector?.dragged) {
                 this.canvases[key].drawMultiSelection(this.cellSelector.cellRange);
             }

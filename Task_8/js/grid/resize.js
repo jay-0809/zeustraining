@@ -24,17 +24,27 @@ export class GridResizeHandler {
         /** @type {number} Initial height of the row being resized */
         this.startRowHeight = 0;
 
-        this.attachEvents();
+        this.hCanvas = document.querySelector(".h-canvas");
+        this.vCanvas = document.querySelector(".v-canvas");
+
+        // this.attachEvents();
     }
 
     /**
      * Attach all mouse events to enable resizing.
      */
-    attachEvents() {
-        // Mouse move over wrapper: show resize cursor if close to column/row edge
-        this.grid.wrapper.addEventListener('mousemove', (e) => this.onMouseMove(e));
-        // Mouse down: start resizing if close to an edge
-        this.grid.wrapper.addEventListener('mousedown', (e) => this.onMouseDown(e));
+    attachEvents() {      
+        // Mouse down start resizing
+        this.grid.wrapper.addEventListener('pointerdown', (e) => this.onMouseDown(e));
+        // Mouse move over horizontal canvas
+        this.grid.wrapper.addEventListener('pointermove', (e) => this.onMouseMove(e));
+        
+        // console.log(this.hCanvas, this.vCanvas);
+        
+        // // Mouse down start resizing
+        // this.vCanvas.addEventListener('pointerdown', (e) => this.onMouseDown(e));
+        // // Mouse move over horizontal canvas
+        // this.vCanvas.addEventListener('pointermove', (e) => this.onMouseMove(e));
     }
 
     /**
@@ -42,11 +52,11 @@ export class GridResizeHandler {
      * @param {MouseEvent} e
      */
     onMouseMove(e) {
-        const { colIndex, colEdge, rowIndex, rowEdge } = this.getEdgeHit(e);
+        const { colEdge, rowEdge } = this.edge(e);
         if (colEdge) {
-            this.grid.wrapper.style.cursor = 'col-resize';
+            this.hCanvas.style.cursor = 'col-resize';
         } else if (rowEdge) {
-            this.grid.wrapper.style.cursor = 'row-resize';
+            this.vCanvas.style.cursor = 'row-resize';
         } else {
             this.grid.wrapper.style.cursor = '';
         }
@@ -57,7 +67,7 @@ export class GridResizeHandler {
      * @param {MouseEvent} e
      */
     onMouseDown(e) {
-        const { colIndex, colEdge, rowIndex, rowEdge } = this.getEdgeHit(e);
+        const { colIndex, colEdge, rowIndex, rowEdge } = this.edge(e);
 
         if (colEdge) {
             // Start column resize
@@ -66,16 +76,16 @@ export class GridResizeHandler {
 
             this.startX = e.clientX;
             this.startColWidth = this.grid.colWidths[colIndex];
-            document.addEventListener('mousemove', this.onColResize);
-            document.addEventListener('mouseup', this.onColResizeEnd);
+            this.grid.wrapper.addEventListener('pointermove', this.onColResize);
+            this.grid.wrapper.addEventListener('pointerup', this.onColResizeEnd);
         } else if (rowEdge) {
             // Start row resize
             this.resizingRow = rowIndex;
             // console.log(`Resizing row: ${rowIndex}`);
             this.startY = e.clientY;
             this.startRowHeight = this.grid.rowHeights[rowIndex];
-            document.addEventListener('mousemove', this.onRowResize);
-            document.addEventListener('mouseup', this.onRowResizeEnd);
+            this.grid.wrapper.addEventListener('pointermove', this.onRowResize);
+            this.grid.wrapper.addEventListener('pointerup', this.onRowResizeEnd);
         }
     }
 
@@ -84,7 +94,7 @@ export class GridResizeHandler {
      * @param {MouseEvent} e
      * @returns {object} {colIndex, colEdge, rowIndex, rowEdge}
      */
-    getEdgeHit(e) {
+    edge(e) {       
         const rect = this.grid.wrapper.getBoundingClientRect();
         const x = e.clientX - rect.left + window.scrollX;
         const y = e.clientY - rect.top + window.scrollY;
@@ -134,21 +144,23 @@ export class GridResizeHandler {
             const dx = e.clientX - this.startX;
             // Update only the target column width
             let newWidth = Math.max(30, this.startColWidth + dx);
-            this.grid.colWidths[this.resizingCol] = newWidth;
+            this.grid.grid.colWidths[this.resizingCol] = newWidth;
               
-            this.grid.renderCanvases();
-            this.grid.renderHeaders();
+            // console.log(this.grid.colWidths);
+            this.grid.grid.renderHeaders();
         }
     }
-
+    
     /**
      * Mouse up: finish resizing column.
-     */
-    onColResizeEnd = (e) => {
-        this.resizingCol = null;
-        document.removeEventListener('mousemove', this.onColResize);
-        document.removeEventListener('mouseup', this.onColResizeEnd);
-        this.grid.wrapper.style.cursor = '';
+    */
+   onColResizeEnd = (e) => {
+       this.canvasDragLine = false;
+       this.resizingCol = null;
+       this.grid.grid.renderCanvases();
+        this.grid.grid.wrapper.removeEventListener('pointermove', this.onColResize);
+        this.grid.grid.wrapper.removeEventListener('pointerup', this.onColResizeEnd);
+        this.grid.grid.wrapper.style.cursor = '';
     }
 
     /**
@@ -159,19 +171,19 @@ export class GridResizeHandler {
             const dy = e.clientY - this.startY;
             // Update only the target row height
             let newHeight = Math.max(15, this.startRowHeight + dy);
-            this.grid.rowHeights[this.resizingRow] = newHeight;
-            this.grid.renderCanvases();
-            this.grid.renderHeaders();
+            this.grid.grid.rowHeights[this.resizingRow] = newHeight;
+            this.grid.grid.renderHeaders();
         }
     }
-
+    
     /**
      * Mouse up: finish resizing row.
-     */
-    onRowResizeEnd = (e) => {
-        this.resizingRow = null;
-        document.removeEventListener('mousemove', this.onRowResize);
-        document.removeEventListener('mouseup', this.onRowResizeEnd);
-        this.grid.wrapper.style.cursor = '';
+    */
+   onRowResizeEnd = (e) => {
+       this.resizingRow = null;
+       this.grid.grid.renderCanvases();
+        this.grid.grid.wrapper.removeEventListener('pointermove', this.onRowResize);
+        this.grid.grid.wrapper.removeEventListener('pointerup', this.onRowResizeEnd);
+        this.grid.grid.wrapper.style.cursor = '';
     }
 }
