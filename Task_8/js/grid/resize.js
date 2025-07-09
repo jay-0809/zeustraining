@@ -146,8 +146,7 @@ export class GridResizeHandler {
             let newWidth = Math.max(30, this.startColWidth + dx);
             this.grid.grid.colWidths[this.resizingCol] = newWidth;
               
-            // console.log(this.grid.colWidths);
-            this.grid.grid.renderHeaders();
+            this.grid.grid.renderHeaders(0,0);
         }
     }
     

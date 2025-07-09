@@ -115,9 +115,9 @@ export class HorizontalCanvas {
         ctx.lineTo(x + w, headerH + 0.5);
         ctx.stroke();
         ctx.lineWidth = 0.5;
-      } else if ((grid.cellSelector?.cellRange?.isValid() && grid.cellSelector?.dragged && grid.multiEditing) &&
-        ((c >= grid.multiSelect.startCol && c <= grid.multiSelect.endCol) ||
-          (c <= grid.multiSelect.startCol && c >= grid.multiSelect.endCol))) {
+      } else if ((grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) &&
+        ((((c + 1) + (xIndex * colsPerCanvas)) >= grid.multiSelect.startCol && ((c + 1) + (xIndex * colsPerCanvas)) <= grid.multiSelect.endCol) ||
+          (((c + 1) + (xIndex * colsPerCanvas)) <= grid.multiSelect.startCol && ((c + 1) + (xIndex * colsPerCanvas)) >= grid.multiSelect.endCol))) {
         // console.log((globalCol % 26), c);
         ctx.fillStyle = "#caead8";
         ctx.fillRect(x, 0, w, headerH);
@@ -139,7 +139,9 @@ export class HorizontalCanvas {
         idx = Math.floor((idx - 1) / 26);
       }
 
-      if (globalRow !== 1 && globalCol === 0) {
+      if (globalRow !== 1 && globalCol === 0 && (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) &&
+        ((((c + 1) + (xIndex * colsPerCanvas)) >= grid.multiSelect.startCol && ((c + 1) + (xIndex * colsPerCanvas)) <= grid.multiSelect.endCol) ||
+          (((c + 1) + (xIndex * colsPerCanvas)) <= grid.multiSelect.startCol && ((c + 1) + (xIndex * colsPerCanvas)) >= grid.multiSelect.endCol))) {
         ctx.fillStyle = "#107c41";
       } else {
         ctx.fillStyle = c + 1 === (globalCol % grid.colsPerCanvas) && globalRow === 0 ? "#fff" : "#333";
@@ -249,13 +251,12 @@ export class VerticalCanvas {
         ctx.lineTo(x + headerW + 0.5, y + h);
         ctx.stroke();
         ctx.lineWidth = 1;
-      } else if ((grid.cellSelector?.cellRange?.isValid() && grid.cellSelector?.dragged && grid.multiEditing) &&
-      ((r >= grid.multiSelect.startRow && r <= grid.multiSelect.endRow) ||
-      (r <= grid.multiSelect.startRow && r >= grid.multiSelect.endRow))) {
-        // console.log((globalRow%50), r);
+      } else if ((grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) &&
+        ((((r + 1) + (yIndex * rowsPerCanvas)) >= grid.multiSelect.startRow && ((r + 1) + (yIndex * rowsPerCanvas)) <= grid.multiSelect.endRow) ||
+          (((r + 1) + (yIndex * rowsPerCanvas)) <= grid.multiSelect.startRow && ((r + 1) + (yIndex * rowsPerCanvas)) >= grid.multiSelect.endRow))) {
         ctx.fillStyle = "#caead8";
         ctx.fillRect(x, y, headerW, h);
-        
+
         // Right line
         ctx.beginPath();
         ctx.strokeStyle = "#107c41";
@@ -265,7 +266,9 @@ export class VerticalCanvas {
         ctx.stroke();
         ctx.lineWidth = 1;
       }
-      if (globalRow === null && globalCol !== null) {
+      if (globalRow === null && globalCol !== 0 && (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) &&
+        ((((r + 1) + (yIndex * rowsPerCanvas)) >= grid.multiSelect.startRow && ((r + 1) + (yIndex * rowsPerCanvas)) <= grid.multiSelect.endRow) ||
+          (((r + 1) + (yIndex * rowsPerCanvas)) <= grid.multiSelect.startRow && ((r + 1) + (yIndex * rowsPerCanvas)) >= grid.multiSelect.endRow))) {
         ctx.fillStyle = "#107c41";
       } else {
         ctx.fillStyle = r + 1 === (globalRow % grid.rowsPerCanvas) && globalCol === null ? "#fff" : "#333";
@@ -283,7 +286,7 @@ export class VerticalCanvas {
     ctx.strokeStyle = "rgba(33,62,64,0.2)";
     y = 0;
     for (let r = 0; r <= rowsPerCanvas; r++) {
-      ctx.moveTo(0, y + 0.5);
+      ctx.moveTo(0, y);
       ctx.lineTo(headerW, y + 0.5);
       y += rowHeights[startRow + 1 + r] || 0;
     }

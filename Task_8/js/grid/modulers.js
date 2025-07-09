@@ -12,23 +12,23 @@ export function handleSelectionClick(e) {
     sblock.setAttribute("class", "selection-block");
 
     // Calculate the x and y position of the click relative to the wrapper and Use getBoundingClientRect for accurate positioning within the wrapper
-    const rect = this.wrapper.getBoundingClientRect();
+    const rect = this.grid.wrapper.getBoundingClientRect();
     const x = e.clientX - rect.left + window.scrollX;
     const y = e.clientY - rect.top + window.scrollY;
 
     let globalCol = -1, globalRow = -1;
     let xCursor = 0, yCursor = 0;
 
-    for (let i = 0; i < this.colWidths.length; i++) {
-        xCursor += this.colWidths[i];
+    for (let i = 0; i < this.grid.colWidths.length; i++) {
+        xCursor += this.grid.colWidths[i];
         if (x < xCursor) {
             globalCol = i;
             break;
         }
     }
 
-    for (let j = 0; j < this.rowHeights.length; j++) {
-        yCursor += this.rowHeights[j];
+    for (let j = 0; j < this.grid.rowHeights.length; j++) {
+        yCursor += this.grid.rowHeights[j];
         if (y < yCursor) {
             globalRow = j;
             break;
@@ -38,48 +38,48 @@ export function handleSelectionClick(e) {
     // Remove selection and input divs
     const clearSelection = () => {
         document.querySelectorAll(".selection, .selection-block, .cell-input").forEach(el => {
-            if (this.wrapper.contains(el)) this.wrapper.removeChild(el);
+            if (this.grid.wrapper.contains(el)) this.grid.wrapper.removeChild(el);
         });
     };
     // get selection and input divs position
-    const getCellPosition = (colIndex, rowIndex) => {      
-        const left = this.colWidths.slice(0, colIndex).reduce((sum, w) => sum + w, 0);
-        const top = this.rowHeights.slice(0, rowIndex).reduce((sum, h) => sum + h, 0);
+    const getCellPosition = (colIndex, rowIndex) => {
+        const left = this.grid.colWidths.slice(0, colIndex).reduce((sum, w) => sum + w, 0);
+        const top = this.grid.rowHeights.slice(0, rowIndex).reduce((sum, h) => sum + h, 0);
         return {
             left,
             top,
-            width: this.colWidths[colIndex],
-            height: this.rowHeights[rowIndex],
+            width: this.grid.colWidths[colIndex],
+            height: this.grid.rowHeights[rowIndex],
         };
     };
 
     const selection = (col, row) => {
         clearSelection();
-        this.renderHeaders(col, row);
-        this.renderCanvases(col, row);
+        this.grid.renderHeaders(col, row);
+        this.grid.renderCanvases(col, row);
+        // console.log(this.grid.multiEditing);
 
-        if (this.multiEditing) {
+        if (this.grid.multiEditing) {
             // Prevent selecting cells with negative indices (outside grid)
-            // if (col === 0 || row === 0) return;
+            if (col === 0 || row === 0) return;
 
-            console.log("in multi");
-
+            console.log('multi');
             // Position and display the selection box
-            const pos = getCellPosition(col + 1, row + 1);
+            const pos = getCellPosition(col, row);
             select.style.display = `block`;
             select.style.left = `${pos.left}px`;
             select.style.top = `${pos.top}px`;
             select.style.width = `${pos.width}px`;
             select.style.height = `${pos.height}px`;
+            select.style.border = `none`;
             select.style.cursor = "cell";
 
-            this.wrapper.appendChild(select);
+            this.grid.wrapper.appendChild(select);
         } else {
             // Prevent selecting cells with negative indices (outside grid)
             if (col === 0 || row === 0) return;
 
-            console.log("in single");
-
+            console.log('single');
             // Position and display the selection box
             const pos = getCellPosition(col, row);
             select.style.display = `block`;
@@ -93,11 +93,9 @@ export function handleSelectionClick(e) {
             sblock.style.left = `${pos.left + pos.width - 5}px`;
             sblock.style.top = `${pos.top + pos.height - 5}px`;
 
-            this.wrapper.appendChild(select);
-            this.wrapper.appendChild(sblock);
+            this.grid.wrapper.appendChild(select);
+            this.grid.wrapper.appendChild(sblock);
         }
-
-
     };
 
     selection(globalCol, globalRow);
@@ -108,18 +106,10 @@ export function handleSelectionClick(e) {
         cell_input.setAttribute("class", "cell-input");
 
         if (globalCol === 0 || globalRow === 0) return;
-        let dataRowIndex = 0, dataColIndex = 0;
 
-        if (grid.multiEditing) {
-            // Determine the canvas block index position within the cell
-            dataRowIndex = globalRow;
-            dataColIndex = globalCol;
-        } else {
-            // Determine the canvas block index position within the cell
-            dataRowIndex = globalRow-1;
-            dataColIndex = globalCol-1;
-        }
-        console.log("globalCol", globalCol, "globalRow", globalRow);
+        let dataRowIndex = globalRow - 1;
+        let dataColIndex = globalCol - 1;
+        // console.log("globalCol", globalCol, "globalRow", globalRow);
         // console.log("dataColIndex", dataColIndex, "dataRowIndex", dataRowIndex);
 
         if (!grid.dataset.has(dataRowIndex)) {
@@ -137,7 +127,6 @@ export function handleSelectionClick(e) {
         cell_input.style.top = `${pos.top}px`;
         cell_input.style.width = `${pos.width}px`;
         cell_input.style.height = `${pos.height}px`;
-        cell_input.style.display = "block";
 
         clearSelection();
         // Append the input element to the wrapper
@@ -149,13 +138,11 @@ export function handleSelectionClick(e) {
         // save value to cell and remove input field
         const saveValue = () => {
             rowMap.set(dataColIndex, cell_input.value);
-            if (grid.wrapper.contains(cell_input)) {
-                grid.wrapper.removeChild(cell_input);
-            }
         };
+
         // Update input value by Enter click and discard update by Escape
         cell_input.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") saveValue();
+            if (e.key === "Enter") { saveValue(); selection(globalCol, globalRow); }
             else if (e.key === "Escape") {
                 cell_input.value = "";
                 if (grid.wrapper.contains(cell_input)) {
@@ -167,18 +154,20 @@ export function handleSelectionClick(e) {
 
         // Handle click outside to remove input and save value
         cell_input.addEventListener("blur", () => {
-            setTimeout(saveValue, 20);
+            saveValue()
         });
     }
 
     const keyNavigation = (e) => {
+        // console.log("key",e.key);
+
         let handled = true;
 
-        if (this.multiEditing) {
-            const range = this.multiSelect;
-            
-            let { row, col } = this.multiCursor;
-            console.log(row, range.endRow, col, range.endRow);
+        if (this.grid.multiEditing) {
+            const range = this.grid.multiSelect;
+
+            let { row, col } = this.grid.multiCursor;
+            // console.log(row, range.endRow, col, range.endRow);
             if (e.key === "Tab") {
                 col++;
                 if (col > range.endCol) {
@@ -188,29 +177,32 @@ export function handleSelectionClick(e) {
                 }
             } else if (e.key === "Enter") {
                 row++;
+                // console.log("row", row);
+
                 if (row > range.endRow) {
                     row = range.startRow;
                     col++;
+                    // console.log("col", col);
                     if (col > range.endCol) col = range.startCol;
                 }
             } else if (e.key === "ArrowUp") {
-                this.multiEditing = false;
+                this.grid.multiEditing = false;
             } else if (e.key === "ArrowDown") {
-                this.multiEditing = false;
+                this.grid.multiEditing = false;
             } else if (e.key === "ArrowLeft") {
-                this.multiEditing = false;
+                this.grid.multiEditing = false;
             } else if (e.key === "ArrowRight") {
-                this.multiEditing = false;
+                this.grid.multiEditing = false;
             } else {
                 // Alphanumeric input
                 if (/^[a-zA-Z0-9]$/.test(e.key)) {
-                    inputField(this, e.key);
+                    inputField(this.grid, e.key);
                 }
                 return;
             }
-            if (this.multiEditing) {
+            if (this.grid.multiEditing) {
                 e.preventDefault();
-                this.multiCursor = { row, col };
+                this.grid.multiCursor = { row, col };
                 globalCol = col;
                 globalRow = row;
                 selection(col, row);
@@ -220,20 +212,20 @@ export function handleSelectionClick(e) {
         }
         // console.log("globalCol", globalCol, "globalRow", globalRow);
 
-        this.multiEditing = false;
+        this.grid.multiEditing = false;
         switch (e.key) {
             case "ArrowUp":
                 globalRow = Math.max(1, globalRow - 1);
                 break;
             case "ArrowDown":
-                globalRow = Math.min(this.maxRows, globalRow + 1);
+                globalRow = Math.min(this.grid.maxRows, globalRow + 1);
                 break;
             case "ArrowLeft":
                 globalCol = Math.max(1, globalCol - 1);
                 break;
             case "ArrowRight":
-                globalCol = Math.min(this.maxCols, globalCol + 1);
-                console.log("globalCol", globalCol, "globalRow", globalRow);
+                globalCol = Math.min(this.grid.maxCols, globalCol + 1);
+                // console.log("globalCol", globalCol, "globalRow", globalRow);
                 break;
             case "Home":
                 if (e.ctrlKey) { globalCol = 1; globalRow = 1; }
@@ -242,16 +234,16 @@ export function handleSelectionClick(e) {
             case "Tab":
                 globalCol += e.shiftKey ? -1 : 1;
                 if (globalCol <= 0) globalCol = 1;
-                if (globalCol >= this.maxCols) {
+                if (globalCol >= this.grid.maxCols) {
                     globalCol = 1;
-                    globalRow = Math.min(this.maxRows - 1, globalRow + 1);
+                    globalRow = Math.min(this.grid.maxRows - 1, globalRow + 1);
                 }
                 break;
-            case "Enter": globalRow = Math.min(this.maxRows, globalRow + 1); break;
+            case "Enter": globalRow = Math.min(this.grid.maxRows, globalRow + 1); break;
             default:
                 if (/^[a-zA-Z0-9]$/.test(e.key)) {
                     handled = false;
-                    inputField(this, e.key);
+                    inputField(this.grid, e.key);
                 } else {
                     handled = false;
                 }
@@ -263,7 +255,6 @@ export function handleSelectionClick(e) {
             selection(globalCol, globalRow);
         }
     };
-
     document.addEventListener("keydown", (e) => {
         const activeElement = document.activeElement;
         const isInputFocused = activeElement &&
@@ -271,6 +262,20 @@ export function handleSelectionClick(e) {
 
         if (!isInputFocused) keyNavigation(e);
     });
+    // if event is not attached then new event create 
+    // if (!this.keydownListenerAttached) {
+    //     console.log("keydown.......");
 
-    select.addEventListener("dblclick", () => inputField(this));
+    //     document.addEventListener("keydown", (e) => {
+    //         const activeElement = document.activeElement;
+    //         const isInputFocused = activeElement &&
+    //             (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA");
+
+    //         if (!isInputFocused) keyNavigation(e);
+    //     });
+
+    //     this.keydownListenerAttached = true;
+    // }
+
+    select.addEventListener("dblclick", () => inputField(this.grid));
 }

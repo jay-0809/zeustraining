@@ -1,5 +1,5 @@
 import { Canvas } from './canvas.js';
-import { GridEventHandler } from './gridEventHandler.js';
+import { handleSelectionClick } from './modulers.js';
 import { topDiv, HorizontalCanvas, VerticalCanvas } from './HeaderCanvases.js';
 import { PointerHandler } from './pointerHandler.js';
 import { GridResizeHandler } from './resize.js';
@@ -59,14 +59,11 @@ export class Grid {
         this.renderHeaders();
         this.renderCanvases();
         
-        // scroll, click, keyDown - All EventListeners
-        // this.GridEventHandler = new GridEventHandler(this);
-        // this.GridEventHandler.eventListeners();
-        
+        // scroll, click, keyDown - All EventListeners        
         this.cellSelector = new CellSelector(this);
         this.resizeHandler  = new GridResizeHandler(this);
         this.pointer = new PointerHandler(this);
-        console.log(this.pointer);
+        // console.log(this.pointer);
         
         this.pointer.registerHandlers();
     }
@@ -113,9 +110,9 @@ export class Grid {
 
         // get cell value from Map
         let cellData = "";
-        const rowMap = this.multiEditing ? this.dataset.get(globalRow) : this.dataset.get(globalRow - 1);
+        const rowMap = this.multiEditing ? this.dataset.get(globalRow - 1) : this.dataset.get(globalRow - 1);
         if (rowMap instanceof Map) {
-            const value = this.multiEditing ? rowMap.get(globalCol) : rowMap.get(globalCol - 1);
+            const value = this.multiEditing ? rowMap.get(globalCol - 1) : rowMap.get(globalCol - 1);
             if (value !== undefined) {
                 cellData = value;
             }
@@ -169,11 +166,14 @@ export class Grid {
             if (!this.canvases[key]) {
                 this.canvases[key] = new Canvas(this, key[0], key[1], globalCol, globalRow);
             }
-            // console.log(this.cellSelector?.cellRange?.isValid() && this.cellSelector?.dragged);
-
-            if (this.cellSelector?.cellRange?.isValid() && this.cellSelector?.dragged) {
-                this.canvases[key].drawMultiSelection(this.cellSelector.cellRange);
-            }
+            
+            if (this.pointer?.cellSelector?.cellRange?.isValid() && this.pointer?.cellSelector?.dragged) {
+                // console.log(this.cellSelector?.cellRange?.isValid() && this.cellSelector?.dragged);
+                this.canvases[key].drawMultiSelection(this.pointer?.cellSelector.cellRange);
+            } 
+            // else {
+            //     this.canvases[key].drawSelection(this.pointer?.cellSelector.cellRange);
+            // }
         });
 
 

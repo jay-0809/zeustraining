@@ -17,7 +17,7 @@ export class Canvas {
 
         // this.gridResizeHandler = new GridResizeHandler(grid);
         // console.log(this.gridResizeHandler.canvasDragLine);
-        
+
 
         const { colWidths, rowHeights, colsPerCanvas, rowsPerCanvas } = grid;
 
@@ -71,16 +71,13 @@ export class Canvas {
         const startRow = this.yIndex * rowsPerCanvas;
         const startCol = this.xIndex * colsPerCanvas;
 
-        
-        
-        if (this.grid.cellSelector?.cellRange?.isValid() && grid.cellSelector?.dragged && grid.multiEditing) {
-            
-            console.log(this.grid.cellSelector?.cellRange?.isValid(), grid.cellSelector?.dragged , grid.multiEditing);
-            this.drawMultiSelection(this.grid.cellSelector.cellRange);
+        if (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) {
+            // console.log(grid.pointer?.cellSelector?.cellRange?.isValid(), grid.pointer?.cellSelector?.dragged, grid.multiEditing);
+            this.drawMultiSelection(grid.pointer?.cellSelector?.cellRange);
         }
 
         // console.log(selectCol, selectRow);
-        
+
         // Draw cells within a canvas block
         let y = 0;
         for (let r = 0; r < rowsPerCanvas; r++) {
@@ -96,7 +93,7 @@ export class Canvas {
                 const isRowSelected = selectCol === null && selectRow === globalRow + 1;
 
                 // console.log(selectRow, selectCol ,globalCol + 1);
-                
+
 
                 if (isColSelected || isRowSelected) {
                     ctx.fillStyle = "#caead8";
@@ -153,22 +150,39 @@ export class Canvas {
     /**
     * Method to select multiple cells in the canvas
     */
+    drawSelection(cellRange) {
+        const { ctx } = this;
+        const startRow = this.yIndex * this.grid.rowsPerCanvas;
+        const startCol = this.xIndex * this.grid.colsPerCanvas;
+        const { colWidths, rowHeights } = this.grid;
+        console.log(cellRange);
+        
+        let y = 0;
+        let x = 0;
+    }
+    /**
+    * Method to select multiple cells in the canvas
+    */
     drawMultiSelection(cellRange) {
         const { ctx } = this;
         const startRow = this.yIndex * this.grid.rowsPerCanvas;
         const startCol = this.xIndex * this.grid.colsPerCanvas;
-        const { colWidths, rowHeights } = this.grid;      
+        const { colWidths, rowHeights } = this.grid;
+
+        // console.log("cellRange", cellRange, "this.selectCol", this.selectCol, "this.selectRow", this.selectRow);
 
         let y = 0;
+        let x = 0;
         for (let r = 0; r < this.grid.rowsPerCanvas; r++) {
             let row = startRow + r;
             let rowHeight = rowHeights[row + 1];
-            let x = 0;
+            x = 0;
             for (let c = 0; c < this.grid.colsPerCanvas; c++) {
                 let col = startCol + c;
                 let colWidth = colWidths[col + 1];
-                if (cellRange.contains(row, col) && (r!==cellRange.startRow || c!==cellRange.startCol)) {
-                // if (cellRange.contains(row, col)) {
+
+                // if (cellRange.contains(row + 1, col + 1) && ((r + 1) !== this.selectRow || (c + 1) !== this.selectCol || this.selectRow!==null || this.selectCol!==null)) {
+                if (cellRange.contains(row + 1, col + 1) && ((r + 1) !== this.selectRow || (c + 1) !== this.selectCol) && ((r + 1) !== cellRange.startRow || this.selectRow!==null || (c + 1) !== cellRange.startCol || this.selectCol!==null)) {
                     ctx.fillStyle = "rgba(16, 124, 65, 0.12)";
                     ctx.fillRect(x, y, colWidth, rowHeight);
                 }
@@ -178,24 +192,24 @@ export class Canvas {
         }
 
         let startX = 0;
-        for (let i = startCol; i < cellRange.getStartCol(); i++) {
+        for (let i = startCol; i < cellRange.getStartCol() - 1; i++) {
             startX += colWidths[i + 1]; // skip header
         }
 
         let startY = 0;
-        for (let i = startRow; i < cellRange.getStartRow(); i++) {
+        for (let i = startRow; i < cellRange.getStartRow() - 1; i++) {
             startY += rowHeights[i + 1]; // skip header
         }
 
         let width = 0;
-        for (let i = cellRange.getStartCol(); i <= cellRange.getEndCol(); i++) {
+        for (let i = cellRange.getStartCol() - 1; i < cellRange.getEndCol(); i++) {
             if (i >= startCol && i < startCol + this.grid.colsPerCanvas) {
                 width += colWidths[i + 1];
             }
         }
 
         let height = 0;
-        for (let i = cellRange.getStartRow(); i <= cellRange.getEndRow(); i++) {
+        for (let i = cellRange.getStartRow() - 1; i < cellRange.getEndRow(); i++) {
             if (i >= startRow && i < startRow + this.grid.rowsPerCanvas) {
                 height += rowHeights[i + 1];
             }

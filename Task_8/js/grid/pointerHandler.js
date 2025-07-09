@@ -4,13 +4,10 @@ import { CellSelector } from './selection.js';
 export class PointerHandler {
     constructor(grid) {
         this.grid = grid;
-        // this.cellSelector = grid.cellSelector;
-        // this.resizeHandler = grid.resizeHandler;
-
         this.cellSelector = new CellSelector(this);
-        console.log("grid.cellSelector", grid.cellSelector);
+        // console.log("grid.cellSelector", grid.cellSelector);
         this.resizeHandler = new GridResizeHandler(this);
-        console.log("grid.resizeHandler", grid.resizeHandler);
+        // console.log("grid.resizeHandler", grid.resizeHandler);
 
         this.hCanvas = document.querySelector(".h-canvas");
         this.vCanvas = document.querySelector(".v-canvas");
@@ -21,17 +18,14 @@ export class PointerHandler {
     registerHandlers() {
         const wrap = this.grid.wrapper;
         wrap.addEventListener("pointerdown", this.onPointerDown.bind(this));
-        // console.log("move");
         wrap.addEventListener("pointermove", this.onPointerMove.bind(this));
-        // console.log("up");
         wrap.addEventListener("pointerup", this.onPointerUp.bind(this));
-        // console.log("scroll");
-        window.addEventListener("scroll", this.onScroll());
+        window.addEventListener("scroll", this.onScroll.bind(this));
     }
 
     onScroll() {
+        this.grid.renderHeaders(0,0);
         this.grid.renderCanvases();
-        this.grid.renderHeaders();
 
         const cs = this.cellSelector;
         if (cs.cellRange.isValid() && cs.dragged) {
@@ -65,7 +59,7 @@ export class PointerHandler {
 
         // If not resizing, start cell selection
         this.activeMode = "select";
-        this.cellSelector.onMouseDown.bind(this.cellSelector)(e);
+        this.cellSelector.onMouseDown(e);
     }
 
     onPointerMove(e) {
@@ -89,8 +83,13 @@ export class PointerHandler {
         } else {
             this.grid.wrapper.style.cursor = "";
         }
-
+        
         if (this.activeMode === "select") {
+            // this.cellSelector.isSelecting = true;
+        //     if (Math.abs(e.clientX - this.cellSelector.startX) > 5 || Math.abs(e.clientY - this.cellSelector.startY) > 5) {
+        //     // console.log(Math.abs(e.clientX - this.startX), 5, Math.abs(e.clientY - this.startY));
+        //     this.cellSelector.dragged = true;
+        // }
             this.cellSelector.onMouseMove(e);
         }
     }
