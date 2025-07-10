@@ -40,6 +40,10 @@ export function handleSelectionClick(e) {
         document.querySelectorAll(".selection, .selection-block, .cell-input").forEach(el => {
             if (this.grid.wrapper.contains(el)) this.grid.wrapper.removeChild(el);
         });
+        if (this.grid.multiHeaderSelection) {
+            this.grid.multiHeaderSelection = null;
+        }
+        
     };
     // get selection and input divs position
     const getCellPosition = (colIndex, rowIndex) => {
@@ -52,7 +56,12 @@ export function handleSelectionClick(e) {
             height: this.grid.rowHeights[rowIndex],
         };
     };
-
+    /**
+     * append single selection block at position in canvas
+     * @param {*} col at which column block generated
+     * @param {*} row at which row block generated
+     * @returns selected block at position
+     */
     const selection = (col, row) => {
         clearSelection();
         this.grid.renderHeaders(col, row);
@@ -63,7 +72,7 @@ export function handleSelectionClick(e) {
             // Prevent selecting cells with negative indices (outside grid)
             if (col === 0 || row === 0) return;
 
-            console.log('multi');
+            // console.log('multi');
             // Position and display the selection box
             const pos = getCellPosition(col, row);
             select.style.display = `block`;
@@ -79,7 +88,7 @@ export function handleSelectionClick(e) {
             // Prevent selecting cells with negative indices (outside grid)
             if (col === 0 || row === 0) return;
 
-            console.log('single');
+            // console.log('single');
             // Position and display the selection box
             const pos = getCellPosition(col, row);
             select.style.display = `block`;
@@ -100,6 +109,11 @@ export function handleSelectionClick(e) {
 
     selection(globalCol, globalRow);
 
+    /**
+     * append input on selection to change value in map
+     * @param {*} grid
+     * @param {*} val if any keydown then it will append to cellValue
+     */
     function inputField(grid, val = "") {
         // Create the input field for editing
         const cell_input = document.createElement("input");

@@ -99,11 +99,11 @@ export class HorizontalCanvas {
 
       // console.log(colIdx, globalCol);
 
-      if (((c + 1) + (this.xIndex * grid.colsPerCanvas)) === globalCol && globalRow === 0) {
+      if (grid.multiHeaderSelection && colIdx + 1 >= Math.min(grid.multiHeaderSelection.colstart, grid.multiHeaderSelection.colend) &&
+        colIdx + 1 <= Math.max(grid.multiHeaderSelection.colstart, grid.multiHeaderSelection.colend)) {
         ctx.fillStyle = "#107c41";
-        ctx.fillRect(x, y, w, headerH);
-      } else if ((((c + 1) + (xIndex * colsPerCanvas)) === globalCol && globalRow !== 0) || globalRow !== 0 && globalCol === 0) {
-        // console.log((globalCol % 26), c);
+        ctx.fillRect(x, 0, w, headerH);
+      } else if ((((c + 1) + (xIndex * colsPerCanvas)) === globalCol && globalRow !== 0) || grid.multiHeaderSelection && grid.multiHeaderSelection.colstart===null) {
         ctx.fillStyle = "#caead8";
         ctx.fillRect(x, 0, w, headerH);
 
@@ -118,7 +118,6 @@ export class HorizontalCanvas {
       } else if ((grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) &&
         ((((c + 1) + (xIndex * colsPerCanvas)) >= grid.multiSelect.startCol && ((c + 1) + (xIndex * colsPerCanvas)) <= grid.multiSelect.endCol) ||
           (((c + 1) + (xIndex * colsPerCanvas)) <= grid.multiSelect.startCol && ((c + 1) + (xIndex * colsPerCanvas)) >= grid.multiSelect.endCol))) {
-        // console.log((globalCol % 26), c);
         ctx.fillStyle = "#caead8";
         ctx.fillRect(x, 0, w, headerH);
 
@@ -139,12 +138,14 @@ export class HorizontalCanvas {
         idx = Math.floor((idx - 1) / 26);
       }
 
-      if (globalRow !== 1 && globalCol === 0 && (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) &&
+      if ((globalRow !== 1 && globalCol === 0 && (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) &&
         ((((c + 1) + (xIndex * colsPerCanvas)) >= grid.multiSelect.startCol && ((c + 1) + (xIndex * colsPerCanvas)) <= grid.multiSelect.endCol) ||
-          (((c + 1) + (xIndex * colsPerCanvas)) <= grid.multiSelect.startCol && ((c + 1) + (xIndex * colsPerCanvas)) >= grid.multiSelect.endCol))) {
+          (((c + 1) + (xIndex * colsPerCanvas)) <= grid.multiSelect.startCol && ((c + 1) + (xIndex * colsPerCanvas)) >= grid.multiSelect.endCol))) ||
+        (((c + 1) + (xIndex * colsPerCanvas)) === globalCol && globalRow !== 0) || grid.multiHeaderSelection && grid.multiHeaderSelection.colstart===null) {
         ctx.fillStyle = "#107c41";
       } else {
-        ctx.fillStyle = c + 1 === (globalCol % grid.colsPerCanvas) && globalRow === 0 ? "#fff" : "#333";
+        ctx.fillStyle = (grid.multiHeaderSelection && colIdx + 1 >= Math.min(grid.multiHeaderSelection.colstart, grid.multiHeaderSelection.colend) &&
+          colIdx + 1 <= Math.max(grid.multiHeaderSelection.colstart, grid.multiHeaderSelection.colend)) ? "#fff" : "#333";
       }
       ctx.font = sel ? "bold 11pt Segoe UI" : "11pt Segoe UI";
       ctx.textAlign = "center";
@@ -155,15 +156,17 @@ export class HorizontalCanvas {
     }
 
     // draw the vertical grid lines
-    ctx.beginPath();
-    ctx.strokeStyle = "rgba(33,62,64,0.2)";
     x = 0;
     for (let c = 0; c <= colsPerCanvas; c++) {
+      const colIdx = startCol + c;
+      ctx.beginPath();
+      ctx.strokeStyle = (grid.multiHeaderSelection && colIdx + 1 >= Math.min(grid.multiHeaderSelection.colstart, grid.multiHeaderSelection.colend) &&
+        colIdx + 1 <= Math.max(grid.multiHeaderSelection.colstart, grid.multiHeaderSelection.colend)) ? "#fff" : "rgba(33,62,64,0.2)";
       ctx.moveTo(x + 0.5, 0);
       ctx.lineTo(x + 0.5, headerH);
       x += colWidths[startCol + 1 + c] || 0;
+      ctx.stroke();
     }
-    ctx.stroke();
   }
   /**
   * Method to remove the horizontal canvas from the DOM
@@ -234,11 +237,14 @@ export class VerticalCanvas {
       ctx.fillStyle = sel ? "#107c41" : "#f5f5f5";
       ctx.fillRect(0, y, headerW, h);
 
+      // console.log(grid.multiHeaderSelection);
+      
       // Special case for mixed selection
-      if (((r + 1) + (yIndex * rowsPerCanvas)) === globalRow && globalCol === null) {
+      if (grid.multiHeaderSelection && rowIdx + 1 >= Math.min(grid.multiHeaderSelection.rowStart, grid.multiHeaderSelection.rowEnd) &&
+        rowIdx + 1 <= Math.max(grid.multiHeaderSelection.rowStart, grid.multiHeaderSelection.rowEnd)) {
         ctx.fillStyle = "#107c41";
-        ctx.fillRect(x, y, headerW, h);
-      } else if ((((r + 1) + (yIndex * rowsPerCanvas)) === globalRow && globalCol !== null) || globalRow === null && globalCol !== null) {
+        ctx.fillRect(0, y, headerW, h);
+      } else if ((((r + 1) + (yIndex * rowsPerCanvas)) === globalRow && globalCol !== null) || grid.multiHeaderSelection && grid.multiHeaderSelection.rowStart===null) {
         // console.log((globalRow%50), r);
         ctx.fillStyle = "#caead8";
         ctx.fillRect(x, y, headerW, h);
@@ -266,12 +272,14 @@ export class VerticalCanvas {
         ctx.stroke();
         ctx.lineWidth = 1;
       }
-      if (globalRow === null && globalCol !== 0 && (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) &&
+      if ((globalRow === null && globalCol !== 0 && (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) &&
         ((((r + 1) + (yIndex * rowsPerCanvas)) >= grid.multiSelect.startRow && ((r + 1) + (yIndex * rowsPerCanvas)) <= grid.multiSelect.endRow) ||
-          (((r + 1) + (yIndex * rowsPerCanvas)) <= grid.multiSelect.startRow && ((r + 1) + (yIndex * rowsPerCanvas)) >= grid.multiSelect.endRow))) {
+        (((r + 1) + (yIndex * rowsPerCanvas)) <= grid.multiSelect.startRow && ((r + 1) + (yIndex * rowsPerCanvas)) >= grid.multiSelect.endRow))) ||
+        ((((r + 1) + (yIndex * rowsPerCanvas)) === globalRow && globalCol !== null) || grid.multiHeaderSelection && grid.multiHeaderSelection.rowStart===null)) {
         ctx.fillStyle = "#107c41";
       } else {
-        ctx.fillStyle = r + 1 === (globalRow % grid.rowsPerCanvas) && globalCol === null ? "#fff" : "#333";
+        ctx.fillStyle = (grid.multiHeaderSelection && rowIdx + 1 >= Math.min(grid.multiHeaderSelection.rowStart, grid.multiHeaderSelection.rowEnd) &&
+          rowIdx + 1 <= Math.max(grid.multiHeaderSelection.rowStart, grid.multiHeaderSelection.rowEnd)) ? "#fff" : "#333";
       }
       ctx.font = sel ? "bold 11pt Segoe UI" : "11pt Segoe UI";
       ctx.textAlign = "right";
@@ -282,15 +290,17 @@ export class VerticalCanvas {
     }
 
     // draw the horizontal grid lines
-    ctx.beginPath();
-    ctx.strokeStyle = "rgba(33,62,64,0.2)";
     y = 0;
     for (let r = 0; r <= rowsPerCanvas; r++) {
-      ctx.moveTo(0, y);
+      ctx.beginPath();
+      const rowIdx = startRow + r;
+      ctx.strokeStyle = (grid.multiHeaderSelection && rowIdx + 1 >= Math.min(grid.multiHeaderSelection.rowStart, grid.multiHeaderSelection.rowEnd) &&
+        rowIdx + 1 <= Math.max(grid.multiHeaderSelection.rowStart, grid.multiHeaderSelection.rowEnd)) ? "#fff" : "rgba(33,62,64,0.2)";
+      ctx.moveTo(0, y + 0.5);
       ctx.lineTo(headerW, y + 0.5);
       y += rowHeights[startRow + 1 + r] || 0;
+      ctx.stroke();
     }
-    ctx.stroke();
   }
   /**
   * Method to remove the vertical canvas from the DOM

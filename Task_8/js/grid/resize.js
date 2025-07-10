@@ -26,25 +26,6 @@ export class GridResizeHandler {
 
         this.hCanvas = document.querySelector(".h-canvas");
         this.vCanvas = document.querySelector(".v-canvas");
-
-        // this.attachEvents();
-    }
-
-    /**
-     * Attach all mouse events to enable resizing.
-     */
-    attachEvents() {      
-        // Mouse down start resizing
-        this.grid.wrapper.addEventListener('pointerdown', (e) => this.onMouseDown(e));
-        // Mouse move over horizontal canvas
-        this.grid.wrapper.addEventListener('pointermove', (e) => this.onMouseMove(e));
-        
-        // console.log(this.hCanvas, this.vCanvas);
-        
-        // // Mouse down start resizing
-        // this.vCanvas.addEventListener('pointerdown', (e) => this.onMouseDown(e));
-        // // Mouse move over horizontal canvas
-        // this.vCanvas.addEventListener('pointermove', (e) => this.onMouseMove(e));
     }
 
     /**
@@ -94,7 +75,7 @@ export class GridResizeHandler {
      * @param {MouseEvent} e
      * @returns {object} {colIndex, colEdge, rowIndex, rowEdge}
      */
-    edge(e) {       
+    edge(e) {
         const rect = this.grid.wrapper.getBoundingClientRect();
         const x = e.clientX - rect.left + window.scrollX;
         const y = e.clientY - rect.top + window.scrollY;
@@ -145,18 +126,18 @@ export class GridResizeHandler {
             // Update only the target column width
             let newWidth = Math.max(30, this.startColWidth + dx);
             this.grid.grid.colWidths[this.resizingCol] = newWidth;
-              
-            this.grid.grid.renderHeaders(0,0);
+
+            this.grid.grid.renderHeaders(0, 0);
         }
     }
-    
+
     /**
      * Mouse up: finish resizing column.
     */
-   onColResizeEnd = (e) => {
-       this.canvasDragLine = false;
-       this.resizingCol = null;
-       this.grid.grid.renderCanvases();
+    onColResizeEnd = (e) => {
+        this.canvasDragLine = false;
+        this.resizingCol = null;
+        this.grid.grid.renderCanvases();
         this.grid.grid.wrapper.removeEventListener('pointermove', this.onColResize);
         this.grid.grid.wrapper.removeEventListener('pointerup', this.onColResizeEnd);
         this.grid.grid.wrapper.style.cursor = '';
@@ -174,13 +155,13 @@ export class GridResizeHandler {
             this.grid.grid.renderHeaders();
         }
     }
-    
+
     /**
      * Mouse up: finish resizing row.
     */
-   onRowResizeEnd = (e) => {
-       this.resizingRow = null;
-       this.grid.grid.renderCanvases();
+    onRowResizeEnd = (e) => {
+        this.resizingRow = null;
+        this.grid.grid.renderCanvases();
         this.grid.grid.wrapper.removeEventListener('pointermove', this.onRowResize);
         this.grid.grid.wrapper.removeEventListener('pointerup', this.onRowResizeEnd);
         this.grid.grid.wrapper.style.cursor = '';
