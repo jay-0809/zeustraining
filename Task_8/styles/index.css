@@ -89,7 +89,7 @@ body .container .headerInputs .cellNum {
 }
 html .container .headerInputs .cellValue,
 body .container .headerInputs .cellValue {
-  width: 90%;
+  width: 80%;
   padding: 5px 10px;
   border-radius: 3px;
   border: 1px solid rgba(33, 62, 64, 0.2);
@@ -102,38 +102,35 @@ html .container .headerInputs .cellValue:hover,
 body .container .headerInputs .cellValue:hover {
   border: 1px solid #333;
 }
-html #scroll-wrapper,
-body #scroll-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-html #scroll-wrapper #scrollbar-container,
-body #scroll-wrapper #scrollbar-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  pointer-events: none;
-}
-html #scroll-wrapper #scrollbar-container #vertical-scrollbar,
-body #scroll-wrapper #scrollbar-container #vertical-scrollbar {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 10px;
-  background-color: rgba(155, 77, 77, 0.2);
+html .container .headerInputs .undo,
+body .container .headerInputs .undo {
+  width: 4%;
+  padding: 5px;
+  border-radius: 3px;
+  border: 1px solid rgba(33, 62, 64, 0.2);
+  color: #000;
+  outline: none;
   cursor: pointer;
 }
-html #scroll-wrapper #scrollbar-container #horizontal-scrollbar,
-body #scroll-wrapper #scrollbar-container #horizontal-scrollbar {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 10px;
-  background-color: rgba(0, 0, 0, 0.2);
+html .container .headerInputs .undo:hover,
+body .container .headerInputs .undo:hover {
+  border: 1px solid #333;
+  background: #fff;
+}
+html .container .headerInputs .redo,
+body .container .headerInputs .redo {
+  width: 4%;
+  padding: 5px;
+  border-radius: 3px;
+  border: 1px solid rgba(33, 62, 64, 0.2);
+  color: #000;
+  outline: none;
   cursor: pointer;
+}
+html .container .headerInputs .redo:hover,
+body .container .headerInputs .redo:hover {
+  border: 1px solid #333;
+  background: #fff;
 }
 html #wrapper-div,
 body #wrapper-div {

@@ -115,7 +115,7 @@ export class HorizontalCanvas {
         ctx.lineTo(x + w, headerH + 0.5);
         ctx.stroke();
         ctx.lineWidth = 0.5;
-      } else if ((grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) &&
+      } else if ((grid.pointer?.activeMode?.cellRange?.isValid() && grid.pointer?.activeMode?.dragged && grid.multiEditing) &&
         ((((c + 1) + (xIndex * colsPerCanvas)) >= grid.multiSelect.startCol && ((c + 1) + (xIndex * colsPerCanvas)) <= grid.multiSelect.endCol) ||
           (((c + 1) + (xIndex * colsPerCanvas)) <= grid.multiSelect.startCol && ((c + 1) + (xIndex * colsPerCanvas)) >= grid.multiSelect.endCol))) {
         ctx.fillStyle = "#caead8";
@@ -138,7 +138,7 @@ export class HorizontalCanvas {
         idx = Math.floor((idx - 1) / 26);
       }
 
-      if ((globalRow !== 1 && globalCol === 0 && (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) &&
+      if ((globalRow !== 1 && globalCol === 0 && (grid.pointer?.activeMode?.cellRange?.isValid() && grid.pointer?.activeMode?.dragged && grid.multiEditing) &&
         ((((c + 1) + (xIndex * colsPerCanvas)) >= grid.multiSelect.startCol && ((c + 1) + (xIndex * colsPerCanvas)) <= grid.multiSelect.endCol) ||
           (((c + 1) + (xIndex * colsPerCanvas)) <= grid.multiSelect.startCol && ((c + 1) + (xIndex * colsPerCanvas)) >= grid.multiSelect.endCol))) ||
         (((c + 1) + (xIndex * colsPerCanvas)) === globalCol && globalRow !== 0) || grid.multiHeaderSelection && grid.multiHeaderSelection.colstart===null) {
@@ -257,7 +257,7 @@ export class VerticalCanvas {
         ctx.lineTo(x + headerW + 0.5, y + h);
         ctx.stroke();
         ctx.lineWidth = 1;
-      } else if ((grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) &&
+      } else if ((grid.pointer?.activeMode?.cellRange?.isValid() && grid.pointer?.activeMode?.dragged && grid.multiEditing) &&
         ((((r + 1) + (yIndex * rowsPerCanvas)) >= grid.multiSelect.startRow && ((r + 1) + (yIndex * rowsPerCanvas)) <= grid.multiSelect.endRow) ||
           (((r + 1) + (yIndex * rowsPerCanvas)) <= grid.multiSelect.startRow && ((r + 1) + (yIndex * rowsPerCanvas)) >= grid.multiSelect.endRow))) {
         ctx.fillStyle = "#caead8";
@@ -272,7 +272,7 @@ export class VerticalCanvas {
         ctx.stroke();
         ctx.lineWidth = 1;
       }
-      if ((globalRow === null && globalCol !== 0 && (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) &&
+      if ((globalRow === null && globalCol !== 0 && (grid.pointer?.activeMode?.cellRange?.isValid() && grid.pointer?.activeMode?.dragged && grid.multiEditing) &&
         ((((r + 1) + (yIndex * rowsPerCanvas)) >= grid.multiSelect.startRow && ((r + 1) + (yIndex * rowsPerCanvas)) <= grid.multiSelect.endRow) ||
         (((r + 1) + (yIndex * rowsPerCanvas)) <= grid.multiSelect.startRow && ((r + 1) + (yIndex * rowsPerCanvas)) >= grid.multiSelect.endRow))) ||
         ((((r + 1) + (yIndex * rowsPerCanvas)) === globalRow && globalCol !== null) || grid.multiHeaderSelection && grid.multiHeaderSelection.rowStart===null)) {

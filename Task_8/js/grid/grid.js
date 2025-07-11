@@ -1,9 +1,6 @@
 import { Canvas } from './canvas.js';
-import { handleSelectionClick } from './modulers.js';
 import { topDiv, HorizontalCanvas, VerticalCanvas } from './HeaderCanvases.js';
 import { PointerHandler } from './pointerHandler.js';
-import { GridResizeHandler } from './resize.js';
-import { CellSelector } from './selection.js';
 
 
 /**
@@ -59,9 +56,7 @@ export class Grid {
         this.renderHeaders();
         this.renderCanvases();
 
-        // scroll, click, keyDown - All EventListeners        
-        this.cellSelector = new CellSelector(this);
-        this.resizeHandler = new GridResizeHandler(this);
+        // scroll, click - All EventListeners        
         this.pointer = new PointerHandler(this);
         // console.log(this.pointer);
 
@@ -163,14 +158,14 @@ export class Grid {
         }
         // Render visible canvases
         visible.forEach(key => {
-            // console.log(this.multiHeaderSelection);
+
             if (this.multiHeaderSelection) {
                 const { colstart, colend, rowStart, rowEnd } = this.multiHeaderSelection;
-                if (colstart!==null) {                    
+                if (colstart !== null) {
                     const [selStart, selEnd] = [Math.min(colstart, colend), Math.max(colstart, colend)];
                     this.selectCols = { start: selStart, end: selEnd };
                     this.selectRows = null;
-                } else {                    
+                } else {
                     const [selStart, selEnd] = [Math.min(rowStart, rowEnd), Math.max(rowStart, rowEnd)];
                     this.selectRows = { start: selStart, end: selEnd };
                     this.selectCols = null;
@@ -183,22 +178,10 @@ export class Grid {
             if (!this.canvases[key]) {
                 this.canvases[key] = new Canvas(this, key[0], key[1], globalCol, globalRow, this.selectCols, this.selectRows);
             }
-
-            if (this.pointer?.cellSelector?.cellRange?.isValid() && this.pointer?.cellSelector?.dragged) {
-                // console.log(this.cellSelector?.cellRange?.isValid() && this.cellSelector?.dragged);
-                this.canvases[key].drawMultiSelection(this.pointer?.cellSelector.cellRange);
+            if (this.pointer?.activeMode?.cellRange?.isValid() && this.pointer?.activeMode?.dragged) {
+                // console.log(this.activeMode?.cellRange?.isValid() && this.activeMode?.dragged);
+                this.canvases[key].drawMultiSelection(this.pointer?.activeMode.cellRange);
             }
-
-            // if (this.multiHeaderSelection) {
-            //     const { type, start, end } = this.multiHeaderSelection;
-            //     const ctx = (type === "col" ? this.hCtx : this.vCtx);
-            //     for (let i = Math.min(start, end); i <= Math.max(start, end); i++) {
-            //         console.log("in canvassss");
-            //     }
-            // }
-            // else {
-            //     this.canvases[key].drawSelection(this.pointer?.cellSelector.cellRange);
-            // }
         });
 
 

@@ -17,14 +17,15 @@ export class CellSelector {
     }
 
     /**
-     * Selecting cell on left click of mouse 
+     * Called on pointer down to begin cell selection.
      */
     onMouseDown(e) {
-        if (e.button !== 0) return;
+        if (e.button !== 0 || !this.hitTest(e)) return;
 
         this.startX = e.clientX;
         this.startY = e.clientY;
-        // console.log("thisfsdvskhgv", this);
+
+        console.log("this in down", this);
         const cell = this.locateCell(e);
         if (!cell) return;
 
@@ -40,85 +41,56 @@ export class CellSelector {
             this.grid.grid.multiEditing = false;
         }
 
-        // console.log(this.cellRange.startRow, this.cellRange.startCol);
         handleSelectionClick.bind(this.grid.grid?.pointer)(e);
     }
 
     /**
-     * if we isSelecting then dragged is true so we get multiselected area
+     * Called on pointer move while selecting.
      */
     onMouseMove(e) {
-        // console.log(e);
         if (!this.isSelecting) return;
 
         if (Math.abs(e.clientX - this.startX) > 5 || Math.abs(e.clientY - this.startY) > 5) {
-            // console.log(Math.abs(e.clientX - this.startX), 5, Math.abs(e.clientY - this.startY));
             this.dragged = true;
         }
 
-        // console.log("this", this);
         const cell = this.locateCell(e);
         if (!cell) return;
-        // console.log("thisthing", cell);
-
+        
         this.cellRange.endRow = cell.row;
         this.cellRange.endCol = cell.col;
-
-        // Store multi-cell selection range in grid
+        
         if (this.cellRange.isValid()) {
-            // console.log("...............................");
             const { startRow, startCol, endRow, endCol } = this.cellRange;
             this.grid.grid.multiSelect = { startRow, startCol, endRow, endCol };
             this.grid.grid.multiCursor = { row: startRow, col: startCol };
             this.grid.grid.multiEditing = true;
         }
-
-        if (!this.dragged) return;
-        if (!this.cellRange.isValid()) return;
-        // this.updateGridSelection();
-        // console.log(this.grid.grid);
-
+        
+        if (!this.dragged || !this.cellRange.isValid()) return;
+        
         this.grid.grid.renderHeaders(0, 0);
         this.grid.grid.renderCanvases();
+        // console.log("this in move", this);
     }
 
     /**
-     * if dragged then on mouseup put selected rows and cols into grid
+     * Called on pointer up to finalize selection.
      */
     onMouseUp(e) {
         this.isSelecting = false;
         if (!this.dragged) return;
-
-        // this.updateGridSelection();
-        // console.log(this.grid.grid);
-
-        // let slct = document.getElementsByClassName("selection");
-        // let block = document.getElementsByClassName("selection-block");
-
-        // if (slct.length !== 0 || block.length !== 0) {
-        //     // console.log(slct, block);            
-        //     if (this.grid.wrapper.contains(slct[0])) this.grid.wrapper.removeChild(slct[0]);
-        //     if (this.grid.wrapper.contains(block[0])) this.grid.wrapper.removeChild(block[0]);
-        // }
-
-        // this.dragged = false;
-        // if (!this.cellRange.isValid()) return;
-        // this.grid.renderCanvases();
-        // this.grid.wrapper.removeEventListener('mousedown', this.onMouseDown.bind(this));
-        // this.grid.wrapper.removeEventListener('mousemove', this.onMouseMove.bind(this));
-        // this.grid.wrapper.removeEventListener('mouseup', this.onMouseUp.bind(this));
     }
 
     /**
-     * get which cell is selected
-    */
+     * Locate the cell under the pointer.
+     */
     locateCell(e) {
         const rect = this.grid.grid.wrapper.getBoundingClientRect();
         const x = e.clientX - rect.left + window.scrollX;
         const y = e.clientY - rect.top + window.scrollY;
         const { colWidths, rowHeights } = this.grid.grid;
 
-        // Calculate column index
         let col = -1, xAcc = 0;
         for (let i = 0; i < this.grid.grid.maxCols; i++) {
             xAcc += colWidths[i];
@@ -128,7 +100,6 @@ export class CellSelector {
             }
         }
 
-        // Calculate row index
         let row = -1, yAcc = 0;
         for (let j = 0; j < this.grid.grid.maxRows; j++) {
             yAcc += rowHeights[j];
@@ -142,133 +113,22 @@ export class CellSelector {
         return { row, col };
     }
 
-
     /**
-     * highlight selected cells and updated on mousemove
-    */
-    // updateGridSelection() {
-    //     if (!this.cellRange.isValid()) return;
-
-    //     this.grid.renderHeaders(0, 0);
-    //     // this.grid.renderCanvases();
-
-    //     const visibleCoords = this.grid.getCanvasCoords();
-    //     visibleCoords.forEach(([x, y]) => {
-    //         const key = JSON.stringify([x, y]);
-    //         const canvas = this.grid.canvases[key];
-    //         if (canvas) {
-    //             // canvas.drawMultiSelection(this.cellRange);
-    //         }
-    //     });
-    // }
-}
-
-/**
- * Handles multi-selection of rows or columns by dragging on the headers.
- */
-export class HeaderSelector {
-    /**
-     * Initializes the HeaderSelector.
-     * @param {object} grid - Reference to the pointer handler/grid.
+     * Returns true if the pointer is inside the grid canvas area (excluding headers).
      */
-    constructor(grid) {
-        /** @type {object} Grid or pointer instance */
-        this.grid = grid;
-
-        /** @type {boolean} Whether the user is currently dragging */
-        this.isSelecting = false;
-
-        /** @type {?number} Starting index of selection */
-        this.startIndex = null;
-
-        /** @type {?number} Ending index of selection */
-        this.endIndex = null;
-
-        /** @type {'col' | 'row' | null} Selection type: 'col' or 'row' */
-        this.selectingType = null;
-    }
-
-    /**
-     * Called on pointer down – begins row or column selection.
-     * @param {MouseEvent} e 
-     */
-    onMouseDown(e) {
-        const { type, index } = this.hitTestHeader(e);
-        if (!type) return;
-
-        this.selectingType = type;
-        this.startIndex = index;
-        this.endIndex = index;
-        this.isSelecting = true;
-
-        this.grid.grid.multiHeaderSelection = { type, start: index, end: index };
-
-        this.grid.grid.renderHeaders(0, 0);
-        this.grid.grid.renderCanvases();
-    }
-
-    /**
-     * Called on pointer move – updates the highlight range.
-     * @param {MouseEvent} e 
-     */
-    onMouseMove(e) {
-        if (!this.isSelecting) return;
-
-        const { index } = this.hitTestHeader(e, this.selectingType);
-        if (index != null) {
-            this.endIndex = index;
-
-            this.grid.grid.multiHeaderSelection = {
-                type: this.selectingType,
-                start: this.startIndex,
-                end: this.endIndex
-            };
-
-            this.grid.grid.renderHeaders(0, 0);
-            this.grid.grid.renderCanvases();
-        }
-    }
-
-    /**
-     * Called on pointer up – finalizes the header selection.
-     * @param {MouseEvent} e 
-     */
-    onMouseUp(e) {
-        this.isSelecting = false;
-    }
-
-    /**
-     * Hit test to determine if the pointer is on a header cell.
-     * @param {MouseEvent} e 
-     * @param {'col' | 'row' | null} [forceType=null] Force row/col detection
-     * @returns {{type: 'col' | 'row' | null, index: number | null}} 
-     */
-    hitTestHeader(e, forceType = null) {
+    hitTest(e) {
         const rect = this.grid.grid.wrapper.getBoundingClientRect();
         const x = e.clientX - rect.left + window.scrollX;
         const y = e.clientY - rect.top + window.scrollY;
-
         const { colWidths, rowHeights } = this.grid.grid;
-        const colHeaderHeight = rowHeights[0];
-        const rowHeaderWidth = colWidths[0];
 
-        if (y <= colHeaderHeight && (forceType === null || forceType === 'col')) {
-            let xSum = 0;
-            for (let i = 0; i < colWidths.length; i++) {
-                xSum += colWidths[i];
-                if (x < xSum) return { type: 'col', index: i };
-            }
-        } else if (x <= rowHeaderWidth && (forceType === null || forceType === 'row')) {
-            let ySum = 0;
-            for (let j = 0; j < rowHeights.length; j++) {
-                ySum += rowHeights[j];
-                if (y < ySum) return { type: 'row', index: j };
-            }
-        }
+        // Ignore clicks inside headers
+        if (x <= colWidths[0] || y <= rowHeights[0]) return false;
 
-        return { type: null, index: null };
+        return true;
     }
 }
+
 
 export class HeaderColSelector {
     /**

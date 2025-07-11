@@ -1,169 +1,221 @@
 /**
- * Handles column and row resizing for the Excel-like grid.
- * It updates the correct index in grid.colWidths or grid.rowHeights arrays.
- * The new size takes effect after the mouse drag, and the grid re-renders automatically.
+ * Handles column resize interactions.
+ * It updates the correct index in grid.colWidths
  */
-export class GridResizeHandler {
+export class ColResizeHandler {
     /**
-     * Initializes the resize handler for a grid instance.
-     * @param {Grid} grid Grid instance to attach resizing logic to.
+     * @param {object} grid - Grid or pointer instance
      */
     constructor(grid) {
-        /** @type {Grid} Reference to the grid instance */
         this.grid = grid;
-        /** @type {?number} The column index being resized, or null */
+        /** @type {?number} Index of the column being resized */
         this.resizingCol = null;
-        /** @type {?number} The row index being resized, or null */
-        this.resizingRow = null;
-        /** @type {number} Initial mouse X position for column resize */
+
+        /** @type {number} Initial mouse X position */
         this.startX = 0;
-        /** @type {number} Initial mouse Y position for row resize */
-        this.startY = 0;
-        /** @type {number} Initial width of the column being resized */
+
+        /** @type {number} Initial column width */
         this.startColWidth = 0;
-        /** @type {number} Initial height of the row being resized */
-        this.startRowHeight = 0;
 
         this.hCanvas = document.querySelector(".h-canvas");
-        this.vCanvas = document.querySelector(".v-canvas");
     }
 
-    /**
-     * Mouse move: check if we're near a resizable border and set the cursor.
-     * @param {MouseEvent} e
-     */
-    onMouseMove(e) {
-        const { colEdge, rowEdge } = this.edge(e);
-        if (colEdge) {
-            this.hCanvas.style.cursor = 'col-resize';
-        } else if (rowEdge) {
-            this.vCanvas.style.cursor = 'row-resize';
-        } else {
-            this.grid.wrapper.style.cursor = '';
-        }
-    }
-
-    /**
-     * Mouse down: start the resize if at a column or row edge.
-     * @param {MouseEvent} e
-     */
-    onMouseDown(e) {
-        const { colIndex, colEdge, rowIndex, rowEdge } = this.edge(e);
-
-        if (colEdge) {
-            // Start column resize
-            this.resizingCol = colIndex;
-            // console.log(`Resizing column: ${colIndex}`);
-
-            this.startX = e.clientX;
-            this.startColWidth = this.grid.colWidths[colIndex];
-            this.grid.wrapper.addEventListener('pointermove', this.onColResize);
-            this.grid.wrapper.addEventListener('pointerup', this.onColResizeEnd);
-        } else if (rowEdge) {
-            // Start row resize
-            this.resizingRow = rowIndex;
-            // console.log(`Resizing row: ${rowIndex}`);
-            this.startY = e.clientY;
-            this.startRowHeight = this.grid.rowHeights[rowIndex];
-            this.grid.wrapper.addEventListener('pointermove', this.onRowResize);
-            this.grid.wrapper.addEventListener('pointerup', this.onRowResizeEnd);
-        }
-    }
-
-    /**
-     * Calculate if mouse is close to a column or row edge (for resizing).
-     * @param {MouseEvent} e
-     * @returns {object} {colIndex, colEdge, rowIndex, rowEdge}
-     */
-    edge(e) {
-        const rect = this.grid.wrapper.getBoundingClientRect();
+    colIndex(e) {
+        const rect = this.grid.grid.wrapper.getBoundingClientRect();
         const x = e.clientX - rect.left + window.scrollX;
         const y = e.clientY - rect.top + window.scrollY;
 
+        const { colWidths, rowHeights } = this.grid.grid;
+        const colHeaderHeight = rowHeights[0];
+
+        if (y <= colHeaderHeight) {
+            let xSum = 0;
+            for (let i = 0; i < colWidths.length; i++) {
+                xSum += colWidths[i];
+                if (Math.abs(x - xSum) < 5 && i !== 0) {
+                    return i;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Detect if cursor is near a column border (within header region).
+     * @param {MouseEvent} e
+     * @returns {{colEdge: boolean, colIndex: number}}
+     */
+    hitTest(e) {
+        const rect = this.grid.grid.wrapper.getBoundingClientRect();
+        const x = e.clientX - rect.left + window.scrollX;
+        const y = e.clientY - rect.top + window.scrollY;
+
+        const { rowHeights } = this.grid.grid;
+        const colHeaderHeight = rowHeights[0];
+
         // Which column line is the mouse close to?
-        let xPos = 0, colIndex = -1, colEdge = false;
-        for (let i = 0; i < this.grid.colWidths.length; i++) {
-            xPos += this.grid.colWidths[i];
+        let xPos = 0, colEdge = false;
+        for (let i = 0; i < this.grid.grid.colWidths.length; i++) {
+            xPos += this.grid.grid.colWidths[i];
             if (Math.abs(x - xPos) < 5) {
-                colIndex = i;
+                this.hCanvas.style.cursor = "col-resize";
                 colEdge = true;
                 break;
             }
+        } 
+
+        if (colEdge && y > 0 && y <= colHeaderHeight) {
+            return true;
         }
+        return false;
+    }
+
+    /**
+     * Called on pointer down to initiate resize.
+     * @param {MouseEvent} e 
+     */
+    onMouseDown(e) {
+        const index = this.colIndex(e);
+        if (index == null) return;
+
+        this.resizingCol = index;
+        this.startX = e.clientX;
+        this.startColWidth = this.grid.grid.colWidths[index];
+    }
+
+    /**
+     * Called on pointer move while resizing.
+     * @param {MouseEvent} e 
+     */
+    onMouseMove(e) {
+        if (this.resizingCol == null) return;
+
+        const dx = e.clientX - this.startX;
+        const newWidth = Math.max(30, this.startColWidth + dx);
+        this.grid.grid.colWidths[this.resizingCol] = newWidth;
+
+        this.grid.grid.renderHeaders(0, 0);
+    }
+
+    /**
+     * Called on pointer up to end resize.
+     * @param {MouseEvent} e 
+     */
+    onMouseUp(e) {
+        this.resizingCol = null;
+        // console.log("colRe", this);
+        
+        this.grid.grid.renderCanvases();
+        this.grid.grid.wrapper.style.cursor = "";
+    }
+}
+
+/**
+ * Handles row resize interactions.
+ * It updates the correct index in grid.rowHeights
+ */
+export class RowResizeHandler {
+    /**
+     * @param {object} grid - Grid or pointer instance
+     */
+    constructor(grid) {
+        this.grid = grid;
+
+        /** @type {?number} Index of the row being resized */
+        this.resizingRow = null;
+
+        /** @type {number} Initial mouse Y position */
+        this.startY = 0;
+
+        /** @type {number} Initial row height */
+        this.startRowHeight = 0;
+
+        this.vCanvas = document.querySelector(".v-canvas");
+    }
+
+    rowIndex(e) {
+        const rect = this.grid.grid.wrapper.getBoundingClientRect();
+        const x = e.clientX - rect.left + window.scrollX;
+        const y = e.clientY - rect.top + window.scrollY;
+
+        const { rowHeights, colWidths } = this.grid.grid;
+        const rowHeaderWidth = colWidths[0];
+
+        if (x <= rowHeaderWidth) {
+            let ySum = 0;
+            for (let i = 0; i < rowHeights.length; i++) {
+                ySum += rowHeights[i];
+                if (Math.abs(y - ySum) < 5 && i !== 0) {
+                    return i;
+                }
+            }
+            return null;
+        }
+    }
+
+    /**
+     * check if pointer is near a row border (within row header area).
+     * @param {MouseEvent} e
+     * @returns {{rowEdge: boolean, rowIndex: number}}
+     */
+    hitTest(e) {
+        const rect = this.grid.grid.wrapper.getBoundingClientRect();
+        const x = e.clientX - rect.left + window.scrollX;
+        const y = e.clientY - rect.top + window.scrollY;
+
+        const { colWidths } = this.grid.grid;
+        const rowHeaderWidth = colWidths[0];
         // Which row line is the mouse close to?
-        let yPos = 0, rowIndex = -1, rowEdge = false;
-        for (let j = 0; j < this.grid.rowHeights.length; j++) {
-            yPos += this.grid.rowHeights[j];
+        let yPos = 0, rowEdge = false;
+        for (let j = 0; j < this.grid.grid.rowHeights.length; j++) {
+            yPos += this.grid.grid.rowHeights[j];
             if (Math.abs(y - yPos) < 5) {
-                rowIndex = j;
+                this.vCanvas.style.cursor = "row-resize";
                 rowEdge = true;
                 break;
             }
         }
-        // Only allow col resize if mouse is in the column header (top area)
-        if (colEdge && y > 0 && y < this.grid.rowHeights[0]) {
-            // Don't allow resizing row header column (col 0)
-            if (colIndex === 0) colEdge = false;
-        } else {
-            colEdge = false;
+
+        if (rowEdge && x > 0 && x <= rowHeaderWidth) {
+            return true;
         }
-        // Only allow row resize if mouse is in the row header (left area)
-        if (rowEdge && x > 0 && x < this.grid.colWidths[0]) {
-            // Don't allow resizing column header row (row 0)
-            if (rowIndex === 0) rowEdge = false;
-        } else {
-            rowEdge = false;
-        }
-        return { colIndex, colEdge, rowIndex, rowEdge };
+        return false;
     }
 
     /**
-     * Mouse move while resizing column.
+     * Called on pointer down to initiate row resize.
+     * @param {MouseEvent} e 
      */
-    onColResize = (e) => {
-        if (this.resizingCol != null) {
-            const dx = e.clientX - this.startX;
-            // Update only the target column width
-            let newWidth = Math.max(30, this.startColWidth + dx);
-            this.grid.grid.colWidths[this.resizingCol] = newWidth;
+    onMouseDown(e) {
+        const index = this.rowIndex(e);
+        if (index == null) return;
 
-            this.grid.grid.renderHeaders(0, 0);
-        }
+        this.resizingRow = index;
+        this.startY = e.clientY;
+        this.startRowHeight = this.grid.grid.rowHeights[index];
     }
 
     /**
-     * Mouse up: finish resizing column.
-    */
-    onColResizeEnd = (e) => {
-        this.canvasDragLine = false;
-        this.resizingCol = null;
-        this.grid.grid.renderCanvases();
-        this.grid.grid.wrapper.removeEventListener('pointermove', this.onColResize);
-        this.grid.grid.wrapper.removeEventListener('pointerup', this.onColResizeEnd);
-        this.grid.grid.wrapper.style.cursor = '';
-    }
-
-    /**
-     * Mouse move while resizing row.
+     * Called on pointer move while resizing.
+     * @param {MouseEvent} e 
      */
-    onRowResize = (e) => {
-        if (this.resizingRow != null) {
-            const dy = e.clientY - this.startY;
-            // Update only the target row height
-            let newHeight = Math.max(15, this.startRowHeight + dy);
-            this.grid.grid.rowHeights[this.resizingRow] = newHeight;
-            this.grid.grid.renderHeaders();
-        }
+    onMouseMove(e) {
+        if (this.resizingRow == null) return;
+
+        const dy = e.clientY - this.startY;
+        const newHeight = Math.max(15, this.startRowHeight + dy);
+        this.grid.grid.rowHeights[this.resizingRow] = newHeight;
+
+        this.grid.grid.renderHeaders(0, 0);
     }
 
     /**
-     * Mouse up: finish resizing row.
-    */
-    onRowResizeEnd = (e) => {
+     * Called on pointer up to finalize resize.
+     * @param {MouseEvent} e 
+     */
+    onMouseUp(e) {
         this.resizingRow = null;
         this.grid.grid.renderCanvases();
-        this.grid.grid.wrapper.removeEventListener('pointermove', this.onRowResize);
-        this.grid.grid.wrapper.removeEventListener('pointerup', this.onRowResizeEnd);
-        this.grid.grid.wrapper.style.cursor = '';
+        this.grid.grid.wrapper.style.cursor = "";
     }
 }

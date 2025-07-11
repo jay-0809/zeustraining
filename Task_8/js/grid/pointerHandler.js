@@ -1,5 +1,5 @@
-import { GridResizeHandler } from './resize.js';
-import { CellSelector, HeaderSelector, HeaderColSelector, HeaderRowSelector } from './selection.js';
+import { ColResizeHandler, RowResizeHandler } from './resize.js';
+import { CellSelector, HeaderColSelector, HeaderRowSelector } from './selection.js';
 
 /**
  * Handles pointer events (mouse/touch) for grid interactions including:
@@ -16,15 +16,6 @@ export class PointerHandler {
         /** @type {object} Reference to the grid instance */
         this.grid = grid;
 
-        /** @type {CellSelector} Handles cell-based multi-selection */
-        this.cellSelector = new CellSelector(this);
-
-        /** @type {GridResizeHandler} Handles row and column resizing */
-        this.resizeHandler = new GridResizeHandler(this);
-
-        // /** @type {HeaderSelector} Handles header-based row/column selection */
-        // this.headerSelector = new HeaderSelector(this);
-
         /** @type {HTMLCanvasElement} Horizontal (column) header canvas */
         this.hCanvas = document.querySelector(".h-canvas");
 
@@ -32,8 +23,9 @@ export class PointerHandler {
         this.vCanvas = document.querySelector(".v-canvas");
 
         this.strategies = [
-            // new CellSelector(this),
-            // new GridResizeHandler(this),
+            new CellSelector(this),
+            new ColResizeHandler(this),
+            new RowResizeHandler(this),
             new HeaderColSelector(this),
             new HeaderRowSelector(this),
         ]
@@ -85,59 +77,13 @@ export class PointerHandler {
      * @param {PointerEvent} e 
      */
     onPointerDown(e) {
-        const { colEdge, rowEdge, colIndex, rowIndex } = this.resizeHandler.edge.bind(this)(e);
-
-        // Begin column resize
-        if (colEdge) {
-            this.activeMode = "resize-col";
-            this.resizeHandler.resizingCol = colIndex;
-            this.resizeHandler.startX = e.clientX;
-            this.resizeHandler.startColWidth = this.grid.colWidths[colIndex];
-            return;
-        }
-
-        // Begin row resize
-        if (rowEdge) {
-            this.activeMode = "resize-row";
-            this.resizeHandler.resizingRow = rowIndex;
-            this.resizeHandler.startY = e.clientY;
-            this.resizeHandler.startRowHeight = this.grid.rowHeights[rowIndex];
-            return;
-        }
-
-        
-
         const strategy = this.findStategy(e);
         this.activeMode = strategy;
-        console.log("strategy", strategy);
+        // console.log("strategy", strategy);
         if (strategy) {
             strategy.onMouseDown(e);
             return;
         }
-
-        // Default to cell selection
-        this.activeMode = "select";
-        this.cellSelector.onMouseDown(e);
-        return;
-        // Header selection (row/column)
-        // const hit = this.headerSelector.hitTestHeader(e);
-        // if (hit.type) {
-        //     if (this.cellSelector.cellRange) {
-        //         this.cellSelector.cellRange.startRow = null;
-        //         this.cellSelector.cellRange.startCol = null;
-        //         this.cellSelector.cellRange.endRow = null;
-        //         this.cellSelector.cellRange.endCol = null;
-        //     }
-        //     // console.log(this.cellSelector?.cellRange);
-
-        //     this.activeMode = "header-select";
-        //     this.headerSelector.onMouseDown(e);
-        //     // console.log("Header selection start");
-        //     return;
-        // }
-
-
-
     }
 
     /**
@@ -145,24 +91,11 @@ export class PointerHandler {
      * @param {PointerEvent} e 
      */
     onPointerMove(e) {
-        // Resizing columns
-        if (this.activeMode === "resize-col") {
-            this.resizeHandler.onColResize(e);
+        if (this.activeMode) {
+            this.activeMode.onMouseMove(e);
             return;
-        }
 
-        // Resizing rows
-        if (this.activeMode === "resize-row") {
-            this.resizeHandler.onRowResize(e);
-            return;
         }
-
-        // Normal cell drag-selection
-        if (this.activeMode === "select") {
-            this.cellSelector.onMouseMove(e);
-            return;
-        }
-
         const strategy = this.findStategy(e);
         // console.log("strategy", strategy);
         if (strategy.isSelecting !== null) {
@@ -172,24 +105,6 @@ export class PointerHandler {
             }
             return;
         }
-        // // Header drag-selection
-        // if (this.activeMode === "header-select") {
-        //     this.headerSelector.onMouseMove(e);
-        //     // console.log("Header selection move");
-        //     return;
-        // }
-
-        // Set cursor styles based on hover near edge
-        const { colEdge, rowEdge } = this.resizeHandler.edge.bind(this)(e);
-        if (colEdge) {
-            this.hCanvas.style.cursor = "col-resize";
-        } else if (rowEdge) {
-            this.vCanvas.style.cursor = "row-resize";
-        } else {
-            this.grid.wrapper.style.cursor = "";
-        }
-
-
     }
 
     /**
@@ -197,18 +112,10 @@ export class PointerHandler {
      * @param {PointerEvent} e 
      */
     onPointerUp(e) {
-        if (this.activeMode === "resize-col") {
-            this.resizeHandler.onColResizeEnd(e);
-        } else if (this.activeMode === "resize-row") {
-            this.resizeHandler.onRowResizeEnd(e);
-        } else if (this.activeMode === "select") {
-            this.cellSelector.onMouseUp(e);
+        if (this.activeMode) {
+            this.activeMode.onMouseUp(e);
+            return;
         }
-        // else if (this.activeMode === "header-select") {
-        //     this.headerSelector.onMouseUp(e);
-        //     // console.log("Header selection end");
-        // }
-
         const strategy = this.findStategy(e);
         // console.log("strategy", strategy);
         if (strategy.isSelecting !== null) {
