@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -9,6 +10,7 @@
     <title>Excel</title>
     <link rel="stylesheet" href="./styles/index.css">
 </head>
+
 <body>
     <div class="container">
         <div class="header">
@@ -18,19 +20,21 @@
             <div id="search-collaps" class="search-tooltip">Search for tools, help</div>
         </div>
         <div class="headerInputs">
-            <input type="text" readonly class="cellNum" value=""/>
-            <input type="text" class="cellValue" value=""/>
-            <button class="undo">Undo</button>
-            <button class="redo">Redo</button>
+            <input type="text" readonly class="cellNum" value="" />
+            <input type="text" class="cellValue" value="" />
         </div>
     </div>
 
-    <!-- <div id="scroll-wrapper">
-    </div> -->
-    <div id="wrapper-div">          
-    </div> 
+    <div id="wrapper-div">
+        <div class="scrollbar-horizontal">
+            <div class="scroll-thumb-horizontal"></div>
+        </div>
+        <div class="scrollbar-vertical">
+            <div class="scroll-thumb-vertical"></div>
+        </div>
+    </div>
 
     <script type="module" src="./js/index.js"></script>
 </body>
-</html>
 
+</html>

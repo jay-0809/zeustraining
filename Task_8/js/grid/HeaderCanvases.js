@@ -23,7 +23,7 @@ export function topDiv(grid) {
 
 // Class for creating the horizontal canvas (column headers)
 export class HorizontalCanvas {
-  /**
+/**
 * Constructor for the HorizontalCanvas instance
 * @param {*} grid - Reference to the Grid instance
 * @param {*} xIndex - The x-index (column) for the canvas block

@@ -1,3 +1,5 @@
+import { EditCellCommand } from "../commands/editCommand.js";
+
 /**
  * Handles selection click events on the grid for selecting a cell.
  * When a user clicks on a cell, it creates an input box for editing the cell value.
@@ -43,7 +45,7 @@ export function handleSelectionClick(e) {
         if (this.grid.multiHeaderSelection) {
             this.grid.multiHeaderSelection = null;
         }
-        
+
     };
     // get selection and input divs position
     const getCellPosition = (colIndex, rowIndex) => {
@@ -132,6 +134,7 @@ export function handleSelectionClick(e) {
         const rowMap = grid.dataset.get(dataRowIndex);
         // Set the value of the input field
         const value = rowMap.has(dataColIndex) ? rowMap.get(dataColIndex) : val;
+        const oldValue = rowMap.has(dataColIndex) ? rowMap.get(dataColIndex) : "";; // Store the old value for undo functionality
         cell_input.value = value;
 
         // Position the input field
@@ -151,12 +154,14 @@ export function handleSelectionClick(e) {
 
         // save value to cell and remove input field
         const saveValue = () => {
-            rowMap.set(dataColIndex, cell_input.value);
+            const cmd = new EditCellCommand(grid, dataColIndex, dataRowIndex, cell_input.value, oldValue);
+            // rowMap.set(dataColIndex, cell_input.value);
+            grid.commandManager.executeCommand(cmd);
         };
 
         // Update input value by Enter click and discard update by Escape
         cell_input.addEventListener("keydown", (e) => {
-            if (e.key === "Enter") { saveValue(); selection(globalCol, globalRow); }
+            if (e.key === "Enter") { cell_input.blur(); selection(globalCol, globalRow); }
             else if (e.key === "Escape") {
                 cell_input.value = "";
                 if (grid.wrapper.contains(cell_input)) {
@@ -174,7 +179,9 @@ export function handleSelectionClick(e) {
 
     const keyNavigation = (e) => {
         // console.log("key",e.key);
-
+        if (e.ctrlKey) {
+            return;
+        }
         let handled = true;
 
         if (this.grid.multiEditing) {
@@ -269,6 +276,7 @@ export function handleSelectionClick(e) {
             selection(globalCol, globalRow);
         }
     };
+    
     document.addEventListener("keydown", (e) => {
         const activeElement = document.activeElement;
         const isInputFocused = activeElement &&

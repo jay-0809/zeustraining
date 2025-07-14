@@ -1,7 +1,7 @@
+import { CommandManager } from '../commands/commandManager.js';
 import { Canvas } from './canvas.js';
 import { topDiv, HorizontalCanvas, VerticalCanvas } from './HeaderCanvases.js';
 import { PointerHandler } from './pointerHandler.js';
-
 
 /**
  * Grid class for rendering canvases.
@@ -59,7 +59,7 @@ export class Grid {
         // scroll, click - All EventListeners        
         this.pointer = new PointerHandler(this);
         // console.log(this.pointer);
-
+        this.commandManager = new CommandManager();
         this.pointer.registerHandlers();
     }
     /**
@@ -89,6 +89,7 @@ export class Grid {
         }
         return coords;
     }
+
     /**
      * Renders the visible headers based on Coordinates.
      */
@@ -185,6 +186,21 @@ export class Grid {
         });
 
 
+    }
+
+    updateVisibleCanvases(scrollX, scrollY) {
+        const startCol = Math.floor(scrollX / this.cellWidth);
+        const startRow = Math.floor(scrollY / this.cellHeight);
+
+        // Remove non-visible canvases
+        this.canvases.forEach(c => {
+            if (!c.isVisible(startCol, startRow)) {
+                c.removeCanvas();
+            }
+        });
+
+        // Add visible canvases
+        this.renderCanvases(startCol, startRow);
     }
 
     loadData(dataset) {

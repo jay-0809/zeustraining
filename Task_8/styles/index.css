@@ -3,17 +3,19 @@ body {
   margin: 0;
   padding: 0;
   position: relative;
+  overflow: hidden;
   background-color: #f5f5f5;
 }
 html .container,
 body .container {
   padding: 1px;
+  width: 100vw;
+  height: 10vh;
   position: sticky;
 }
 html .container .header,
 body .container .header {
-  width: 100vw;
-  padding: 10px 0;
+  padding-top: 10px;
   display: flex;
   justify-content: space-evenly;
   align-items: center;
@@ -69,8 +71,6 @@ body .container .header .search-tooltip {
 }
 html .container .headerInputs,
 body .container .headerInputs {
-  width: 100vw;
-  margin: 10px 0;
   padding: 10px;
   display: flex;
   align-items: center;
@@ -89,7 +89,7 @@ body .container .headerInputs .cellNum {
 }
 html .container .headerInputs .cellValue,
 body .container .headerInputs .cellValue {
-  width: 80%;
+  width: 90%;
   padding: 5px 10px;
   border-radius: 3px;
   border: 1px solid rgba(33, 62, 64, 0.2);
@@ -102,44 +102,56 @@ html .container .headerInputs .cellValue:hover,
 body .container .headerInputs .cellValue:hover {
   border: 1px solid #333;
 }
-html .container .headerInputs .undo,
-body .container .headerInputs .undo {
-  width: 4%;
-  padding: 5px;
-  border-radius: 3px;
-  border: 1px solid rgba(33, 62, 64, 0.2);
-  color: #000;
-  outline: none;
-  cursor: pointer;
-}
-html .container .headerInputs .undo:hover,
-body .container .headerInputs .undo:hover {
-  border: 1px solid #333;
-  background: #fff;
-}
-html .container .headerInputs .redo,
-body .container .headerInputs .redo {
-  width: 4%;
-  padding: 5px;
-  border-radius: 3px;
-  border: 1px solid rgba(33, 62, 64, 0.2);
-  color: #000;
-  outline: none;
-  cursor: pointer;
-}
-html .container .headerInputs .redo:hover,
-body .container .headerInputs .redo:hover {
-  border: 1px solid #333;
-  background: #fff;
-}
 html #wrapper-div,
 body #wrapper-div {
+  overflow: hidden;
   position: relative;
   display: grid;
-  width: 100%;
-  height: 100%;
+  width: 100vw;
+  height: 90vh;
   top: 0;
   left: 0;
+}
+html #wrapper-div .scrollbar-horizontal,
+html #wrapper-div .scrollbar-vertical,
+body #wrapper-div .scrollbar-horizontal,
+body #wrapper-div .scrollbar-vertical {
+  position: absolute;
+  background: #e0e0e0;
+  z-index: 100000;
+}
+html #wrapper-div .scrollbar-horizontal,
+body #wrapper-div .scrollbar-horizontal {
+  bottom: 0;
+  left: 0;
+  height: 12px;
+  width: 100%;
+}
+html #wrapper-div .scrollbar-vertical,
+body #wrapper-div .scrollbar-vertical {
+  right: 0;
+  top: 0;
+  width: 12px;
+  height: 100%;
+}
+html #wrapper-div .scroll-thumb-horizontal,
+html #wrapper-div .scroll-thumb-vertical,
+body #wrapper-div .scroll-thumb-horizontal,
+body #wrapper-div .scroll-thumb-vertical {
+  background: #bdbdbd;
+  position: absolute;
+  border-radius: 6px;
+  cursor: pointer;
+}
+html #wrapper-div .scroll-thumb-horizontal,
+body #wrapper-div .scroll-thumb-horizontal {
+  height: 100%;
+  width: 30px;
+}
+html #wrapper-div .scroll-thumb-vertical,
+body #wrapper-div .scroll-thumb-vertical {
+  width: 100%;
+  height: 30px;
 }
 html #wrapper-div .canvas-div,
 body #wrapper-div .canvas-div {

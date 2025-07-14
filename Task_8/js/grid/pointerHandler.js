@@ -41,7 +41,34 @@ export class PointerHandler {
         wrap.addEventListener("pointerdown", this.onPointerDown.bind(this));
         window.addEventListener("pointermove", this.onPointerMove.bind(this));
         window.addEventListener("pointerup", this.onPointerUp.bind(this));
-        window.addEventListener("scroll", this.onScroll.bind(this));
+        // window.addEventListener("scroll", this.onScroll.bind(this));
+        window.addEventListener("keydown", (e) => {
+            if (e.ctrlKey) {
+                switch (e.key.toLowerCase()) {
+                    case "z": this.grid.commandManager.undo(); return;
+                    case "y": this.grid.commandManager.redo(); return;
+                }
+            }
+        });
+    }
+
+    handleCustomScroll(scrollX, scrollY) {
+        // Update headers only along corresponding axis
+        this.grid.renderHeaders(scrollX, scrollY);
+
+        // Recalculate visible canvases based on scroll
+        this.grid.updateVisibleCanvases(scrollX, scrollY);
+
+        // Redraw any relevant selections
+        const cs = this.grid.pointer?.cellSelector;
+        if (cs?.cellRange?.isValid() && cs?.dragged) {
+            const coords = this.grid.getCanvasCoords();
+            coords.forEach(([x, y]) => {
+                const key = JSON.stringify([x, y]);
+                const canvas = this.grid.canvases[key];
+                if (canvas) canvas.drawMultiSelection(cs.cellRange);
+            });
+        }
     }
 
     /**
@@ -51,15 +78,15 @@ export class PointerHandler {
         this.grid.renderHeaders(0, 0);
         this.grid.renderCanvases();
 
-        const cs = this.cellSelector;
-        if (cs.cellRange.isValid() && cs.dragged) {
-            const coords = this.grid.getCanvasCoords();
-            coords.forEach(([x, y]) => {
-                const key = JSON.stringify([x, y]);
-                const canvas = this.grid.canvases[key];
-                if (canvas) canvas.drawMultiSelection(cs.cellRange);
-            });
-        }
+        // const cs = this.cellSelector;
+        // if (cs.cellRange.isValid() && cs.dragged) {
+        //     const coords = this.grid.getCanvasCoords();
+        //     coords.forEach(([x, y]) => {
+        //         const key = JSON.stringify([x, y]);
+        //         const canvas = this.grid.canvases[key];
+        //         if (canvas) canvas.drawMultiSelection(cs.cellRange);
+        //     });
+        // }
     }
 
     findStategy(e) {
@@ -127,6 +154,6 @@ export class PointerHandler {
         }
 
         // Reset mode
-        this.activeMode = null;
+        // this.activeMode = null;
     }
 }

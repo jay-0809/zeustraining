@@ -1,5 +1,27 @@
 import { CellRange } from '../structure/cellRange.js';
 import { handleSelectionClick } from './modulers.js';
+
+function autoScrollDuringDrag(e) {
+    const scrollMargin = 40;
+    const scrollSpeed = 20;
+
+    const { clientX, clientY } = e;
+    const { innerWidth, innerHeight } = window;
+
+    // Horizontal scroll
+    if (clientX > innerWidth - scrollMargin) {
+        window.scrollBy(scrollSpeed, 0);
+    } else if (clientX < scrollMargin) {
+        window.scrollBy(-scrollSpeed, 0);
+    }
+
+    // Vertical scroll
+    if (clientY > innerHeight - scrollMargin) {
+        window.scrollBy(0, scrollSpeed);
+    } else if (clientY < scrollMargin) {
+        window.scrollBy(0, -scrollSpeed);
+    }
+}
 /**
  * Handles multi-selection of cells by dragging on the canvas.
  */
@@ -25,7 +47,6 @@ export class CellSelector {
         this.startX = e.clientX;
         this.startY = e.clientY;
 
-        console.log("this in down", this);
         const cell = this.locateCell(e);
         if (!cell) return;
 
@@ -50,28 +71,29 @@ export class CellSelector {
     onMouseMove(e) {
         if (!this.isSelecting) return;
 
+        autoScrollDuringDrag(e); // Auto-scroll support
+
         if (Math.abs(e.clientX - this.startX) > 5 || Math.abs(e.clientY - this.startY) > 5) {
             this.dragged = true;
         }
 
         const cell = this.locateCell(e);
         if (!cell) return;
-        
+
         this.cellRange.endRow = cell.row;
         this.cellRange.endCol = cell.col;
-        
+
         if (this.cellRange.isValid()) {
             const { startRow, startCol, endRow, endCol } = this.cellRange;
             this.grid.grid.multiSelect = { startRow, startCol, endRow, endCol };
             this.grid.grid.multiCursor = { row: startRow, col: startCol };
             this.grid.grid.multiEditing = true;
         }
-        
+
         if (!this.dragged || !this.cellRange.isValid()) return;
-        
+
         this.grid.grid.renderHeaders(0, 0);
         this.grid.grid.renderCanvases();
-        // console.log("this in move", this);
     }
 
     /**
@@ -117,18 +139,21 @@ export class CellSelector {
      * Returns true if the pointer is inside the grid canvas area (excluding headers).
      */
     hitTest(e) {
-        const rect = this.grid.grid.wrapper.getBoundingClientRect();
-        const x = e.clientX - rect.left + window.scrollX;
-        const y = e.clientY - rect.top + window.scrollY;
-        const { colWidths, rowHeights } = this.grid.grid;
+        const target = e.target;
+        return target.classList.contains("canvas-div") &&
+            !target.classList.contains("h-canvas") &&
+            !target.classList.contains("v-canvas");
+        // const rect = this.grid.grid.wrapper.getBoundingClientRect();
+        // const x = e.clientX - rect.left + window.scrollX;
+        // const y = e.clientY - rect.top + window.scrollY;
+        // const { colWidths, rowHeights } = this.grid.grid;
 
-        // Ignore clicks inside headers
-        if (x <= colWidths[0] || y <= rowHeights[0]) return false;
+        // // Ignore clicks inside headers
+        // if (x <= colWidths[0] || y <= rowHeights[0]) return false;
 
-        return true;
+        // return true;
     }
 }
-
 
 export class HeaderColSelector {
     /**
@@ -192,10 +217,13 @@ export class HeaderColSelector {
     onMouseMove(e) {
         if (!this.isSelecting) return;
 
+        autoScrollDuringDrag(e); // Auto-scroll support
+
         const index = this.colIndex(e);
         if (index != null) {
             this.endIndex = index;
-
+            // console.log("ending: ",this.endIndex);
+            
             this.grid.grid.multiHeaderSelection = {
                 colstart: this.startIndex, colend: index, rowStart: null, rowEnd: null
             };
@@ -294,6 +322,8 @@ export class HeaderRowSelector {
      */
     onMouseMove(e) {
         if (!this.isSelecting) return;
+
+        autoScrollDuringDrag(e); // Auto-scroll support
 
         const index = this.rowIndex(e);
         if (index != null) {

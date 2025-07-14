@@ -1,4 +1,4 @@
-export class Selection {
+ export class Selection {
   constructor() {
     this.startRow = null;
     this.startCol = null;
