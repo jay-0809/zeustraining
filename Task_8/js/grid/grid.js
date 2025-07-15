@@ -147,7 +147,7 @@ export class Grid {
      * Renders the visible canvases based on Coordinates.
      * It will remove non-visible canvases and create new ones for the visible areas.
      */
-    renderCanvases(globalCol = 0, globalRow = 0) {
+    renderCanvases(globalCol = 0, globalRow = 0, startCol=0, startRow=0) {
         const visible = this.getCanvasCoords();
         const visibleSet = new Set(visible);
         // Remove non-visible canvases
@@ -177,7 +177,7 @@ export class Grid {
             }
 
             if (!this.canvases[key]) {
-                this.canvases[key] = new Canvas(this, key[0], key[1], globalCol, globalRow, this.selectCols, this.selectRows);
+                this.canvases[key] = new Canvas(this, key[0], key[1], startCol, startRow, globalCol, globalRow, this.selectCols, this.selectRows);
             }
             if (this.pointer?.activeMode?.cellRange?.isValid() && this.pointer?.activeMode?.dragged) {
                 // console.log(this.activeMode?.cellRange?.isValid() && this.activeMode?.dragged);
@@ -189,15 +189,20 @@ export class Grid {
     }
 
     updateVisibleCanvases(scrollX, scrollY) {
-        const startCol = Math.floor(scrollX / this.cellWidth);
-        const startRow = Math.floor(scrollY / this.cellHeight);
+        const startCol = Math.floor(scrollX / this.colWidths[1]);
+        const startRow = Math.floor(scrollY / this.rowHeights[1]);
 
+        console.log("grid-startCol",startCol,"startRow",startRow);
+
+        const visible = this.getCanvasCoords();
+        const visibleSet = new Set(visible);
         // Remove non-visible canvases
-        this.canvases.forEach(c => {
-            if (!c.isVisible(startCol, startRow)) {
-                c.removeCanvas();
+        for (let key in this.canvases) {
+            if (!visibleSet.has(key)) {
+                this.canvases[key].removeCanvas();
+                delete this.canvases[key];
             }
-        });
+        }
 
         // Add visible canvases
         this.renderCanvases(startCol, startRow);

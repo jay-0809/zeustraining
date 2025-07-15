@@ -133,9 +133,9 @@ export function handleSelectionClick(e) {
         }
         const rowMap = grid.dataset.get(dataRowIndex);
         // Set the value of the input field
-        const value = rowMap.has(dataColIndex) ? rowMap.get(dataColIndex) : val;
+        // const value = rowMap.has(dataColIndex) ? rowMap.get(dataColIndex) : val;
         const oldValue = rowMap.has(dataColIndex) ? rowMap.get(dataColIndex) : "";; // Store the old value for undo functionality
-        cell_input.value = value;
+        cell_input.value = val;
 
         // Position the input field
         const pos = getCellPosition(dataColIndex + 1, dataRowIndex + 1);
@@ -163,7 +163,7 @@ export function handleSelectionClick(e) {
         cell_input.addEventListener("keydown", (e) => {
             if (e.key === "Enter") { cell_input.blur(); selection(globalCol, globalRow); }
             else if (e.key === "Escape") {
-                cell_input.value = "";
+                cell_input.value = oldValue;
                 if (grid.wrapper.contains(cell_input)) {
                     grid.wrapper.removeChild(cell_input);
                     selection(globalCol, globalRow);
@@ -185,8 +185,9 @@ export function handleSelectionClick(e) {
         let handled = true;
 
         if (this.grid.multiEditing) {
+            
             const range = this.grid.multiSelect;
-
+            
             let { row, col } = this.grid.multiCursor;
             // console.log(row, range.endRow, col, range.endRow);
             if (e.key === "Tab") {
@@ -199,13 +200,17 @@ export function handleSelectionClick(e) {
             } else if (e.key === "Enter") {
                 row++;
                 // console.log("row", row);
-
+                
                 if (row > range.endRow) {
                     row = range.startRow;
                     col++;
                     // console.log("col", col);
                     if (col > range.endCol) col = range.startCol;
                 }
+            } else if (e.key == "=") {
+                // console.log(e.key);
+                inputField(this.grid, e.key);
+                return;
             } else if (e.key === "ArrowUp") {
                 this.grid.multiEditing = false;
             } else if (e.key === "ArrowDown") {
@@ -261,6 +266,10 @@ export function handleSelectionClick(e) {
                 }
                 break;
             case "Enter": globalRow = Math.min(this.grid.maxRows, globalRow + 1); break;
+            case "=":
+                handled = false;
+                inputField(this.grid, e.key);
+                break;
             default:
                 if (/^[a-zA-Z0-9]$/.test(e.key)) {
                     handled = false;
@@ -276,7 +285,7 @@ export function handleSelectionClick(e) {
             selection(globalCol, globalRow);
         }
     };
-    
+
     document.addEventListener("keydown", (e) => {
         const activeElement = document.activeElement;
         const isInputFocused = activeElement &&

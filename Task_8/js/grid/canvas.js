@@ -6,7 +6,7 @@ export class Canvas {
      * @param {*} xIndex - The x-index (column) for the canvas block
      * @param {*} yIndex - The y-index (row) for the canvas block
      */
-    constructor(grid, xIndex, yIndex, selectCol, selectRow, selectCols, selectRows) {
+    constructor(grid, xIndex, yIndex, globalColOffset, globalRowOffset, selectCol, selectRow, selectCols, selectRows) {
         this.grid = grid;
         this.xIndex = xIndex;
         this.yIndex = yIndex;
@@ -14,17 +14,21 @@ export class Canvas {
         this.selectRow = selectRow || null;
         this.selectCols = selectCols;
         this.selectRows = selectRows;
+        // console.log(this.selectRows);
+
         const { colWidths, rowHeights, colsPerCanvas, rowsPerCanvas } = grid;
+        this.startCol = globalColOffset + xIndex * colsPerCanvas;
+        this.startRow = globalRowOffset + yIndex * rowsPerCanvas;
 
         // Calculate dynamic width
         let width = 0;
         for (let c = 0; c < colsPerCanvas; c++) {
-            width += colWidths[xIndex * colsPerCanvas + c] || 0;
+            width += colWidths[xIndex * colsPerCanvas + 1 + c] || 0;
         }
         // Calculate dynamic height
         let height = 0;
         for (let r = 0; r < rowsPerCanvas; r++) {
-            height += rowHeights[yIndex * rowsPerCanvas + r] || 0;
+            height += rowHeights[yIndex * rowsPerCanvas + 1 + r] || 0;
         }
         // console.log("globalCol", globalCol, "globalRow", globalRow);
         // Create the canvas element
@@ -37,13 +41,13 @@ export class Canvas {
 
         // Calculate position offsets
         let leftOffset = grid.colWidths[0]; // Space for row header
-        for (let i = 0; i < xIndex * colsPerCanvas; i++) {
-            leftOffset += colWidths[i] || 0;
+        for (let i = 0; i < this.startCol; i++) {
+            leftOffset += colWidths[i + 1] || 0;
         }
 
         let topOffset = grid.rowHeights[0]; // Space for column header
-        for (let i = 0; i < yIndex * rowsPerCanvas; i++) {
-            topOffset += rowHeights[i] || 0;
+        for (let i = 0; i < this.startRow; i++) {
+            topOffset += rowHeights[i + 1] || 0;
         }
 
         this.canvas.style.position = "absolute";
@@ -60,11 +64,11 @@ export class Canvas {
      * Method to create and render the canvas cells
      */
     createCanvas() {
-        const { ctx, grid} = this;  // Destructure grid and context
+        const { ctx, grid } = this;  // Destructure grid and context
         const { dataset, rowsPerCanvas, colsPerCanvas, colWidths, rowHeights } = grid;  // Destructure cell width, height, and dataset
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        const startRow = this.yIndex * rowsPerCanvas;
-        const startCol = this.xIndex * colsPerCanvas;
+        const startRow = this.startRow;
+        const startCol = this.startCol;
 
         if (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) {
             // console.log(grid.pointer?.cellSelector?.cellRange?.isValid(), grid.pointer?.cellSelector?.dragged, grid.multiEditing);
@@ -97,6 +101,18 @@ export class Canvas {
                 // Get the Row object for the globalRow
                 const rowMap = dataset.get(globalRow);
                 let cellData = rowMap instanceof Map ? rowMap.get(globalCol) || "" : "";
+
+                // add logic for if cellData stratswith = then it perform +, -, *, / arithmetic operation same as excel for ex. =d5+d9 then it will get d-columns 5th and 9th row value and it has + in between then it add two cells(if number) and output display else normal cellData  
+                if (typeof cellData === "string" && cellData.startsWith("=")) {
+                    try {
+                        const formula = cellData.slice(1); // Remove '='
+                        const result = this.evaluateFormula(formula, dataset);
+                        cellData = result;
+                    } catch (e) {
+                        // If formula evaluation fails, keep original
+                        console.warn(`Invalid formula in cell [${globalRow},${globalCol}]: ${cellData}`);
+                    }
+                }
 
                 ctx.fillStyle = "#000";
                 ctx.font = globalRow === 0 ? "bold 14px Arial" : "14px Arial";
@@ -198,6 +214,33 @@ export class Canvas {
         ctx.lineWidth = 1.5;
         ctx.strokeRect(startX, startY, width, height);
         ctx.lineWidth = 1;
+    }
+
+    evaluateFormula(formula, dataset) {
+        const refRegex = /([a-zA-Z]+)(\d+)/g;
+        const replaced = formula.replace(refRegex, (_, colLetter, rowStr) => {
+            const colIndex = this.colLetterToIndex(colLetter.toUpperCase());
+            const rowIndex = parseInt(rowStr, 10) - 1;
+            const rowMap = dataset.get(rowIndex);
+            const val = rowMap instanceof Map ? rowMap.get(colIndex) : null;
+            return Number(val) || 0;
+        });
+
+        try {
+            // Use Function constructor to evaluate expression safely
+            const safeEval = new Function(`return (${replaced})`);
+            return safeEval();
+        } catch (e) {
+            return formula; // Fallback if evaluation fails
+        }
+    }
+
+    colLetterToIndex(col) {
+        let index = 0;
+        for (let i = 0; i < col.length; i++) {
+            index = index * 26 + (col.charCodeAt(i) - 64);
+        }
+        return index - 1; // 0-based index
     }
 
     /**

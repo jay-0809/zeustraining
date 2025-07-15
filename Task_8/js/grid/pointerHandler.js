@@ -54,7 +54,7 @@ export class PointerHandler {
 
     handleCustomScroll(scrollX, scrollY) {
         // Update headers only along corresponding axis
-        this.grid.renderHeaders(scrollX, scrollY);
+        // this.grid.renderHeaders(scrollX, scrollY);
 
         // Recalculate visible canvases based on scroll
         this.grid.updateVisibleCanvases(scrollX, scrollY);
@@ -78,15 +78,15 @@ export class PointerHandler {
         this.grid.renderHeaders(0, 0);
         this.grid.renderCanvases();
 
-        // const cs = this.cellSelector;
-        // if (cs.cellRange.isValid() && cs.dragged) {
-        //     const coords = this.grid.getCanvasCoords();
-        //     coords.forEach(([x, y]) => {
-        //         const key = JSON.stringify([x, y]);
-        //         const canvas = this.grid.canvases[key];
-        //         if (canvas) canvas.drawMultiSelection(cs.cellRange);
-        //     });
-        // }
+        const cs = this.cellSelector;
+        if (cs.cellRange.isValid() && cs.dragged) {
+            const coords = this.grid.getCanvasCoords();
+            coords.forEach(([x, y]) => {
+                const key = JSON.stringify([x, y]);
+                const canvas = this.grid.canvases[key];
+                if (canvas) canvas.drawMultiSelection(cs.cellRange);
+            });
+        }
     }
 
     findStategy(e) {
@@ -125,7 +125,7 @@ export class PointerHandler {
         }
         const strategy = this.findStategy(e);
         // console.log("strategy", strategy);
-        if (strategy.isSelecting !== null) {
+        if (strategy && strategy.isSelecting !== null) {
             this.activeMode = strategy;
             if (strategy) {
                 strategy.onMouseMove(e);
@@ -145,7 +145,7 @@ export class PointerHandler {
         }
         const strategy = this.findStategy(e);
         // console.log("strategy", strategy);
-        if (strategy.isSelecting !== null) {
+        if (strategy && strategy.isSelecting !== null) {
             this.activeMode = strategy;
             if (strategy) {
                 strategy.onMouseUp(e);

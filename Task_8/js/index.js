@@ -56,7 +56,7 @@ document.addEventListener("wheel", (e) => {
     scrollY = Math.min(Math.max(0, scrollY + e.deltaY), maxScrollY); // or clamp if needed with max height
 
     updateScroll(); // Update the grid view
-    e.preventDefault(); // Prevent default page scroll
+    // e.preventDefault(); // Prevent default page scroll
 });
 
 const pointerHandler = new PointerHandler(grid);
@@ -64,7 +64,7 @@ function updateScroll() {
     // Adjust the position of the thumb based on scroll position
     document.querySelector('.scroll-thumb-horizontal').style.left = `${(scrollX / document.body.scrollWidth) * 100}%`;
     document.querySelector('.scroll-thumb-vertical').style.top = `${(scrollY / document.body.scrollHeight) * 10}%`;
-
+    
     // Trigger custom grid render update
     pointerHandler.handleCustomScroll(scrollX, scrollY);
 }
