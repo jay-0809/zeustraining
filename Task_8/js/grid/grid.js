@@ -48,7 +48,8 @@ export class Grid {
 
         this.colWidths = Array(maxCols).fill(cellWidth);
         this.rowHeights = Array(maxRows).fill(cellHeight);
-
+        this.scrollX = 0;
+        this.scrollY = 0;
         this.dpr = window.devicePixelRatio || 1;
 
         topDiv(this);
@@ -67,16 +68,11 @@ export class Grid {
      * @returns {Array} An array of canvas coordinates [x, y].
      */
     getCanvasCoords() {
-        const scrollX = window.scrollX;   // Current horizontal scroll position
-        const scrollY = window.scrollY;   // Current vertical scroll position
-        const vw = window.innerWidth;     // Viewport width
-        const vh = window.innerHeight;    // Viewport height
-
         // Calculate the starting and ending columns and rows that are visible
-        const startCol = Math.floor(scrollX / (this.colsPerCanvas * this.colWidths[0]));
-        const endCol = Math.floor((scrollX + vw) / (this.colsPerCanvas * this.colWidths[0]));
-        const startRow = Math.floor(scrollY / (this.rowsPerCanvas * this.rowHeights[0]));
-        const endRow = Math.floor((scrollY + vh) / (this.rowsPerCanvas * this.rowHeights[0]));
+        const startCol = Math.floor(this.scrollX / (this.colsPerCanvas * this.colWidths[0]));
+        const endCol = Math.floor((this.scrollX + window.innerWidth) / (this.colsPerCanvas * this.colWidths[0]));
+        const startRow = Math.floor(this.scrollY / (this.rowsPerCanvas * this.rowHeights[0]));
+        const endRow = Math.floor((this.scrollY + window.innerHeight) / (this.rowsPerCanvas * this.rowHeights[0]));
 
         const coords = [];
         // Loop through the rows and columns and store the visible coordinates
@@ -147,7 +143,7 @@ export class Grid {
      * Renders the visible canvases based on Coordinates.
      * It will remove non-visible canvases and create new ones for the visible areas.
      */
-    renderCanvases(globalCol = 0, globalRow = 0, startCol=0, startRow=0) {
+    renderCanvases(globalCol = 0, globalRow = 0, startCol = 0, startRow = 0) {
         const visible = this.getCanvasCoords();
         const visibleSet = new Set(visible);
         // Remove non-visible canvases
@@ -159,7 +155,6 @@ export class Grid {
         }
         // Render visible canvases
         visible.forEach(key => {
-
             if (this.multiHeaderSelection) {
                 const { colstart, colend, rowStart, rowEnd } = this.multiHeaderSelection;
                 if (colstart !== null) {
@@ -178,6 +173,7 @@ export class Grid {
 
             if (!this.canvases[key]) {
                 this.canvases[key] = new Canvas(this, key[0], key[1], startCol, startRow, globalCol, globalRow, this.selectCols, this.selectRows);
+                // console.log(this.canvases);                
             }
             if (this.pointer?.activeMode?.cellRange?.isValid() && this.pointer?.activeMode?.dragged) {
                 // console.log(this.activeMode?.cellRange?.isValid() && this.activeMode?.dragged);
@@ -188,24 +184,12 @@ export class Grid {
 
     }
 
-    updateVisibleCanvases(scrollX, scrollY) {
-        const startCol = Math.floor(scrollX / this.colWidths[1]);
-        const startRow = Math.floor(scrollY / this.rowHeights[1]);
+    updateVisibleCanvases(col=0, row=0) {
+        // console.log("grid-startCol",startCol,"startRow",startRow);
 
-        console.log("grid-startCol",startCol,"startRow",startRow);
-
-        const visible = this.getCanvasCoords();
-        const visibleSet = new Set(visible);
-        // Remove non-visible canvases
-        for (let key in this.canvases) {
-            if (!visibleSet.has(key)) {
-                this.canvases[key].removeCanvas();
-                delete this.canvases[key];
-            }
-        }
-
+        this.renderHeaders(col,row,this.startCol, this.startRow);
         // Add visible canvases
-        this.renderCanvases(startCol, startRow);
+        this.renderCanvases(col, row, this.startCol, this.startRow);
     }
 
     loadData(dataset) {

@@ -92,8 +92,9 @@ export class CellSelector {
 
         if (!this.dragged || !this.cellRange.isValid()) return;
 
-        this.grid.grid.renderHeaders(0, 0);
-        this.grid.grid.renderCanvases();
+        this.grid.grid.updateVisibleCanvases(0, 0);
+        // this.grid.grid.renderHeaders(0, 0);
+        // this.grid.grid.renderCanvases();
     }
 
     /**
@@ -206,8 +207,9 @@ export class HeaderColSelector {
         this.grid.grid.multiHeaderSelection = { colstart: index, colend: index, rowStart: null, rowEnd: null };
         // console.log(this.grid.grid.multiHeaderSelection);
 
-        this.grid.grid.renderHeaders(0, 0);
-        this.grid.grid.renderCanvases();
+        this.grid.grid.updateVisibleCanvases(0, 0);
+        // this.grid.grid.renderHeaders(0, 0);
+        // this.grid.grid.renderCanvases();
     }
 
     /**
@@ -223,13 +225,14 @@ export class HeaderColSelector {
         if (index != null) {
             this.endIndex = index;
             // console.log("ending: ",this.endIndex);
-            
+
             this.grid.grid.multiHeaderSelection = {
                 colstart: this.startIndex, colend: index, rowStart: null, rowEnd: null
             };
 
-            this.grid.grid.renderHeaders(0, 0);
-            this.grid.grid.renderCanvases();
+            this.grid.grid.updateVisibleCanvases(0, 0);
+            // this.grid.grid.renderHeaders(0, 0);
+            // this.grid.grid.renderCanvases();
         }
     }
 
@@ -312,8 +315,9 @@ export class HeaderRowSelector {
         this.grid.grid.multiHeaderSelection = { colstart: null, colend: null, rowStart: index, rowEnd: index };
         // console.log(this.grid.grid.multiHeaderSelection);
 
-        this.grid.grid.renderHeaders(0, 0);
-        this.grid.grid.renderCanvases();
+        this.grid.grid.updateVisibleCanvases(0, 0);
+        // this.grid.grid.renderHeaders(0, 0);
+        // this.grid.grid.renderCanvases();
     }
 
     /**
@@ -333,8 +337,9 @@ export class HeaderRowSelector {
                 colstart: null, colend: null, rowStart: this.startIndex, rowEnd: index
             };
 
-            this.grid.grid.renderHeaders(0, 0);
-            this.grid.grid.renderCanvases();
+            this.grid.grid.updateVisibleCanvases(0, 0);
+            // this.grid.grid.renderHeaders(0, 0);
+            // this.grid.grid.renderCanvases();
         }
     }
 

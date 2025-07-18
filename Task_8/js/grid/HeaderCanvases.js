@@ -23,12 +23,12 @@ export function topDiv(grid) {
 
 // Class for creating the horizontal canvas (column headers)
 export class HorizontalCanvas {
-/**
-* Constructor for the HorizontalCanvas instance
-* @param {*} grid - Reference to the Grid instance
-* @param {*} xIndex - The x-index (column) for the canvas block
-* @param {*} yIndex - The y-index (row) for the canvas block
-*/
+  /**
+  * Constructor for the HorizontalCanvas instance
+  * @param {*} grid - Reference to the Grid instance
+  * @param {*} xIndex - The x-index (column) for the canvas block
+  * @param {*} yIndex - The y-index (row) for the canvas block
+  */
   constructor(grid, xIndex, yIndex, globalCol, globalRow) {
     // Store grid reference and indexes for canvas positioning
     this.grid = grid;
@@ -38,6 +38,7 @@ export class HorizontalCanvas {
     this.globalRow = globalRow;
 
     const { colWidths, colsPerCanvas, rowHeights } = grid;
+
     // console.log(globalCol, globalRow);
 
     // compute tile width
@@ -61,12 +62,12 @@ export class HorizontalCanvas {
     this.canvas.dataset.xIndex = xIndex;
     this.canvas.dataset.yIndex = yIndex;
 
-    // correct left offset: row-header width + all preceding data-col widths
-    let leftOffset = grid.colWidths[0];
+    // calculate left, then subtract scrollX
+    let left = grid.colWidths[0];
     for (let i = 0; i < xIndex * colsPerCanvas; i++) {
-      leftOffset += colWidths[i] || 0;
+      left += colWidths[i] || 0;
     }
-    this.canvas.style.left = `${leftOffset}px`;
+    this.canvas.style.left = `${left - grid.scrollX}px`;
 
     // Append the canvas element to the wrapper
     grid.wrapper.appendChild(this.canvas);
@@ -103,7 +104,7 @@ export class HorizontalCanvas {
         colIdx + 1 <= Math.max(grid.multiHeaderSelection.colstart, grid.multiHeaderSelection.colend)) {
         ctx.fillStyle = "#107c41";
         ctx.fillRect(x, 0, w, headerH);
-      } else if ((((c + 1) + (xIndex * colsPerCanvas)) === globalCol && globalRow !== 0) || grid.multiHeaderSelection && grid.multiHeaderSelection.colstart===null) {
+      } else if ((((c + 1) + (xIndex * colsPerCanvas)) === globalCol && globalRow !== 0) || grid.multiHeaderSelection && grid.multiHeaderSelection.colstart === null) {
         ctx.fillStyle = "#caead8";
         ctx.fillRect(x, 0, w, headerH);
 
@@ -141,7 +142,7 @@ export class HorizontalCanvas {
       if ((globalRow !== 1 && globalCol === 0 && (grid.pointer?.activeMode?.cellRange?.isValid() && grid.pointer?.activeMode?.dragged && grid.multiEditing) &&
         ((((c + 1) + (xIndex * colsPerCanvas)) >= grid.multiSelect.startCol && ((c + 1) + (xIndex * colsPerCanvas)) <= grid.multiSelect.endCol) ||
           (((c + 1) + (xIndex * colsPerCanvas)) <= grid.multiSelect.startCol && ((c + 1) + (xIndex * colsPerCanvas)) >= grid.multiSelect.endCol))) ||
-        (((c + 1) + (xIndex * colsPerCanvas)) === globalCol && globalRow !== 0) || grid.multiHeaderSelection && grid.multiHeaderSelection.colstart===null) {
+        (((c + 1) + (xIndex * colsPerCanvas)) === globalCol && globalRow !== 0) || grid.multiHeaderSelection && grid.multiHeaderSelection.colstart === null) {
         ctx.fillStyle = "#107c41";
       } else {
         ctx.fillStyle = (grid.multiHeaderSelection && colIdx + 1 >= Math.min(grid.multiHeaderSelection.colstart, grid.multiHeaderSelection.colend) &&
@@ -207,12 +208,12 @@ export class VerticalCanvas {
     this.canvas.dataset.xIndex = xIndex;
     this.canvas.dataset.yIndex = yIndex;
 
-    // correct top offset: col-header height + all preceding data-row heights
-    let topOffset = rowHeights[0];
+    // calculate top, then subtract scrollY
+    let top = rowHeights[0];
     for (let i = 0; i < yIndex * rowsPerCanvas; i++) {
-      topOffset += rowHeights[i] || 0;
+      top += rowHeights[i] || 0;
     }
-    this.canvas.style.top = `${topOffset}px`;
+    this.canvas.style.top = `${top - grid.scrollY}px`;
 
     grid.wrapper.appendChild(this.canvas);
     this.createVCanvas();
@@ -238,13 +239,13 @@ export class VerticalCanvas {
       ctx.fillRect(0, y, headerW, h);
 
       // console.log(grid.multiHeaderSelection);
-      
+
       // Special case for mixed selection
       if (grid.multiHeaderSelection && rowIdx + 1 >= Math.min(grid.multiHeaderSelection.rowStart, grid.multiHeaderSelection.rowEnd) &&
         rowIdx + 1 <= Math.max(grid.multiHeaderSelection.rowStart, grid.multiHeaderSelection.rowEnd)) {
         ctx.fillStyle = "#107c41";
         ctx.fillRect(0, y, headerW, h);
-      } else if ((((r + 1) + (yIndex * rowsPerCanvas)) === globalRow && globalCol !== null) || grid.multiHeaderSelection && grid.multiHeaderSelection.rowStart===null) {
+      } else if ((((r + 1) + (yIndex * rowsPerCanvas)) === globalRow && globalCol !== null) || grid.multiHeaderSelection && grid.multiHeaderSelection.rowStart === null) {
         // console.log((globalRow%50), r);
         ctx.fillStyle = "#caead8";
         ctx.fillRect(x, y, headerW, h);
@@ -274,8 +275,8 @@ export class VerticalCanvas {
       }
       if ((globalRow === null && globalCol !== 0 && (grid.pointer?.activeMode?.cellRange?.isValid() && grid.pointer?.activeMode?.dragged && grid.multiEditing) &&
         ((((r + 1) + (yIndex * rowsPerCanvas)) >= grid.multiSelect.startRow && ((r + 1) + (yIndex * rowsPerCanvas)) <= grid.multiSelect.endRow) ||
-        (((r + 1) + (yIndex * rowsPerCanvas)) <= grid.multiSelect.startRow && ((r + 1) + (yIndex * rowsPerCanvas)) >= grid.multiSelect.endRow))) ||
-        ((((r + 1) + (yIndex * rowsPerCanvas)) === globalRow && globalCol !== null) || grid.multiHeaderSelection && grid.multiHeaderSelection.rowStart===null)) {
+          (((r + 1) + (yIndex * rowsPerCanvas)) <= grid.multiSelect.startRow && ((r + 1) + (yIndex * rowsPerCanvas)) >= grid.multiSelect.endRow))) ||
+        ((((r + 1) + (yIndex * rowsPerCanvas)) === globalRow && globalCol !== null) || grid.multiHeaderSelection && grid.multiHeaderSelection.rowStart === null)) {
         ctx.fillStyle = "#107c41";
       } else {
         ctx.fillStyle = (grid.multiHeaderSelection && rowIdx + 1 >= Math.min(grid.multiHeaderSelection.rowStart, grid.multiHeaderSelection.rowEnd) &&

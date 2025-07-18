@@ -53,11 +53,15 @@ export class PointerHandler {
     }
 
     handleCustomScroll(scrollX, scrollY) {
-        // Update headers only along corresponding axis
-        // this.grid.renderHeaders(scrollX, scrollY);
+        // store in grid for canvas positioning
+        this.grid.scrollX = scrollX;
+        this.grid.scrollY = scrollY;
+
+        this.grid.startCol = Math.floor(scrollX / this.grid.colWidths[1]);
+        this.grid.startRow = Math.floor(scrollY / this.grid.rowHeights[1]);
 
         // Recalculate visible canvases based on scroll
-        this.grid.updateVisibleCanvases(scrollX, scrollY);
+        this.grid.updateVisibleCanvases();
 
         // Redraw any relevant selections
         const cs = this.grid.pointer?.cellSelector;
@@ -79,7 +83,7 @@ export class PointerHandler {
         this.grid.renderCanvases();
 
         const cs = this.cellSelector;
-        if (cs.cellRange.isValid() && cs.dragged) {
+        if (cs.cellRange?.isValid() && cs?.dragged) {
             const coords = this.grid.getCanvasCoords();
             coords.forEach(([x, y]) => {
                 const key = JSON.stringify([x, y]);
@@ -106,7 +110,7 @@ export class PointerHandler {
     onPointerDown(e) {
         const strategy = this.findStategy(e);
         this.activeMode = strategy;
-        // console.log("strategy", strategy);
+        console.log("strategy", strategy);
         if (strategy) {
             strategy.onMouseDown(e);
             return;

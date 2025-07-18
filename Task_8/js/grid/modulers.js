@@ -21,18 +21,20 @@ export function handleSelectionClick(e) {
     let globalCol = -1, globalRow = -1;
     let xCursor = 0, yCursor = 0;
 
-    for (let i = 0; i < this.grid.colWidths.length; i++) {
+    for (let i = this.grid?.startCol || 0; i < this.grid.colWidths.length; i++) {
         xCursor += this.grid.colWidths[i];
         if (x < xCursor) {
             globalCol = i;
+            xCursor -= this.grid.colWidths[i];
             break;
         }
     }
 
-    for (let j = 0; j < this.grid.rowHeights.length; j++) {
+    for (let j = this.grid?.startRow || 0; j < this.grid.rowHeights.length; j++) {
         yCursor += this.grid.rowHeights[j];
         if (y < yCursor) {
             globalRow = j;
+            yCursor -= this.grid.rowHeights[j];
             break;
         }
     }
@@ -45,12 +47,13 @@ export function handleSelectionClick(e) {
         if (this.grid.multiHeaderSelection) {
             this.grid.multiHeaderSelection = null;
         }
-
     };
     // get selection and input divs position
     const getCellPosition = (colIndex, rowIndex) => {
-        const left = this.grid.colWidths.slice(0, colIndex).reduce((sum, w) => sum + w, 0);
-        const top = this.grid.rowHeights.slice(0, rowIndex).reduce((sum, h) => sum + h, 0);
+        // let left = this.grid.colWidths.slice(0, colIndex).reduce((sum, w) => sum + w, 0);
+        // let top = this.grid.rowHeights.slice(0, rowIndex).reduce((sum, h) => sum + h, 0);
+        let left = xCursor;
+        let top = yCursor;
         return {
             left,
             top,
@@ -66,8 +69,9 @@ export function handleSelectionClick(e) {
      */
     const selection = (col, row) => {
         clearSelection();
-        this.grid.renderHeaders(col, row);
-        this.grid.renderCanvases(col, row);
+        // this.grid.renderHeaders(col, row);
+        // this.grid.renderCanvases(col, row);
+        this.grid.updateVisibleCanvases(col, row);
         // console.log(this.grid.multiEditing);
 
         if (this.grid.multiEditing) {
@@ -133,9 +137,9 @@ export function handleSelectionClick(e) {
         }
         const rowMap = grid.dataset.get(dataRowIndex);
         // Set the value of the input field
-        // const value = rowMap.has(dataColIndex) ? rowMap.get(dataColIndex) : val;
-        const oldValue = rowMap.has(dataColIndex) ? rowMap.get(dataColIndex) : "";; // Store the old value for undo functionality
-        cell_input.value = val;
+        const oldValue = rowMap.has(dataColIndex) ? rowMap.get(dataColIndex) : "";
+        // const oldValue = rowMap.has(dataColIndex) ? rowMap.get(dataColIndex) : (val ? (val) : ""); // Store the old value for undo functionality
+        cell_input.value = val ? val : oldValue;
 
         // Position the input field
         const pos = getCellPosition(dataColIndex + 1, dataRowIndex + 1);
@@ -164,10 +168,10 @@ export function handleSelectionClick(e) {
             if (e.key === "Enter") { cell_input.blur(); selection(globalCol, globalRow); }
             else if (e.key === "Escape") {
                 cell_input.value = oldValue;
-                if (grid.wrapper.contains(cell_input)) {
-                    grid.wrapper.removeChild(cell_input);
-                    selection(globalCol, globalRow);
-                }
+                // if (grid.wrapper.contains(cell_input)) {
+                //     grid.wrapper.removeChild(cell_input);
+                // }
+                selection(globalCol, globalRow);
             }
         });
 

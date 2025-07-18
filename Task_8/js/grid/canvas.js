@@ -17,8 +17,12 @@ export class Canvas {
         // console.log(this.selectRows);
 
         const { colWidths, rowHeights, colsPerCanvas, rowsPerCanvas } = grid;
-        this.startCol = globalColOffset + xIndex * colsPerCanvas;
-        this.startRow = globalRowOffset + yIndex * rowsPerCanvas;
+        this.startCol = globalColOffset;
+        // this.startCol = globalColOffset + xIndex * colsPerCanvas;
+        this.startRow = globalRowOffset;
+        // this.startRow = globalRowOffset + yIndex * rowsPerCanvas;
+
+        // console.log("grid-startCol", globalColOffset,"startRow", globalRowOffset);
 
         // Calculate dynamic width
         let width = 0;
@@ -30,6 +34,7 @@ export class Canvas {
         for (let r = 0; r < rowsPerCanvas; r++) {
             height += rowHeights[yIndex * rowsPerCanvas + 1 + r] || 0;
         }
+
         // console.log("globalCol", globalCol, "globalRow", globalRow);
         // Create the canvas element
         this.canvas = document.createElement("canvas");
@@ -50,9 +55,10 @@ export class Canvas {
             topOffset += rowHeights[i + 1] || 0;
         }
 
+        // console.log("leftOffset",leftOffset,"topOffset",topOffset);
         this.canvas.style.position = "absolute";
-        this.canvas.style.left = `${leftOffset}px`;
-        this.canvas.style.top = `${topOffset}px`;
+        this.canvas.style.left = `${leftOffset - grid.scrollX}px`;
+        this.canvas.style.top = `${topOffset - grid.scrollY}px`;
 
         // Append the canvas element to the wrapper
         grid.wrapper.appendChild(this.canvas);
@@ -69,6 +75,8 @@ export class Canvas {
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         const startRow = this.startRow;
         const startCol = this.startCol;
+
+        // this.clearSelection();
 
         if (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) {
             // console.log(grid.pointer?.cellSelector?.cellRange?.isValid(), grid.pointer?.cellSelector?.dragged, grid.multiEditing);
@@ -152,16 +160,14 @@ export class Canvas {
             ctx.stroke();
             x += colWidths[startCol + 1 + c] || 0;
         }
-
-
     }
     /**
     * Method to select multiple cells in the canvas
     */
     drawMultiSelection(cellRange) {
         const { ctx } = this;
-        const startRow = this.yIndex * this.grid.rowsPerCanvas;
-        const startCol = this.xIndex * this.grid.colsPerCanvas;
+        const startRow = this.startRow;
+        const startCol = this.startCol;
         const { colWidths, rowHeights } = this.grid;
 
         // console.log("cellRange", cellRange, "this.selectCol", this.selectCol, "this.selectRow", this.selectRow);
@@ -243,6 +249,11 @@ export class Canvas {
         return index - 1; // 0-based index
     }
 
+    clearSelection() {
+        document.querySelectorAll(".selection, .selection-block, .cell-input").forEach(el => {
+            if (this.grid.wrapper.contains(el)) this.grid.wrapper.removeChild(el);
+        });
+    };
     /**
      * Method to remove the canvas element from the DOM 
      */

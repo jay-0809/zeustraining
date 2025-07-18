@@ -145,7 +145,8 @@ body #wrapper-div .scroll-thumb-vertical {
 }
 html #wrapper-div .scroll-thumb-horizontal,
 body #wrapper-div .scroll-thumb-horizontal {
-  height: 100%;
+  padding: 20px 0;
+  height: 1%;
   width: 30px;
 }
 html #wrapper-div .scroll-thumb-vertical,
