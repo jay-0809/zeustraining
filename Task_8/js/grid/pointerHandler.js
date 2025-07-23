@@ -41,7 +41,6 @@ export class PointerHandler {
         wrap.addEventListener("pointerdown", this.onPointerDown.bind(this));
         window.addEventListener("pointermove", this.onPointerMove.bind(this));
         window.addEventListener("pointerup", this.onPointerUp.bind(this));
-        // window.addEventListener("scroll", this.onScroll.bind(this));
         window.addEventListener("keydown", (e) => {
             if (e.ctrlKey) {
                 switch (e.key.toLowerCase()) {
@@ -75,23 +74,6 @@ export class PointerHandler {
         }
     }
 
-    /**
-     * Handles scroll event: re-renders grid and active selection boxes.
-     */
-    onScroll() {
-        this.grid.renderHeaders(0, 0);
-        this.grid.renderCanvases();
-
-        const cs = this.cellSelector;
-        if (cs.cellRange?.isValid() && cs?.dragged) {
-            const coords = this.grid.getCanvasCoords();
-            coords.forEach(([x, y]) => {
-                const key = JSON.stringify([x, y]);
-                const canvas = this.grid.canvases[key];
-                if (canvas) canvas.drawMultiSelection(cs.cellRange);
-            });
-        }
-    }
 
     findStategy(e) {
         for (const strategy of this.strategies) {
@@ -110,7 +92,7 @@ export class PointerHandler {
     onPointerDown(e) {
         const strategy = this.findStategy(e);
         this.activeMode = strategy;
-        console.log("strategy", strategy);
+        // console.log("strategy", strategy);
         if (strategy) {
             strategy.onMouseDown(e);
             return;
@@ -143,6 +125,7 @@ export class PointerHandler {
      * @param {PointerEvent} e 
      */
     onPointerUp(e) {
+        this.grid.activeCellRange = null;
         if (this.activeMode) {
             this.activeMode.onMouseUp(e);
             return;
@@ -156,8 +139,5 @@ export class PointerHandler {
             }
             return;
         }
-
-        // Reset mode
-        // this.activeMode = null;
     }
 }

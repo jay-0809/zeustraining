@@ -77,11 +77,10 @@ export class Canvas {
         const startCol = this.startCol;
 
         // this.clearSelection();
-
-        if (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) {
-            // console.log(grid.pointer?.cellSelector?.cellRange?.isValid(), grid.pointer?.cellSelector?.dragged, grid.multiEditing);
-            this.drawMultiSelection(grid.pointer?.cellSelector?.cellRange);
-        }
+        // if (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) {
+        //     console.log(grid.pointer?.cellSelector?.cellRange);
+        //     this.drawMultiSelection(grid.pointer?.cellSelector?.cellRange);
+        // }
 
         // console.log(this.selectCols, this.selectRows);
         // Draw cells within a canvas block

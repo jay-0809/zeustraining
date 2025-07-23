@@ -1,27 +1,7 @@
 import { CellRange } from '../structure/cellRange.js';
 import { handleSelectionClick } from './modulers.js';
+import { setupAutoScroll } from './autoScrollDuringDragStrategy.js';
 
-function autoScrollDuringDrag(e) {
-    const scrollMargin = 40;
-    const scrollSpeed = 20;
-
-    const { clientX, clientY } = e;
-    const { innerWidth, innerHeight } = window;
-
-    // Horizontal scroll
-    if (clientX > innerWidth - scrollMargin) {
-        window.scrollBy(scrollSpeed, 0);
-    } else if (clientX < scrollMargin) {
-        window.scrollBy(-scrollSpeed, 0);
-    }
-
-    // Vertical scroll
-    if (clientY > innerHeight - scrollMargin) {
-        window.scrollBy(0, scrollSpeed);
-    } else if (clientY < scrollMargin) {
-        window.scrollBy(0, -scrollSpeed);
-    }
-}
 /**
  * Handles multi-selection of cells by dragging on the canvas.
  */
@@ -36,6 +16,8 @@ export class CellSelector {
         this.isSelecting = false;
         this.dragged = false;
         this.canvas = document.querySelector(".canvas-div");
+
+        this.autoScroller = setupAutoScroll(this, "both");
     }
 
     /**
@@ -71,7 +53,7 @@ export class CellSelector {
     onMouseMove(e) {
         if (!this.isSelecting) return;
 
-        autoScrollDuringDrag(e); // Auto-scroll support
+        this.autoScroller.onMove(e);
 
         if (Math.abs(e.clientX - this.startX) > 5 || Math.abs(e.clientY - this.startY) > 5) {
             this.dragged = true;
@@ -93,8 +75,6 @@ export class CellSelector {
         if (!this.dragged || !this.cellRange.isValid()) return;
 
         this.grid.grid.updateVisibleCanvases(0, 0);
-        // this.grid.grid.renderHeaders(0, 0);
-        // this.grid.grid.renderCanvases();
     }
 
     /**
@@ -102,6 +82,7 @@ export class CellSelector {
      */
     onMouseUp(e) {
         this.isSelecting = false;
+        this.autoScroller.cancel();
         if (!this.dragged) return;
     }
 
@@ -115,7 +96,7 @@ export class CellSelector {
         const { colWidths, rowHeights } = this.grid.grid;
 
         let col = -1, xAcc = 0;
-        for (let i = 0; i < this.grid.grid.maxCols; i++) {
+        for (let i = this.grid?.grid?.startCol || 0; i < this.grid.grid.maxCols; i++) {
             xAcc += colWidths[i];
             if (x < xAcc) {
                 col = i;
@@ -124,7 +105,7 @@ export class CellSelector {
         }
 
         let row = -1, yAcc = 0;
-        for (let j = 0; j < this.grid.grid.maxRows; j++) {
+        for (let j = this.grid?.grid?.startRow || 0; j < this.grid.grid.maxRows; j++) {
             yAcc += rowHeights[j];
             if (y < yAcc) {
                 row = j;
@@ -173,6 +154,8 @@ export class HeaderColSelector {
 
         /** @type {?number} Ending index of selection */
         this.endIndex = null;
+
+        this.autoScroller = setupAutoScroll(this, "x");
     }
 
     colIndex(e) {
@@ -185,7 +168,7 @@ export class HeaderColSelector {
 
         if (y <= colHeaderHeight) {
             let xSum = 0;
-            for (let i = 0; i < colWidths.length; i++) {
+            for (let i = this.grid?.grid?.startCol || 0; i < colWidths.length; i++) {
                 xSum += colWidths[i];
                 if (x < xSum) {
                     return i;
@@ -219,7 +202,7 @@ export class HeaderColSelector {
     onMouseMove(e) {
         if (!this.isSelecting) return;
 
-        autoScrollDuringDrag(e); // Auto-scroll support
+        this.autoScroller.onMove(e); // Auto-scroll support
 
         const index = this.colIndex(e);
         if (index != null) {
@@ -242,6 +225,7 @@ export class HeaderColSelector {
      */
     onMouseUp(e) {
         this.isSelecting = false;
+        this.autoScroller.cancel();
     }
 
     /**
@@ -281,6 +265,8 @@ export class HeaderRowSelector {
 
         /** @type {?number} Ending index of selection */
         this.endIndex = null;
+
+        this.autoScroller = setupAutoScroll(this, "y");
     }
 
     rowIndex(e) {
@@ -293,7 +279,7 @@ export class HeaderRowSelector {
 
         if (x <= rowHeaderWidth) {
             let ySum = 0;
-            for (let j = 0; j < rowHeights.length; j++) {
+            for (let j = this.grid?.grid?.startRow || 0; j < rowHeights.length; j++) {
                 ySum += rowHeights[j];
                 if (y < ySum) {
                     return j;
@@ -327,7 +313,7 @@ export class HeaderRowSelector {
     onMouseMove(e) {
         if (!this.isSelecting) return;
 
-        autoScrollDuringDrag(e); // Auto-scroll support
+        this.autoScroller.onMove(e); // Auto-scroll support
 
         const index = this.rowIndex(e);
         if (index != null) {
@@ -349,6 +335,7 @@ export class HeaderRowSelector {
      */
     onMouseUp(e) {
         this.isSelecting = false;
+        this.autoScroller.cancel();
     }
 
     /**

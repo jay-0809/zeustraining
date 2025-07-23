@@ -50,6 +50,8 @@ export class Grid {
         this.rowHeights = Array(maxRows).fill(cellHeight);
         this.scrollX = 0;
         this.scrollY = 0;
+        this.startRow = 0;
+        this.startCol = 0;
         this.dpr = window.devicePixelRatio || 1;
 
         topDiv(this);
@@ -176,18 +178,20 @@ export class Grid {
                 // console.log(this.canvases);                
             }
             if (this.pointer?.activeMode?.cellRange?.isValid() && this.pointer?.activeMode?.dragged) {
-                // console.log(this.activeMode?.cellRange?.isValid() && this.activeMode?.dragged);
+                // console.log(this.pointer?.activeMode?.cellRange?.isValid() && this.pointer?.activeMode?.dragged);
                 this.canvases[key].drawMultiSelection(this.pointer?.activeMode.cellRange);
             }
+            if (this.multiEditing && this.activeCellRange) {
+                // console.log(this.activeCellRange);
+                this.canvases[key].drawMultiSelection(this.activeCellRange);
+            }
         });
-
-
     }
 
-    updateVisibleCanvases(col=0, row=0) {
+    updateVisibleCanvases(col = 0, row = 0) {
         // console.log("grid-startCol",startCol,"startRow",startRow);
 
-        this.renderHeaders(col,row,this.startCol, this.startRow);
+        this.renderHeaders(col, row);
         // Add visible canvases
         this.renderCanvases(col, row, this.startCol, this.startRow);
     }

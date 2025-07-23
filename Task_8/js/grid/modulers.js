@@ -1,5 +1,5 @@
 import { EditCellCommand } from "../commands/editCommand.js";
-
+import { CellRange } from '../structure/cellRange.js';
 /**
  * Handles selection click events on the grid for selecting a cell.
  * When a user clicks on a cell, it creates an input box for editing the cell value.
@@ -50,10 +50,9 @@ export function handleSelectionClick(e) {
     };
     // get selection and input divs position
     const getCellPosition = (colIndex, rowIndex) => {
-        // let left = this.grid.colWidths.slice(0, colIndex).reduce((sum, w) => sum + w, 0);
-        // let top = this.grid.rowHeights.slice(0, rowIndex).reduce((sum, h) => sum + h, 0);
-        let left = xCursor;
-        let top = yCursor;
+        // console.log("startCol:", this.grid.startCol,"startRow" ,this.grid.startRow);
+        let left = this.grid.colWidths.slice(this.grid.startCol, colIndex).reduce((sum, w) => sum + w, 0);
+        let top = this.grid.rowHeights.slice(this.grid.startRow, rowIndex).reduce((sum, h) => sum + h, 0);
         return {
             left,
             top,
@@ -181,6 +180,9 @@ export function handleSelectionClick(e) {
         });
     }
 
+    const cellRange = new CellRange();
+    cellRange.startRow = globalRow;
+    cellRange.startCol = globalCol;
     const keyNavigation = (e) => {
         // console.log("key",e.key);
         if (e.ctrlKey) {
@@ -188,10 +190,41 @@ export function handleSelectionClick(e) {
         }
         let handled = true;
 
+        if (e.shiftKey) {
+            if (e.key === "ArrowUp") {
+                globalRow = globalRow - 1;
+                this.grid.multiEditing = false;
+            } else if (e.key === "ArrowDown") {
+                globalRow = globalRow + 1;
+                this.grid.multiEditing = false;
+            } else if (e.key === "ArrowLeft") {
+                globalCol = globalCol - 1;
+                this.grid.multiEditing = false;
+            } else if (e.key === "ArrowRight") {
+                globalCol = globalCol + 1;
+                this.grid.multiEditing = false;
+            }
+            cellRange.endRow = globalRow;
+            cellRange.endCol = globalCol;
+            if (!this.grid.multiEditing) {
+                if (cellRange.isValid()) {                    
+                    const { startRow, startCol, endRow, endCol } = cellRange;
+                    this.grid.multiSelect = { startRow, startCol, endRow, endCol };
+                    this.grid.multiCursor = { row: startRow, col: startCol };
+                    this.grid.multiEditing = true;
+
+                    this.grid.activeCellRange = cellRange;
+                }
+                this.grid.updateVisibleCanvases(0, 0);
+                // console.log("cellRan:", cellRange);
+                return;
+            }
+        }
+
+
         if (this.grid.multiEditing) {
-            
             const range = this.grid.multiSelect;
-            
+
             let { row, col } = this.grid.multiCursor;
             // console.log(row, range.endRow, col, range.endRow);
             if (e.key === "Tab") {
@@ -204,7 +237,7 @@ export function handleSelectionClick(e) {
             } else if (e.key === "Enter") {
                 row++;
                 // console.log("row", row);
-                
+
                 if (row > range.endRow) {
                     row = range.startRow;
                     col++;

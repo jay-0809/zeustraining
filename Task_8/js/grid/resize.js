@@ -1,25 +1,4 @@
 import { ResizeCommand } from "../commands/ResizeCommand.js";
-function autoScrollDuringDrag(e) {
-    const scrollMargin = 40;
-    const scrollSpeed = 20;
-
-    const { clientX, clientY } = e;
-    const { innerWidth, innerHeight } = window;
-
-    // Horizontal scroll
-    if (clientX > innerWidth - scrollMargin) {
-        window.scrollBy(scrollSpeed, 0);
-    } else if (clientX < scrollMargin) {
-        window.scrollBy(-scrollSpeed, 0);
-    }
-
-    // Vertical scroll
-    if (clientY > innerHeight - scrollMargin) {
-        window.scrollBy(0, scrollSpeed);
-    } else if (clientY < scrollMargin) {
-        window.scrollBy(0, -scrollSpeed);
-    }
-}
 
 /**
  * Handles column resize interactions.
@@ -113,8 +92,6 @@ export class ColResizeHandler {
      */
     onMouseMove(e) {
         if (this.resizingCol == null) return;
-
-        autoScrollDuringDrag(e); // Auto-scroll support
 
         const dx = e.clientX - this.startX;
         const newWidth = Math.max(30, this.startColWidth + dx);
@@ -269,8 +246,6 @@ export class RowResizeHandler {
      */
     onMouseMove(e) {
         if (this.resizingRow == null) return;
-
-        autoScrollDuringDrag(e); // Auto-scroll support
         
         const dy = e.clientY - this.startY;
         const newHeight = Math.max(15, this.startRowHeight + dy);

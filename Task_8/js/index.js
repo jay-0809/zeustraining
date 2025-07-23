@@ -23,8 +23,9 @@ const myData = generateData(100000);
 // Initializing grid
 const grid = new Grid(wrapper, cellNum, cellValue, rowsPerCanvas, colsPerCanvas, cellWidth, cellHeight, maxRows, maxCols, myData);
 
-let scrollX = 0;
-let scrollY = 0;
+// let scrollX = grid.scrollX;
+// let scrollY = grid.scrollY;
+// console.log("scrollX: ",scrollX, "scrollY:", scrollY);
 const maxScrollY = maxRows * cellHeight - window.innerHeight;
 const maxScrollX = maxCols * cellWidth - window.innerWidth;
 const thumbH = document.querySelector('.scroll-thumb-horizontal');
@@ -42,14 +43,14 @@ wrapper.addEventListener('wheel', onWheel, { passive: false });
 
 function startDrag(e, axis) {
     const start = axis === 'x' ? e.clientX : e.clientY;
-    const init = axis === 'x' ? scrollX : scrollY;
+    const init = axis === 'x' ? grid.scrollX : grid.scrollY;
 
     function onMove(ev) {
         const delta = (axis === 'x' ? ev.clientX - start : ev.clientY - start);
         if (axis === 'x') {
-            scrollX = clamp(init + delta, 0, maxScrollX);
+            grid.scrollX = clamp(init + delta, 0, maxScrollX);
         } else {
-            scrollY = clamp(init + delta, 0, maxScrollY);
+            grid.scrollY = clamp(init + delta, 0, maxScrollY);
         }
         updateScroll();
     }
@@ -64,10 +65,11 @@ function startDrag(e, axis) {
 }
 
 function onWheel(e) {
+    // console.log("scrollX: ",scrollX, "scrollY:", scrollY);
     if (e.ctrlKey) {
-        scrollX = clamp(scrollX + e.deltaY, 0, maxScrollX);
+        grid.scrollX = clamp(grid.scrollX + e.deltaY, 0, maxScrollX);
     } else {
-        scrollY = clamp(scrollY + e.deltaY, 0, maxScrollY);
+        grid.scrollY = clamp(grid.scrollY + e.deltaY, 0, maxScrollY);
     }
     updateScroll();
     e.preventDefault(); // prevent browser default zoom
@@ -78,9 +80,9 @@ function clamp(v, min, max) { return v < min ? min : v > max ? max : v; }
 const pointerHandler = new PointerHandler(grid);
 
 function updateScroll() {
-    const xPct = maxScrollX ? (scrollX / maxScrollX) * 100 : 0;
-    const yPct = maxScrollY ? (scrollY / maxScrollY) * 100 : 0;
+    const xPct = maxScrollX ? (grid.scrollX / maxScrollX) * 100 : 0;
+    const yPct = maxScrollY ? (grid.scrollY / maxScrollY) * 100 : 0;
     thumbH.style.left = `${ xPct }%`;
     thumbV.style.top = `${ yPct }%`;
-    pointerHandler.handleCustomScroll(scrollX, scrollY);
+    pointerHandler.handleCustomScroll(grid.scrollX, grid.scrollY);
 }
