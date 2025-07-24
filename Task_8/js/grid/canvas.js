@@ -46,12 +46,18 @@ export class Canvas {
 
         // Calculate position offsets
         let leftOffset = grid.colWidths[0]; // Space for row header
-        for (let i = 0; i < this.startCol; i++) {
+        // for (let i = 0; i < this.startCol; i++) {
+        //     leftOffset += colWidths[i + 1] || 0;
+        // }
+        for (let i = 0; i < this.startCol + xIndex * colsPerCanvas; i++) {
             leftOffset += colWidths[i + 1] || 0;
         }
 
         let topOffset = grid.rowHeights[0]; // Space for column header
-        for (let i = 0; i < this.startRow; i++) {
+        // for (let i = 0; i < this.startRow; i++) {
+        //     topOffset += rowHeights[i + 1] || 0;
+        // }
+        for (let i = 0; i < this.startRow + yIndex * rowsPerCanvas; i++) {
             topOffset += rowHeights[i + 1] || 0;
         }
 
@@ -59,6 +65,7 @@ export class Canvas {
         this.canvas.style.position = "absolute";
         this.canvas.style.left = `${leftOffset - grid.scrollX}px`;
         this.canvas.style.top = `${topOffset - grid.scrollY}px`;
+        this.canvas.style.cursor = "cell";
 
         // Append the canvas element to the wrapper
         grid.wrapper.appendChild(this.canvas);
@@ -73,14 +80,16 @@ export class Canvas {
         const { ctx, grid } = this;  // Destructure grid and context
         const { dataset, rowsPerCanvas, colsPerCanvas, colWidths, rowHeights } = grid;  // Destructure cell width, height, and dataset
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        const startRow = this.startRow;
-        const startCol = this.startCol;
+        // const startRow = this.startRow;
+        // const startCol = this.startCol;
+        const startRow = this.startRow + this.yIndex * rowsPerCanvas;
+        const startCol = this.startCol + this.xIndex * colsPerCanvas;
 
         // this.clearSelection();
-        // if (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) {
-        //     console.log(grid.pointer?.cellSelector?.cellRange);
-        //     this.drawMultiSelection(grid.pointer?.cellSelector?.cellRange);
-        // }
+        if (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) {
+            console.log(grid.pointer?.cellSelector?.cellRange);
+            this.drawMultiSelection(grid.pointer?.cellSelector?.cellRange);
+        }
 
         // console.log(this.selectCols, this.selectRows);
         // Draw cells within a canvas block
@@ -182,7 +191,7 @@ export class Canvas {
                 let colWidth = colWidths[col + 1];
 
                 // if (cellRange.contains(row + 1, col + 1) && ((r + 1) !== this.selectRow || (c + 1) !== this.selectCol || this.selectRow!==null || this.selectCol!==null)) {
-                if (cellRange.contains(row + 1, col + 1) && ((r + 1) !== this.selectRow || (c + 1) !== this.selectCol) && ((r + 1) !== cellRange.startRow || this.selectRow !== null || (c + 1) !== cellRange.startCol || this.selectCol !== null)) {
+                if (cellRange.contains(row + 1, col + 1) && ((row + 1) !== this.selectRow || (col + 1) !== this.selectCol) && ((row + 1) !== cellRange.startRow || this.selectRow !== null || (col + 1) !== cellRange.startCol || this.selectCol !== null)) {
                     ctx.fillStyle = "rgba(16, 124, 65, 0.12)";
                     ctx.fillRect(x, y, colWidth, rowHeight);
                 }

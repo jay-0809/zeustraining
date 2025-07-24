@@ -7,7 +7,7 @@ export function setupAutoScroll(handler, axis = "both") {
                 if (!lastEvent) return;
 
                 const margin = 20;
-                const speed = 15;
+                const speed = 25;
                 const { clientX, clientY } = lastEvent;
                 const { innerWidth, innerHeight } = window;
 
@@ -31,7 +31,7 @@ export function setupAutoScroll(handler, axis = "both") {
                         handler.grid.grid.pointer.handleCustomScroll(scrollX, scrollY);
                         if (handler.onMouseMove) handler.onMouseMove(lastEvent);
                     }
-                }
+                } 
             }, 40);
         }
     }

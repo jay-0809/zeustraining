@@ -15,9 +15,9 @@ body .container {
 }
 html .container .header,
 body .container .header {
-  padding-top: 10px;
+  padding: 10px 50px 0 50px;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
   align-items: center;
 }
 html .container .header .header-title,
@@ -53,8 +53,8 @@ body .container .header .search-tooltip {
   display: none;
   position: absolute;
   width: 10%;
-  top: 40%;
-  left: 60%;
+  top: 50%;
+  left: 25%;
   background-color: #f1f1f1;
   color: #333;
   padding: 6px 10px;
@@ -68,6 +68,20 @@ body .container .header .search-tooltip {
   animation-timing-function: linear;
   animation-fill-mode: forwards;
   animation-timing-function: ease-in-out;
+}
+html .container .header #values,
+body .container .header #values {
+  height: 10px;
+  width: 40%;
+  font-size: 14px;
+  padding: 16px 20px;
+  background-color: #f7f7f7;
+  border: 1px solid #f7f7f7;
+  color: rgba(0, 0, 0, 0.62);
+  box-sizing: border-box;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.14);
+  border-radius: 5px;
+  outline: none;
 }
 html .container .headerInputs,
 body .container .headerInputs {
@@ -158,7 +172,6 @@ html #wrapper-div .canvas-div,
 body #wrapper-div .canvas-div {
   position: absolute;
   background: #fff;
-  cursor: cell;
 }
 html #wrapper-div .top-rect,
 body #wrapper-div .top-rect {

@@ -5,6 +5,7 @@ import { PointerHandler } from "./grid/pointerHandler.js";
 const wrapper = document.getElementById("wrapper-div");
 const cellNum = document.querySelector(".cellNum");
 const cellValue = document.querySelector(".cellValue");
+const ArithmaticOps = document.getElementById("values");
 
 // Controls how many cells per canvas
 const rowsPerCanvas = 50;
@@ -21,7 +22,7 @@ const maxCols = 500;
 const myData = generateData(100000);
 
 // Initializing grid
-const grid = new Grid(wrapper, cellNum, cellValue, rowsPerCanvas, colsPerCanvas, cellWidth, cellHeight, maxRows, maxCols, myData);
+const grid = new Grid(wrapper, cellNum, cellValue, ArithmaticOps, rowsPerCanvas, colsPerCanvas, cellWidth, cellHeight, maxRows, maxCols, myData);
 
 // let scrollX = grid.scrollX;
 // let scrollY = grid.scrollY;
@@ -41,17 +42,74 @@ thumbV.addEventListener('pointerdown', e => {
 });
 wrapper.addEventListener('wheel', onWheel, { passive: false });
 
+let isMiddleScrolling = false;
+let scrollOrigin = { x: 0, y: 0 };
+let scrollInterval = null;
+
+document.addEventListener("mousedown", (e) => {
+    if (e.button === 1) {
+        e.preventDefault(); // disable default middle-click scroll
+
+        // Start middle mouse scrolling
+        isMiddleScrolling = true;
+        scrollOrigin = { x: e.clientX, y: e.clientY };
+
+        setScrollCursor(true);
+
+        if (scrollInterval) clearInterval(scrollInterval);
+        scrollInterval = setInterval(() => {
+            if (!isMiddleScrolling) return;
+
+            const dx = currentMouse.x - scrollOrigin.x;
+            const dy = currentMouse.y - scrollOrigin.y;
+
+            // Speed factor (tweak this for faster/slower scroll)
+            const speed = 0.2;
+
+            grid.scrollX = clamp(grid.scrollX + dx * speed, 0, maxScrollX);
+            grid.scrollY = clamp(grid.scrollY + dy * speed, 0, maxScrollY);
+            updateScroll();
+        }, 16); // ~60fps
+    }
+});
+
+let currentMouse = { x: 0, y: 0 };
+document.addEventListener("mousemove", (e) => {
+    currentMouse = { x: e.clientX, y: e.clientY };
+});
+
+document.addEventListener("mouseup", (e) => {
+    if (e.button === 1 && isMiddleScrolling) {
+        isMiddleScrolling = false;
+        clearInterval(scrollInterval);
+        // document.body.style.cursor = "default";
+        setScrollCursor(false);
+    }
+});
+
+
 function startDrag(e, axis) {
-    const start = axis === 'x' ? e.clientX : e.clientY;
-    const init = axis === 'x' ? grid.scrollX : grid.scrollY;
+    const isHorizontal = axis === 'x';
+    const thumb = isHorizontal ? thumbH : thumbV;
+    const wrapperSize = isHorizontal ? wrapper.clientWidth : wrapper.clientHeight;
+    const contentSize = isHorizontal ? maxCols * cellWidth : maxRows * cellHeight;
+    const scrollSize = isHorizontal ? maxScrollX : maxScrollY;
+
+    const startPos = isHorizontal ? e.clientX : e.clientY;
+    const thumbStart = parseFloat(thumb.style[isHorizontal ? 'left' : 'top']) || 0;
 
     function onMove(ev) {
-        const delta = (axis === 'x' ? ev.clientX - start : ev.clientY - start);
-        if (axis === 'x') {
-            grid.scrollX = clamp(init + delta, 0, maxScrollX);
+        const delta = (isHorizontal ? ev.clientX : ev.clientY) - startPos;
+        const thumbDeltaPct = (delta / wrapperSize) * 100;
+        const newPct = clamp(thumbStart + thumbDeltaPct, 0, 100);
+        const newScroll = (newPct / 100) * scrollSize;
+
+        if (isHorizontal) {
+            grid.scrollX = newScroll;
         } else {
-            grid.scrollY = clamp(init + delta, 0, maxScrollY);
+            grid.scrollY = newScroll;
         }
+
         updateScroll();
     }
 
@@ -63,6 +121,7 @@ function startDrag(e, axis) {
     document.addEventListener('pointermove', onMove);
     document.addEventListener('pointerup', onUp);
 }
+
 
 function onWheel(e) {
     // console.log("scrollX: ",scrollX, "scrollY:", scrollY);
@@ -79,10 +138,40 @@ function clamp(v, min, max) { return v < min ? min : v > max ? max : v; }
 
 const pointerHandler = new PointerHandler(grid);
 
+
 function updateScroll() {
     const xPct = maxScrollX ? (grid.scrollX / maxScrollX) * 100 : 0;
     const yPct = maxScrollY ? (grid.scrollY / maxScrollY) * 100 : 0;
-    thumbH.style.left = `${ xPct }%`;
-    thumbV.style.top = `${ yPct }%`;
+
+    thumbH.style.left = `${xPct}%`;
+    thumbV.style.top = `${yPct}%`;
+
     pointerHandler.handleCustomScroll(grid.scrollX, grid.scrollY);
+}
+
+
+function updateThumbSizes() {
+    const horizontalThumbRatio = wrapper.clientWidth / (maxCols * cellWidth);
+    const verticalThumbRatio = wrapper.clientHeight / (maxRows * cellHeight);
+
+    thumbH.style.width = `${Math.max(horizontalThumbRatio * 100, 10)}%`;
+    thumbV.style.height = `${Math.max(verticalThumbRatio * 100, 10)}%`;
+}
+
+window.addEventListener('resize', updateThumbSizes);
+updateThumbSizes(); // Call once on init
+
+let previousCursor = document.body.style.cursor;
+
+function setScrollCursor(active) {
+    const canvases = wrapper.querySelectorAll(".canvas-div");
+
+    if (active) {
+        previousCursor = document.body.style.cursor;
+        document.body.style.cursor = "move";
+        canvases.forEach(c => c.style.cursor = "move");
+    } else {
+        document.body.style.cursor = previousCursor || "default";
+        canvases.forEach(c => c.style.cursor = previousCursor || "cell");
+    }
 }

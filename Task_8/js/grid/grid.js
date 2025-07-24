@@ -19,13 +19,15 @@ export class Grid {
      * @param {number} maxCols The maximum number of columns in the grid.
      * @param {Array} dataset The dataset that contains the values for the grid.
      */
-    constructor(wrapper, cellNum, cellValue, rowsPerCanvas, colsPerCanvas, cellWidth, cellHeight, maxRows, maxCols, dataset) {
+    constructor(wrapper, cellNum, cellValue, ArithmaticOps, rowsPerCanvas, colsPerCanvas, cellWidth, cellHeight, maxRows, maxCols, dataset) {
         /** @type {HTMLElement} Wrapper element to hold the grid */
         this.wrapper = wrapper;
         /** @type {HTMLElement} cellNum element to hold the cell number(column row) */
         this.cellNum = cellNum;
         /** @type {HTMLElement} cellValue element to hold cell value */
         this.cellValue = cellValue;
+        /** @type {HTMLElement} ArithmaticOps element to hold Count, Sum, Min, Max, Avg */
+        this.ArithmaticOps = ArithmaticOps;
         /** @type {number} The number of rows per canvas */
         this.rowsPerCanvas = rowsPerCanvas;
         /** @type {number} The number of columns per canvas */
@@ -52,6 +54,7 @@ export class Grid {
         this.scrollY = 0;
         this.startRow = 0;
         this.startCol = 0;
+        this.result = {};
         this.dpr = window.devicePixelRatio || 1;
 
         topDiv(this);
@@ -84,7 +87,7 @@ export class Grid {
                     coords.push([x, y]);
                 }
             }
-        }
+        }       
         return coords;
     }
 
@@ -94,6 +97,7 @@ export class Grid {
     renderHeaders(globalCol = 1, globalRow = 1) {
         const visible = this.getCanvasCoords();
         const visibleSet = new Set(visible);
+        // console.log("visibleSet:", visibleSet);
         // set header cellNum
         let index = globalCol === 0 ? 1 : globalCol, label = "";
         while (index > 0) {
@@ -148,6 +152,7 @@ export class Grid {
     renderCanvases(globalCol = 0, globalRow = 0, startCol = 0, startRow = 0) {
         const visible = this.getCanvasCoords();
         const visibleSet = new Set(visible);
+        console.log(startCol, startRow, "visibleSet:", visibleSet);
         // Remove non-visible canvases
         for (let key in this.canvases) {
             if (!visibleSet.has(key)) {
@@ -172,8 +177,9 @@ export class Grid {
                 this.selectRows = null;
                 this.selectCols = null;
             }
-
+            
             if (!this.canvases[key]) {
+                // console.log("key:", key);
                 this.canvases[key] = new Canvas(this, key[0], key[1], startCol, startRow, globalCol, globalRow, this.selectCols, this.selectRows);
                 // console.log(this.canvases);                
             }
@@ -189,8 +195,25 @@ export class Grid {
     }
 
     updateVisibleCanvases(col = 0, row = 0) {
-        // console.log("grid-startCol",startCol,"startRow",startRow);
+        if (this.result) {
+            const { count, sum, min, max, avg } = this.result;
 
+            let outputParts = [];
+
+            if (count > 0) outputParts.push(`Count: ${count}`);
+            if (sum > 0) outputParts.push(`Sum: ${sum}`);
+            if (min > 0) outputParts.push(`Min: ${min}`);
+            if (max > 0) outputParts.push(`Max: ${max}`);
+            if (avg > 0) outputParts.push(`Avg: ${avg}`);
+
+            const output = outputParts.join("         ");
+
+            if (output) {
+                console.log(output);
+                this.ArithmaticOps.value = output;
+            }
+        }
+        
         this.renderHeaders(col, row);
         // Add visible canvases
         this.renderCanvases(col, row, this.startCol, this.startRow);

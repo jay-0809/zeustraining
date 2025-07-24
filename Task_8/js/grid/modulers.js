@@ -183,6 +183,7 @@ export function handleSelectionClick(e) {
     const cellRange = new CellRange();
     cellRange.startRow = globalRow;
     cellRange.startCol = globalCol;
+
     const keyNavigation = (e) => {
         // console.log("key",e.key);
         if (e.ctrlKey) {
@@ -323,27 +324,27 @@ export function handleSelectionClick(e) {
         }
     };
 
-    document.addEventListener("keydown", (e) => {
-        const activeElement = document.activeElement;
-        const isInputFocused = activeElement &&
-            (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA");
+    // document.addEventListener("keydown", (e) => {
+    //     const activeElement = document.activeElement;
+    //     const isInputFocused = activeElement &&
+    //         (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA");
 
-        if (!isInputFocused) keyNavigation(e);
-    });
+    //     if (!isInputFocused) keyNavigation(e);
+    // });
     // if event is not attached then new event create 
-    // if (!this.keydownListenerAttached) {
-    //     console.log("keydown.......");
+    if (!this.keydownListenerAttached) {
+        // console.log("keydown.......");
 
-    //     document.addEventListener("keydown", (e) => {
-    //         const activeElement = document.activeElement;
-    //         const isInputFocused = activeElement &&
-    //             (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA");
+        document.addEventListener("keydown", (e) => {
+            const activeElement = document.activeElement;
+            const isInputFocused = activeElement &&
+                (activeElement.tagName === "INPUT" || activeElement.tagName === "TEXTAREA");
 
-    //         if (!isInputFocused) keyNavigation(e);
-    //     });
+            if (!isInputFocused) keyNavigation(e);
+        });
 
-    //     this.keydownListenerAttached = true;
-    // }
+        this.keydownListenerAttached = true;
+    }
 
     select.addEventListener("dblclick", () => inputField(this.grid));
 }

@@ -1,7 +1,7 @@
 import { CellRange } from '../structure/cellRange.js';
 import { handleSelectionClick } from './modulers.js';
 import { setupAutoScroll } from './autoScrollDuringDragStrategy.js';
-
+import { SelectionStats } from './selectionStats.js';
 /**
  * Handles multi-selection of cells by dragging on the canvas.
  */
@@ -18,6 +18,7 @@ export class CellSelector {
         this.canvas = document.querySelector(".canvas-div");
 
         this.autoScroller = setupAutoScroll(this, "both");
+        this.grid.statsCalculator = new SelectionStats(this.grid.grid);
     }
 
     /**
@@ -44,6 +45,7 @@ export class CellSelector {
             this.grid.grid.multiEditing = false;
         }
 
+        this.grid.statsCalculator.deBounceCount();
         handleSelectionClick.bind(this.grid.grid?.pointer)(e);
     }
 
@@ -52,28 +54,30 @@ export class CellSelector {
      */
     onMouseMove(e) {
         if (!this.isSelecting) return;
-
+        
+        
         this.autoScroller.onMove(e);
 
         if (Math.abs(e.clientX - this.startX) > 5 || Math.abs(e.clientY - this.startY) > 5) {
             this.dragged = true;
         }
-
+        
         const cell = this.locateCell(e);
         if (!cell) return;
-
+        
         this.cellRange.endRow = cell.row;
         this.cellRange.endCol = cell.col;
-
+        
         if (this.cellRange.isValid()) {
             const { startRow, startCol, endRow, endCol } = this.cellRange;
             this.grid.grid.multiSelect = { startRow, startCol, endRow, endCol };
             this.grid.grid.multiCursor = { row: startRow, col: startCol };
             this.grid.grid.multiEditing = true;
         }
-
+        
         if (!this.dragged || !this.cellRange.isValid()) return;
-
+        
+        this.grid.statsCalculator.deBounceCount();
         this.grid.grid.updateVisibleCanvases(0, 0);
     }
 
@@ -156,6 +160,8 @@ export class HeaderColSelector {
         this.endIndex = null;
 
         this.autoScroller = setupAutoScroll(this, "x");
+
+        this.grid.statsCalculator = new SelectionStats(this.grid.grid);
     }
 
     colIndex(e) {
@@ -190,6 +196,7 @@ export class HeaderColSelector {
         this.grid.grid.multiHeaderSelection = { colstart: index, colend: index, rowStart: null, rowEnd: null };
         // console.log(this.grid.grid.multiHeaderSelection);
 
+        this.grid.statsCalculator.deBounceCount();
         this.grid.grid.updateVisibleCanvases(0, 0);
         // this.grid.grid.renderHeaders(0, 0);
         // this.grid.grid.renderCanvases();
@@ -213,6 +220,7 @@ export class HeaderColSelector {
                 colstart: this.startIndex, colend: index, rowStart: null, rowEnd: null
             };
 
+            this.grid.statsCalculator.deBounceCount();
             this.grid.grid.updateVisibleCanvases(0, 0);
             // this.grid.grid.renderHeaders(0, 0);
             // this.grid.grid.renderCanvases();
@@ -267,6 +275,8 @@ export class HeaderRowSelector {
         this.endIndex = null;
 
         this.autoScroller = setupAutoScroll(this, "y");
+
+        this.grid.statsCalculator = new SelectionStats(this.grid.grid);
     }
 
     rowIndex(e) {
@@ -301,6 +311,7 @@ export class HeaderRowSelector {
         this.grid.grid.multiHeaderSelection = { colstart: null, colend: null, rowStart: index, rowEnd: index };
         // console.log(this.grid.grid.multiHeaderSelection);
 
+        this.grid.statsCalculator.deBounceCount();
         this.grid.grid.updateVisibleCanvases(0, 0);
         // this.grid.grid.renderHeaders(0, 0);
         // this.grid.grid.renderCanvases();
@@ -323,6 +334,7 @@ export class HeaderRowSelector {
                 colstart: null, colend: null, rowStart: this.startIndex, rowEnd: index
             };
 
+            this.grid.statsCalculator.deBounceCount();
             this.grid.grid.updateVisibleCanvases(0, 0);
             // this.grid.grid.renderHeaders(0, 0);
             // this.grid.grid.renderCanvases();
