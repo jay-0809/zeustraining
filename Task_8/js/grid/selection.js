@@ -1,5 +1,5 @@
 import { CellRange } from '../structure/cellRange.js';
-import { handleSelectionClick } from './modulers.js';
+// import { handleSelectionClick } from './modulers.js';
 import { setupAutoScroll } from './autoScrollDuringDragStrategy.js';
 import { SelectionStats } from './selectionStats.js';
 /**
@@ -19,6 +19,51 @@ export class CellSelector {
 
         this.autoScroller = setupAutoScroll(this, "both");
         this.grid.statsCalculator = new SelectionStats(this.grid.grid);
+    }
+
+    /**
+     * Returns true if the pointer is inside the grid canvas area (excluding headers).
+     */
+    hitTest(e) {
+        const target = e.target;
+        return target.classList.contains("canvas-div") &&
+            !target.classList.contains("h-canvas") &&
+            !target.classList.contains("v-canvas");
+    }
+
+    /**
+     * Locate the cell under the pointer.
+     */
+    locateCell(e) {
+        const rect = this.grid.grid.wrapper.getBoundingClientRect();
+
+        const x = e.clientX - rect.left + window.scrollX;
+        // console.log(x);
+        const y = e.clientY - rect.top + window.scrollY;
+        const { colWidths, rowHeights } = this.grid.grid;
+
+        let col = -1, xAcc = 0;
+        console.log(this.grid.grid.maxCols);
+        for (let i = this.grid?.grid?.startCol || 0; i < this.grid.grid.maxCols; i++) {
+            xAcc += colWidths[i];
+            
+            if (x < xAcc) {
+                col = i;
+                break;
+            }
+        }
+
+
+        let row = -1, yAcc = 0;
+        for (let j = this.grid?.grid?.startRow || 0; j < this.grid.grid.maxRows; j++) {
+            yAcc += rowHeights[j];
+            if (y < yAcc) {
+                row = j;
+                break;
+            }
+        }
+        if (row === -1 || col === -1) return null;
+        return { row, col };
     }
 
     /**
@@ -46,7 +91,8 @@ export class CellSelector {
         }
 
         this.grid.statsCalculator.deBounceCount();
-        handleSelectionClick.bind(this.grid.grid?.pointer)(e);
+        // handleSelectionClick.bind(this.grid.grid?.pointer)(e);
+        this.singleSelection(e);
     }
 
     /**
@@ -54,29 +100,29 @@ export class CellSelector {
      */
     onMouseMove(e) {
         if (!this.isSelecting) return;
-        
-        
+
+
         this.autoScroller.onMove(e);
 
         if (Math.abs(e.clientX - this.startX) > 5 || Math.abs(e.clientY - this.startY) > 5) {
             this.dragged = true;
         }
-        
+
         const cell = this.locateCell(e);
         if (!cell) return;
-        
+
         this.cellRange.endRow = cell.row;
         this.cellRange.endCol = cell.col;
-        
+
         if (this.cellRange.isValid()) {
             const { startRow, startCol, endRow, endCol } = this.cellRange;
             this.grid.grid.multiSelect = { startRow, startCol, endRow, endCol };
             this.grid.grid.multiCursor = { row: startRow, col: startCol };
             this.grid.grid.multiEditing = true;
         }
-        
+
         if (!this.dragged || !this.cellRange.isValid()) return;
-        
+
         this.grid.statsCalculator.deBounceCount();
         this.grid.grid.updateVisibleCanvases(0, 0);
     }
@@ -91,54 +137,96 @@ export class CellSelector {
     }
 
     /**
-     * Locate the cell under the pointer.
+     * Remove selection and input divs
      */
-    locateCell(e) {
-        const rect = this.grid.grid.wrapper.getBoundingClientRect();
-        const x = e.clientX - rect.left + window.scrollX;
-        const y = e.clientY - rect.top + window.scrollY;
-        const { colWidths, rowHeights } = this.grid.grid;
-
-        let col = -1, xAcc = 0;
-        for (let i = this.grid?.grid?.startCol || 0; i < this.grid.grid.maxCols; i++) {
-            xAcc += colWidths[i];
-            if (x < xAcc) {
-                col = i;
-                break;
-            }
+    clearSelection = () => {
+        document.querySelectorAll(".selection, .selection-block, .cell-input").forEach(el => {
+            if (this.grid.grid.wrapper.contains(el)) this.grid.grid.wrapper.removeChild(el);
+        });
+        if (this.grid.grid.multiHeaderSelection) {
+            this.grid.grid.multiHeaderSelection = null;
         }
-
-        let row = -1, yAcc = 0;
-        for (let j = this.grid?.grid?.startRow || 0; j < this.grid.grid.maxRows; j++) {
-            yAcc += rowHeights[j];
-            if (y < yAcc) {
-                row = j;
-                break;
-            }
-        }
-
-        if (row === -1 || col === -1) return null;
-        return { row, col };
-    }
+    };
 
     /**
-     * Returns true if the pointer is inside the grid canvas area (excluding headers).
+     * get selection and input divs position
+     * @param {*} colIndex column index of cell 
+     * @param {*} rowIndex Row index of cell
+     * @returns 
      */
-    hitTest(e) {
-        const target = e.target;
-        return target.classList.contains("canvas-div") &&
-            !target.classList.contains("h-canvas") &&
-            !target.classList.contains("v-canvas");
-        // const rect = this.grid.grid.wrapper.getBoundingClientRect();
-        // const x = e.clientX - rect.left + window.scrollX;
-        // const y = e.clientY - rect.top + window.scrollY;
-        // const { colWidths, rowHeights } = this.grid.grid;
+    getCellPosition = (colIndex, rowIndex) => {
+        // console.log("startCol:", this.grid.startCol,"startRow" ,this.grid.startRow);
+        let left = this.grid.grid.colWidths.slice(this.grid.grid.startCol, colIndex).reduce((sum, w) => sum + w, 0);
+        let top = this.grid.grid.rowHeights.slice(this.grid.grid.startRow, rowIndex).reduce((sum, h) => sum + h, 0);
+        return {
+            left,
+            top,
+            width: this.grid.grid.colWidths[colIndex],
+            height: this.grid.grid.rowHeights[rowIndex],
+        };
+    };
 
-        // // Ignore clicks inside headers
-        // if (x <= colWidths[0] || y <= rowHeights[0]) return false;
+    /**
+     * append single selection block at position in canvas
+     * @param {*} col at which column block generated
+     * @param {*} row at which row block generated
+     * @returns selected block at position
+     */
+    singleSelection = (e) => {
+        const { row, col } = this.locateCell(e);
 
-        // return true;
-    }
+        this.clearSelection();
+
+        this.grid.grid.updateVisibleCanvases(col, row);
+        
+        // Create a selection box div
+        const select = document.createElement("div");
+        select.setAttribute("class", "selection");
+        // Create the select block div
+        const sblock = document.createElement("div");
+        sblock.setAttribute("class", "selection-block");
+
+        if (this.grid.grid.multiEditing) {
+            // Prevent selecting cells with negative indices (outside grid)
+            if (col === 0 || row === 0) return;
+
+            // console.log('multi');
+            // Position and display the selection box
+            const pos = this.getCellPosition(col, row);
+            select.style.display = `block`;
+            select.style.left = `${pos.left}px`;
+            select.style.top = `${pos.top}px`;
+            select.style.width = `${pos.width}px`;
+            select.style.height = `${pos.height}px`;
+            select.style.border = `none`;
+            select.style.cursor = "cell";
+
+            this.grid.grid.wrapper.appendChild(select);
+        } else {
+            // Prevent selecting cells with negative indices (outside grid)
+            if (col === 0 || row === 0) return;
+
+            // console.log('single');
+            // Position and display the selection box
+            const pos = this.getCellPosition(col, row);
+            select.style.display = `block`;
+            select.style.left = `${pos.left}px`;
+            select.style.top = `${pos.top}px`;
+            select.style.width = `${pos.width}px`;
+            select.style.height = `${pos.height}px`;
+            select.style.border = `2px solid #107c41`;
+            select.style.cursor = "cell";
+            // Set the position and style for the selection block
+            sblock.style.display = `block`;
+            sblock.style.left = `${pos.left + pos.width - 5}px`;
+            sblock.style.top = `${pos.top + pos.height - 5}px`;
+
+            this.grid.grid.wrapper.appendChild(select);
+            this.grid.grid.wrapper.appendChild(sblock);
+        }
+    };
+
+    
 }
 
 export class HeaderColSelector {
@@ -198,8 +286,6 @@ export class HeaderColSelector {
 
         this.grid.statsCalculator.deBounceCount();
         this.grid.grid.updateVisibleCanvases(0, 0);
-        // this.grid.grid.renderHeaders(0, 0);
-        // this.grid.grid.renderCanvases();
     }
 
     /**
@@ -313,8 +399,6 @@ export class HeaderRowSelector {
 
         this.grid.statsCalculator.deBounceCount();
         this.grid.grid.updateVisibleCanvases(0, 0);
-        // this.grid.grid.renderHeaders(0, 0);
-        // this.grid.grid.renderCanvases();
     }
 
     /**

@@ -201,7 +201,7 @@ export class VerticalCanvas {
     this.canvas.style.position = "absolute";
     this.canvas.style.left = "0";
     this.canvas.style.zIndex = "1000";
-    this.canvas.style.cursor = "cell";
+    // this.canvas.style.cursor = "cell";
 
     // mark it for resize‐hit
     this.canvas.classList.add("v-canvas");

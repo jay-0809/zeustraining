@@ -17,6 +17,8 @@ export class EditCellCommand {
     }
 
     execute() {
+        console.log(this);
+        
         const rowMap = this.grid.dataset.get(this.row);
         rowMap.set(this.col, this.newValue);
         this.grid.renderHeaders(0, 0);

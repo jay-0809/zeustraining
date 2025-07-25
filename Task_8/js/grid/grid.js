@@ -152,7 +152,7 @@ export class Grid {
     renderCanvases(globalCol = 0, globalRow = 0, startCol = 0, startRow = 0) {
         const visible = this.getCanvasCoords();
         const visibleSet = new Set(visible);
-        console.log(startCol, startRow, "visibleSet:", visibleSet);
+        // console.log(startCol, startRow, "visibleSet:", visibleSet);
         // Remove non-visible canvases
         for (let key in this.canvases) {
             if (!visibleSet.has(key)) {
@@ -179,16 +179,14 @@ export class Grid {
             }
             
             if (!this.canvases[key]) {
-                // console.log("key:", key);
-                this.canvases[key] = new Canvas(this, key[0], key[1], startCol, startRow, globalCol, globalRow, this.selectCols, this.selectRows);
-                // console.log(this.canvases);                
+                this.canvases[key] = new Canvas(this, key[0], key[1], startCol, startRow, globalCol, globalRow, this.selectCols, this.selectRows);             
             }
-            if (this.pointer?.activeMode?.cellRange?.isValid() && this.pointer?.activeMode?.dragged) {
+            if (this.pointer?.activeMode?.cellRange?.isValid() && this.pointer?.activeMode?.dragged && this.multiEditing ) {
                 // console.log(this.pointer?.activeMode?.cellRange?.isValid() && this.pointer?.activeMode?.dragged);
                 this.canvases[key].drawMultiSelection(this.pointer?.activeMode.cellRange);
             }
             if (this.multiEditing && this.activeCellRange) {
-                // console.log(this.activeCellRange);
+                console.log(this.activeCellRange);
                 this.canvases[key].drawMultiSelection(this.activeCellRange);
             }
         });
@@ -209,7 +207,7 @@ export class Grid {
             const output = outputParts.join("         ");
 
             if (output) {
-                console.log(output);
+                // console.log(output);
                 this.ArithmaticOps.value = output;
             }
         }

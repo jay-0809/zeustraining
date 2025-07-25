@@ -1,6 +1,6 @@
 import { ColResizeHandler, RowResizeHandler } from './resize.js';
 import { CellSelector, HeaderColSelector, HeaderRowSelector } from './selection.js';
-
+import {keyNavigation} from "./modulers.js";
 /**
  * Handles pointer events (mouse/touch) for grid interactions including:
  * - Cell selection
@@ -42,11 +42,16 @@ export class PointerHandler {
         window.addEventListener("pointermove", this.onPointerMove.bind(this));
         window.addEventListener("pointerup", this.onPointerUp.bind(this));
         window.addEventListener("keydown", (e) => {
-            if (e.ctrlKey) {
+            if (e.ctrlKey && ["z", "y"].includes(e.key)) {
                 switch (e.key.toLowerCase()) {
                     case "z": this.grid.commandManager.undo(); return;
                     case "y": this.grid.commandManager.redo(); return;
                 }
+            } else if(e.ctrlKey && ["r"].includes(e.key)){
+                return;
+            } else{
+                e.preventDefault();
+                keyNavigation(e, this.grid);
             }
         });
     }

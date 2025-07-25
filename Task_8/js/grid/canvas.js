@@ -27,12 +27,12 @@ export class Canvas {
         // Calculate dynamic width
         let width = 0;
         for (let c = 0; c < colsPerCanvas; c++) {
-            width += colWidths[xIndex * colsPerCanvas + 1 + c] || 0;
+            width += colWidths[xIndex * colsPerCanvas + c] || 0;
         }
         // Calculate dynamic height
         let height = 0;
         for (let r = 0; r < rowsPerCanvas; r++) {
-            height += rowHeights[yIndex * rowsPerCanvas + 1 + r] || 0;
+            height += rowHeights[yIndex * rowsPerCanvas + r] || 0;
         }
 
         // console.log("globalCol", globalCol, "globalRow", globalRow);
@@ -40,32 +40,31 @@ export class Canvas {
         this.canvas = document.createElement("canvas");
         this.ctx = this.canvas.getContext("2d");
         this.canvas.setAttribute("class", "canvas-div");
-
+        this.canvas.style.position = "absolute";
         this.canvas.width = width;
         this.canvas.height = height;
+        this.canvas.style.cursor = "cell";
 
         // Calculate position offsets
-        let leftOffset = grid.colWidths[0]; // Space for row header
+        let leftOffset = colWidths[0]; // Space for row header
         // for (let i = 0; i < this.startCol; i++) {
         //     leftOffset += colWidths[i + 1] || 0;
         // }
-        for (let i = 0; i < this.startCol + xIndex * colsPerCanvas; i++) {
-            leftOffset += colWidths[i + 1] || 0;
+        for (let i = 0; i < xIndex * colsPerCanvas; i++) {
+            leftOffset += colWidths[i] || 0;
         }
 
-        let topOffset = grid.rowHeights[0]; // Space for column header
+        let topOffset = rowHeights[0]; // Space for column header
         // for (let i = 0; i < this.startRow; i++) {
         //     topOffset += rowHeights[i + 1] || 0;
         // }
-        for (let i = 0; i < this.startRow + yIndex * rowsPerCanvas; i++) {
-            topOffset += rowHeights[i + 1] || 0;
+        for (let i = 0; i < yIndex * rowsPerCanvas; i++) {
+            topOffset += rowHeights[i] || 0;
         }
 
         // console.log("leftOffset",leftOffset,"topOffset",topOffset);
-        this.canvas.style.position = "absolute";
         this.canvas.style.left = `${leftOffset - grid.scrollX}px`;
         this.canvas.style.top = `${topOffset - grid.scrollY}px`;
-        this.canvas.style.cursor = "cell";
 
         // Append the canvas element to the wrapper
         grid.wrapper.appendChild(this.canvas);
@@ -82,8 +81,8 @@ export class Canvas {
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         // const startRow = this.startRow;
         // const startCol = this.startCol;
-        const startRow = this.startRow + this.yIndex * rowsPerCanvas;
-        const startCol = this.startCol + this.xIndex * colsPerCanvas;
+        const startRow = this.yIndex * rowsPerCanvas;
+        const startCol = this.xIndex * colsPerCanvas;
 
         // this.clearSelection();
         if (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) {
@@ -174,8 +173,10 @@ export class Canvas {
     */
     drawMultiSelection(cellRange) {
         const { ctx } = this;
-        const startRow = this.startRow;
-        const startCol = this.startCol;
+        // const startRow = this.startRow;
+        // const startCol = this.startCol;
+        const startRow = this.startRow + this.yIndex * this.grid.rowsPerCanvas;
+        const startCol = this.startCol + this.xIndex * this.grid.colsPerCanvas;
         const { colWidths, rowHeights } = this.grid;
 
         // console.log("cellRange", cellRange, "this.selectCol", this.selectCol, "this.selectRow", this.selectRow);
@@ -200,6 +201,9 @@ export class Canvas {
             y += rowHeight;
         }
 
+        // console.log("startCol", startCol, "cellRange.getStartCol() - 1", cellRange.getStartCol() - 1, "cellRange.getEndCol()", cellRange.getEndCol());
+        // console.log("startRow", startRow, "cellRange.getStartRow() - 1", cellRange.getStartRow() - 1, "cellRange.getEndRow()", cellRange.getEndRow());
+
         let startX = 0;
         for (let i = startCol; i < cellRange.getStartCol() - 1; i++) {
             startX += colWidths[i + 1]; // skip header
@@ -212,7 +216,7 @@ export class Canvas {
 
         let width = 0;
         for (let i = cellRange.getStartCol() - 1; i < cellRange.getEndCol(); i++) {
-            if (i >= startCol && i < startCol + this.grid.colsPerCanvas) {
+            if (i >= startCol && i < startCol + this.grid.colsPerCanvas) {  
                 width += colWidths[i + 1];
             }
         }
