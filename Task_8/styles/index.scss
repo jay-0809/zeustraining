@@ -67,7 +67,7 @@ body {
                 animation-timing-function: ease-in-out;
             }
 
-            #values{
+            #values {
                 height: 10px;
                 width: 40%;
                 font-size: 14px;
@@ -114,6 +114,21 @@ body {
                     border: 1px solid #333;
                 }
             }
+
+            .addNewColumn,
+            .addNewRow {
+                width: 5%;
+                height: 30px;
+                border: none;
+                background: #e0e0e0;
+                border-radius: 5px;
+                margin-left: 8px;
+                cursor: pointer;
+                position: relative;
+                &:hover {
+                    background: #b7e1cd;
+                }
+            }
         }
     }
 
@@ -154,13 +169,13 @@ body {
             border-radius: 6px;
             cursor: pointer;
         }
-        
+
         .scroll-thumb-horizontal {
             padding: 20px 0;
             height: 1%;
             width: 30px;
         }
-        
+
         .scroll-thumb-vertical {
             // padding: 10px 10px;
             width: 100%;

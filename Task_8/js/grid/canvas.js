@@ -79,16 +79,17 @@ export class Canvas {
         const { ctx, grid } = this;  // Destructure grid and context
         const { dataset, rowsPerCanvas, colsPerCanvas, colWidths, rowHeights } = grid;  // Destructure cell width, height, and dataset
         ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-        // const startRow = this.startRow;
-        // const startCol = this.startCol;
+
+        this.drawMultiHeaderSelection();
+
         const startRow = this.yIndex * rowsPerCanvas;
         const startCol = this.xIndex * colsPerCanvas;
 
         // this.clearSelection();
-        if (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) {
-            console.log(grid.pointer?.cellSelector?.cellRange);
-            this.drawMultiSelection(grid.pointer?.cellSelector?.cellRange);
-        }
+        // if (grid.pointer?.cellSelector?.cellRange?.isValid() && grid.pointer?.cellSelector?.dragged && grid.multiEditing) {
+        //     console.log(grid.pointer?.cellSelector?.cellRange);
+        //     this.drawMultiSelection(grid.pointer?.cellSelector?.cellRange);
+        // }
 
         // console.log(this.selectCols, this.selectRows);
         // Draw cells within a canvas block
@@ -173,10 +174,10 @@ export class Canvas {
     */
     drawMultiSelection(cellRange) {
         const { ctx } = this;
-        // const startRow = this.startRow;
-        // const startCol = this.startCol;
-        const startRow = this.startRow + this.yIndex * this.grid.rowsPerCanvas;
-        const startCol = this.startCol + this.xIndex * this.grid.colsPerCanvas;
+        // console.log(cellRange);
+        
+        const startRow = this.yIndex * this.grid.rowsPerCanvas;
+        const startCol = this.xIndex * this.grid.colsPerCanvas;
         const { colWidths, rowHeights } = this.grid;
 
         // console.log("cellRange", cellRange, "this.selectCol", this.selectCol, "this.selectRow", this.selectRow);
@@ -201,9 +202,6 @@ export class Canvas {
             y += rowHeight;
         }
 
-        // console.log("startCol", startCol, "cellRange.getStartCol() - 1", cellRange.getStartCol() - 1, "cellRange.getEndCol()", cellRange.getEndCol());
-        // console.log("startRow", startRow, "cellRange.getStartRow() - 1", cellRange.getStartRow() - 1, "cellRange.getEndRow()", cellRange.getEndRow());
-
         let startX = 0;
         for (let i = startCol; i < cellRange.getStartCol() - 1; i++) {
             startX += colWidths[i + 1]; // skip header
@@ -216,7 +214,7 @@ export class Canvas {
 
         let width = 0;
         for (let i = cellRange.getStartCol() - 1; i < cellRange.getEndCol(); i++) {
-            if (i >= startCol && i < startCol + this.grid.colsPerCanvas) {  
+            if (i >= startCol && i < startCol + this.grid.colsPerCanvas) {
                 width += colWidths[i + 1];
             }
         }
@@ -233,6 +231,45 @@ export class Canvas {
         ctx.strokeRect(startX, startY, width, height);
         ctx.lineWidth = 1;
     }
+
+    /**
+    * Method to select multiple columns/rows in the canvas
+    */
+    drawMultiHeaderSelection() {
+        const { ctx, grid } = this;
+        const { colWidths, rowHeights, multiHeaderSelectionCols, multiHeaderSelectionRows, colsPerCanvas, rowsPerCanvas } = grid;
+        const startCol = this.xIndex * colsPerCanvas;
+        const startRow = this.yIndex * rowsPerCanvas;
+
+        // Draw selected full columns
+        if (Array.isArray(multiHeaderSelectionCols)) {
+            for (let c = 0, x = 0; c < colsPerCanvas; c++) {
+                const globalCol = startCol + c;
+                const colWidth = colWidths[globalCol + 1]; // skip row header
+
+                if (multiHeaderSelectionCols.includes(globalCol + 1)) {
+                    ctx.fillStyle = "rgba(16, 124, 65, 0.12)";  // light blue
+                    ctx.fillRect(x, 0, colWidth, this.canvas.height);
+                }
+                x += colWidth;
+            }
+        }
+
+        // Draw selected full rows
+        if (Array.isArray(multiHeaderSelectionRows)) {
+            for (let r = 0, y = 0; r < rowsPerCanvas; r++) {
+                const globalRow = startRow + r;
+                const rowHeight = rowHeights[globalRow + 1]; // skip column header
+
+                if (multiHeaderSelectionRows.includes(globalRow + 1)) {
+                    ctx.fillStyle = "rgba(16, 124, 65, 0.12)";  // light blue
+                    ctx.fillRect(0, y, this.canvas.width, rowHeight);
+                }
+                y += rowHeight;
+            }
+        }
+    }
+
 
     evaluateFormula(formula, dataset) {
         const refRegex = /([a-zA-Z]+)(\d+)/g;

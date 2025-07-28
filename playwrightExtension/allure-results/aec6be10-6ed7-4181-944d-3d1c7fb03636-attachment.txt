@@ -1,0 +1,2 @@
+Column Selection Output: Count: 100000         Sum: 459847681533         Min: 100071         Max: 9099925         Avg: 4598522.800558005
+Row Selection Output: Count: 5         Sum: 5258397         Min: 10         Max: 5258387         Avg: 2629198.5

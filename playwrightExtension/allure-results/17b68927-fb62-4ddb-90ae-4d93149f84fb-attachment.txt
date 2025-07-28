@@ -1,0 +1,1 @@
+Output value: Count: 1         Sum: 29         Min: 29         Max: 29         Avg: 29

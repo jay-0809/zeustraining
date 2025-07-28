@@ -94,8 +94,9 @@ export class HorizontalCanvas {
       const colIdx = startCol + c;
       const w = colWidths[colIdx + 1];
       const sel = globalCol === colIdx + 1 && globalRow == null;
+      const multiColSelected = grid?.multiHeaderSelectionCols?.includes(colIdx + 1);
 
-      ctx.fillStyle = sel ? "#107c41" : "#f5f5f5";
+      ctx.fillStyle = (sel || multiColSelected) ? "#107c41" : "#f5f5f5";
       ctx.fillRect(x, 0, w, headerH);
 
       // console.log(colIdx, globalCol);
@@ -145,8 +146,9 @@ export class HorizontalCanvas {
         (((c + 1) + (xIndex * colsPerCanvas)) === globalCol && globalRow !== 0) || grid.multiHeaderSelection && grid.multiHeaderSelection.colstart === null) {
         ctx.fillStyle = "#107c41";
       } else {
-        ctx.fillStyle = (grid.multiHeaderSelection && colIdx + 1 >= Math.min(grid.multiHeaderSelection.colstart, grid.multiHeaderSelection.colend) &&
-          colIdx + 1 <= Math.max(grid.multiHeaderSelection.colstart, grid.multiHeaderSelection.colend)) ? "#fff" : "#333";
+        // ctx.fillStyle = (grid.multiHeaderSelection && colIdx + 1 >= Math.min(grid.multiHeaderSelection.colstart, grid.multiHeaderSelection.colend) &&
+        //   colIdx + 1 <= Math.max(grid.multiHeaderSelection.colstart, grid.multiHeaderSelection.colend)) ? "#fff" : "#333";
+        ctx.fillStyle = (sel || multiColSelected) ? "#fff" : "#333";
       }
       ctx.font = sel ? "bold 11pt Segoe UI" : "11pt Segoe UI";
       ctx.textAlign = "center";
@@ -234,8 +236,9 @@ export class VerticalCanvas {
       const rowIdx = startRow + r;
       const h = rowHeights[rowIdx + 1];
       const sel = globalRow === rowIdx + 1 && globalCol == null;
+      const multiRowSelected = grid.multiHeaderSelectionRows?.includes(rowIdx + 1);
 
-      ctx.fillStyle = sel ? "#107c41" : "#f5f5f5";
+      ctx.fillStyle = (sel || multiRowSelected) ? "#107c41" : "#f5f5f5";
       ctx.fillRect(0, y, headerW, h);
 
       // console.log(grid.multiHeaderSelection);
@@ -279,8 +282,9 @@ export class VerticalCanvas {
         ((((r + 1) + (yIndex * rowsPerCanvas)) === globalRow && globalCol !== null) || grid.multiHeaderSelection && grid.multiHeaderSelection.rowStart === null)) {
         ctx.fillStyle = "#107c41";
       } else {
-        ctx.fillStyle = (grid.multiHeaderSelection && rowIdx + 1 >= Math.min(grid.multiHeaderSelection.rowStart, grid.multiHeaderSelection.rowEnd) &&
-          rowIdx + 1 <= Math.max(grid.multiHeaderSelection.rowStart, grid.multiHeaderSelection.rowEnd)) ? "#fff" : "#333";
+        // ctx.fillStyle = (grid.multiHeaderSelection && rowIdx + 1 >= Math.min(grid.multiHeaderSelection.rowStart, grid.multiHeaderSelection.rowEnd) &&
+        //   rowIdx + 1 <= Math.max(grid.multiHeaderSelection.rowStart, grid.multiHeaderSelection.rowEnd)) ? "#fff" : "#333";
+        ctx.fillStyle = (sel || multiRowSelected) ? "#fff" : "#333";
       }
       ctx.font = sel ? "bold 11pt Segoe UI" : "11pt Segoe UI";
       ctx.textAlign = "right";

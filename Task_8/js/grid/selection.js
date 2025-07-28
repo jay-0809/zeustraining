@@ -36,23 +36,19 @@ export class CellSelector {
      */
     locateCell(e) {
         const rect = this.grid.grid.wrapper.getBoundingClientRect();
-
         const x = e.clientX - rect.left + window.scrollX;
-        // console.log(x);
         const y = e.clientY - rect.top + window.scrollY;
         const { colWidths, rowHeights } = this.grid.grid;
 
         let col = -1, xAcc = 0;
-        console.log(this.grid.grid.maxCols);
+        // console.log(this.grid.grid.maxCols);
         for (let i = this.grid?.grid?.startCol || 0; i < this.grid.grid.maxCols; i++) {
             xAcc += colWidths[i];
-            
             if (x < xAcc) {
                 col = i;
                 break;
             }
         }
-
 
         let row = -1, yAcc = 0;
         for (let j = this.grid?.grid?.startRow || 0; j < this.grid.grid.maxRows; j++) {
@@ -62,8 +58,10 @@ export class CellSelector {
                 break;
             }
         }
-        if (row === -1 || col === -1) return null;
-        return { row, col };
+        if (row === -1 || col === -1) return;
+        this.grid.cellColIndex = col;
+        this.grid.cellRowIndex = row;
+        // return { row, col };
     }
 
     /**
@@ -75,23 +73,30 @@ export class CellSelector {
         this.startX = e.clientX;
         this.startY = e.clientY;
 
-        const cell = this.locateCell(e);
-        if (!cell) return;
+        this.grid.grid.multiHeaderSelectionCols = [];
+        this.grid.grid.multiHeaderSelectionRows = [];
 
-        this.cellRange.startRow = cell.row;
-        this.cellRange.startCol = cell.col;
-        this.cellRange.endRow = cell.row;
-        this.cellRange.endCol = cell.col;
+        this.locateCell(e);
+        if (!this.grid.cellColIndex && !this.grid.cellRowIndex) return;
+
+        this.cellRange.startRow = this.grid.cellRowIndex;
+        this.cellRange.startCol = this.grid.cellColIndex;
+        this.cellRange.endRow = this.grid.cellRowIndex;
+        this.cellRange.endCol = this.grid.cellColIndex;
 
         this.isSelecting = true;
         this.dragged = false;
 
         if (this.cellRange.isValid()) {
+            const { startRow, startCol, endRow, endCol } = this.cellRange;
+            this.grid.grid.multiSelect = { startRow, startCol, endRow, endCol };
+            this.grid.grid.multiCursor = { row: startRow, col: startCol };
             this.grid.grid.multiEditing = false;
         }
 
         this.grid.statsCalculator.deBounceCount();
-        // handleSelectionClick.bind(this.grid.grid?.pointer)(e);
+        // console.log(this.grid.grid.result);
+        
         this.singleSelection(e);
     }
 
@@ -101,18 +106,17 @@ export class CellSelector {
     onMouseMove(e) {
         if (!this.isSelecting) return;
 
-
         this.autoScroller.onMove(e);
 
         if (Math.abs(e.clientX - this.startX) > 5 || Math.abs(e.clientY - this.startY) > 5) {
             this.dragged = true;
         }
 
-        const cell = this.locateCell(e);
-        if (!cell) return;
+        this.locateCell(e);
+        if (!this.grid.cellColIndex && !this.grid.cellRowIndex) return;
 
-        this.cellRange.endRow = cell.row;
-        this.cellRange.endCol = cell.col;
+        this.cellRange.endRow = this.grid.cellRowIndex;
+        this.cellRange.endCol = this.grid.cellColIndex;
 
         if (this.cellRange.isValid()) {
             const { startRow, startCol, endRow, endCol } = this.cellRange;
@@ -124,6 +128,8 @@ export class CellSelector {
         if (!this.dragged || !this.cellRange.isValid()) return;
 
         this.grid.statsCalculator.deBounceCount();
+        // console.log(this.grid.grid.multiSelect);
+        
         this.grid.grid.updateVisibleCanvases(0, 0);
     }
 
@@ -155,7 +161,7 @@ export class CellSelector {
      * @returns 
      */
     getCellPosition = (colIndex, rowIndex) => {
-        // console.log("startCol:", this.grid.startCol,"startRow" ,this.grid.startRow);
+        // console.log("get colIndex", this.grid.grid.multiCursor.col, "rowIndex", this.grid.grid.multiCursor.row);
         let left = this.grid.grid.colWidths.slice(this.grid.grid.startCol, colIndex).reduce((sum, w) => sum + w, 0);
         let top = this.grid.grid.rowHeights.slice(this.grid.grid.startRow, rowIndex).reduce((sum, h) => sum + h, 0);
         return {
@@ -173,12 +179,13 @@ export class CellSelector {
      * @returns selected block at position
      */
     singleSelection = (e) => {
-        const { row, col } = this.locateCell(e);
-
+        const cellColIndex = this.grid.grid.multiCursor.col;
+        const cellRowIndex = this.grid.grid.multiCursor.row;
+        // console.log("cellColIndex", this.grid.cellColIndex, "cellRowIndex", this.grid.cellRowIndex);
         this.clearSelection();
 
-        this.grid.grid.updateVisibleCanvases(col, row);
-        
+        this.grid.grid.updateVisibleCanvases(cellColIndex, cellRowIndex);
+
         // Create a selection box div
         const select = document.createElement("div");
         select.setAttribute("class", "selection");
@@ -188,11 +195,11 @@ export class CellSelector {
 
         if (this.grid.grid.multiEditing) {
             // Prevent selecting cells with negative indices (outside grid)
-            if (col === 0 || row === 0) return;
+            if (cellColIndex === 0 || cellRowIndex === 0) return;
 
             // console.log('multi');
             // Position and display the selection box
-            const pos = this.getCellPosition(col, row);
+            const pos = this.getCellPosition(cellColIndex, cellRowIndex);
             select.style.display = `block`;
             select.style.left = `${pos.left}px`;
             select.style.top = `${pos.top}px`;
@@ -204,11 +211,11 @@ export class CellSelector {
             this.grid.grid.wrapper.appendChild(select);
         } else {
             // Prevent selecting cells with negative indices (outside grid)
-            if (col === 0 || row === 0) return;
+            if (cellColIndex === 0 || cellRowIndex === 0) return;
 
             // console.log('single');
             // Position and display the selection box
-            const pos = this.getCellPosition(col, row);
+            const pos = this.getCellPosition(cellColIndex, cellRowIndex);
             select.style.display = `block`;
             select.style.left = `${pos.left}px`;
             select.style.top = `${pos.top}px`;
@@ -220,13 +227,14 @@ export class CellSelector {
             sblock.style.display = `block`;
             sblock.style.left = `${pos.left + pos.width - 5}px`;
             sblock.style.top = `${pos.top + pos.height - 5}px`;
+            // console.log("cellll");
 
             this.grid.grid.wrapper.appendChild(select);
             this.grid.grid.wrapper.appendChild(sblock);
         }
     };
 
-    
+
 }
 
 export class HeaderColSelector {
@@ -277,12 +285,40 @@ export class HeaderColSelector {
     onMouseDown(e) {
         const index = this.colIndex(e);
 
-        this.startIndex = index;
-        this.endIndex = index;
-        this.isSelecting = true;
+        if (e.ctrlKey) {
+            this.grid.grid.ctrlSelectActive = true;
+            const existingIndex = this.grid.grid.multiHeaderSelectionCols.indexOf(index);
+            if (existingIndex > -1) {
+                this.grid.grid.multiHeaderSelectionCols.splice(existingIndex, 1); // Deselect
+            } else {
+                this.grid.grid.multiHeaderSelectionCols.push(index); // Select
+            }
+            this.grid.grid.multiHeaderSelection = null;
+        } else {
+            this.grid.grid.ctrlSelectActive = false;
+            this.startIndex = index;
+            this.grid.grid.multiHeaderSelectionCols = [index];
+            this.grid.grid.multiHeaderSelectionRows = [];
+            this.endIndex = index;
+            this.isSelecting = true;
+            this.grid.grid.multiHeaderSelection = { colstart: null, colend: null, rowStart: index, rowEnd: index };
+        }
 
-        this.grid.grid.multiHeaderSelection = { colstart: index, colend: index, rowStart: null, rowEnd: null };
-        // console.log(this.grid.grid.multiHeaderSelection);
+        if (e.ctrlKey) {
+            this.grid.grid.ctrlSelectActive = true;
+            this.startIndex = index;
+            this.endIndex = index;
+            this.isSelecting = true;
+            this.grid.grid.multiHeaderSelection = null;
+        } else {
+            this.grid.grid.multiHeaderSelectionCols = [index];
+            this.grid.grid.multiHeaderSelectionRows = [];
+            this.grid.grid.ctrlSelectActive = false;
+            this.startIndex = index;
+            this.endIndex = index;
+            this.isSelecting = true;
+            this.grid.grid.multiHeaderSelection = { colstart: index, colend: index, rowStart: null, rowEnd: null };
+        }
 
         this.grid.statsCalculator.deBounceCount();
         this.grid.grid.updateVisibleCanvases(0, 0);
@@ -297,6 +333,17 @@ export class HeaderColSelector {
 
         this.autoScroller.onMove(e); // Auto-scroll support
 
+        if (this.isSelecting && this.grid.grid.ctrlSelectActive) {
+            this.endIndex = this.colIndex(e);
+            const [start, end] = [this.startIndex, this.endIndex].sort((a, b) => a - b);
+            for (let i = start; i <= end; i++) {
+                if (!this.grid.grid.multiHeaderSelectionCols.includes(i)) {
+                    this.grid.grid.multiHeaderSelectionCols.push(i);
+                }
+            }
+            this.grid.grid.updateVisibleCanvases();
+        }
+
         const index = this.colIndex(e);
         if (index != null) {
             this.endIndex = index;
@@ -308,8 +355,6 @@ export class HeaderColSelector {
 
             this.grid.statsCalculator.deBounceCount();
             this.grid.grid.updateVisibleCanvases(0, 0);
-            // this.grid.grid.renderHeaders(0, 0);
-            // this.grid.grid.renderCanvases();
         }
     }
 
@@ -320,6 +365,10 @@ export class HeaderColSelector {
     onMouseUp(e) {
         this.isSelecting = false;
         this.autoScroller.cancel();
+        if (this.grid.grid.ctrlSelectActive) {
+            this.grid.grid.ctrlSelectActive = false;
+            this.isSelecting = false;
+        }
     }
 
     /**
@@ -390,12 +439,38 @@ export class HeaderRowSelector {
     onMouseDown(e) {
         const index = this.rowIndex(e);
 
-        this.startIndex = index;
-        this.endIndex = index;
-        this.isSelecting = true;
+        if (e.ctrlKey) {
+            const existingIndex = this.grid.grid.multiHeaderSelectionRows.indexOf(index);
+            if (existingIndex > -1) {
+                this.grid.grid.multiHeaderSelectionRows.splice(existingIndex, 1); // Deselect
+            } else {
+                this.grid.grid.multiHeaderSelectionRows.push(index); // Select
+            }
+            this.grid.grid.multiHeaderSelection = null;
+        } else {
+            this.grid.grid.multiHeaderSelectionCols = [];
+            this.grid.grid.multiHeaderSelectionRows = [index];
+            this.startIndex = index;
+            this.endIndex = index;
+            this.isSelecting = true;
+            this.grid.grid.multiHeaderSelection = { colstart: null, colend: null, rowStart: index, rowEnd: index };
+        }
 
-        this.grid.grid.multiHeaderSelection = { colstart: null, colend: null, rowStart: index, rowEnd: index };
-        // console.log(this.grid.grid.multiHeaderSelection);
+        if (e.ctrlKey) {
+            this.grid.grid.ctrlSelectActive = true;
+            this.startIndex = index;
+            this.endIndex = index;
+            this.isSelecting = true;
+            this.grid.grid.multiHeaderSelection = null;
+        } else {
+            this.grid.grid.ctrlSelectActive = false;
+            this.grid.grid.multiHeaderSelectionCols = [];
+            this.grid.grid.multiHeaderSelectionRows = [index];
+            this.startIndex = index;
+            this.endIndex = index;
+            this.isSelecting = true;
+            this.grid.grid.multiHeaderSelection = { colstart: null, colend: null, rowStart: index, rowEnd: index };
+        }
 
         this.grid.statsCalculator.deBounceCount();
         this.grid.grid.updateVisibleCanvases(0, 0);
@@ -410,6 +485,17 @@ export class HeaderRowSelector {
 
         this.autoScroller.onMove(e); // Auto-scroll support
 
+        if (this.isSelecting && this.grid.grid.ctrlSelectActive) {
+            this.endIndex = this.rowIndex(e);
+            const [start, end] = [this.startIndex, this.endIndex].sort((a, b) => a - b);
+            for (let i = start; i <= end; i++) {
+                if (!this.grid.grid.multiHeaderSelectionRows.includes(i)) {
+                    this.grid.grid.multiHeaderSelectionRows.push(i);
+                }
+            }
+            this.grid.grid.updateVisibleCanvases();
+        }
+
         const index = this.rowIndex(e);
         if (index != null) {
             this.endIndex = index;
@@ -420,8 +506,6 @@ export class HeaderRowSelector {
 
             this.grid.statsCalculator.deBounceCount();
             this.grid.grid.updateVisibleCanvases(0, 0);
-            // this.grid.grid.renderHeaders(0, 0);
-            // this.grid.grid.renderCanvases();
         }
     }
 
@@ -432,6 +516,10 @@ export class HeaderRowSelector {
     onMouseUp(e) {
         this.isSelecting = false;
         this.autoScroller.cancel();
+        if (this.grid.grid.ctrlSelectActive) {
+            this.grid.grid.ctrlSelectActive = false;
+            this.isSelecting = false;
+        }
     }
 
     /**

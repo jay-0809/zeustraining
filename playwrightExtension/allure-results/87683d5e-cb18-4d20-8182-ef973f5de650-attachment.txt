@@ -1,0 +1,2 @@
+Columns Drag Output: Count: 100000         Sum: 459661579044         Min: 100032         Max: 9099996         Avg: 4596661.757057571
+Rows Drag Output: Count: 60         Sum: 58263680         Min: 2         Max: 8357889         Avg: 1664676.5714285714

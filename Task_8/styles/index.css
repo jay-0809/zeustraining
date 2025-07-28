@@ -116,6 +116,25 @@ html .container .headerInputs .cellValue:hover,
 body .container .headerInputs .cellValue:hover {
   border: 1px solid #333;
 }
+html .container .headerInputs .addNewColumn,
+html .container .headerInputs .addNewRow,
+body .container .headerInputs .addNewColumn,
+body .container .headerInputs .addNewRow {
+  width: 5%;
+  height: 30px;
+  border: none;
+  background: #e0e0e0;
+  border-radius: 5px;
+  margin-left: 8px;
+  cursor: pointer;
+  position: relative;
+}
+html .container .headerInputs .addNewColumn:hover,
+html .container .headerInputs .addNewRow:hover,
+body .container .headerInputs .addNewColumn:hover,
+body .container .headerInputs .addNewRow:hover {
+  background: #b7e1cd;
+}
 html #wrapper-div,
 body #wrapper-div {
   overflow: hidden;

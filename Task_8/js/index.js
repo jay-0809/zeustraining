@@ -5,6 +5,8 @@ import { PointerHandler } from "./grid/pointerHandler.js";
 const wrapper = document.getElementById("wrapper-div");
 const cellNum = document.querySelector(".cellNum");
 const cellValue = document.querySelector(".cellValue");
+const addColumn = document.querySelector(".addNewColumn");
+const addRow = document.querySelector(".addNewRow");
 const ArithmaticOps = document.getElementById("values");
 
 // Controls how many cells per canvas
@@ -18,14 +20,25 @@ const cellHeight = 25;
 const maxRows = 100000;
 const maxCols = 500;
 
+export const colWidths = Array(maxCols).fill(cellWidth);
+export const rowHeights = Array(maxRows).fill(cellHeight);
+
 // Generate dataset for the grid
 const myData = generateData(100000);
 
 // Initializing grid
-const grid = new Grid(wrapper, cellNum, cellValue, ArithmaticOps, rowsPerCanvas, colsPerCanvas, cellWidth, cellHeight, maxRows, maxCols, myData);
+const grid = new Grid(wrapper, cellNum, cellValue, addColumn, addRow, ArithmaticOps, rowsPerCanvas, colsPerCanvas, colWidths, rowHeights, maxRows, maxCols, myData);
 
-// let scrollX = grid.scrollX;
-// let scrollY = grid.scrollY;
+const pointerHandler = new PointerHandler(grid);
+
+addColumn.addEventListener("click", () => {
+    pointerHandler.addColumnAfterSelection();
+});
+
+addRow.addEventListener("click", () => {
+    pointerHandler.addRowAfterSelection();
+});
+
 // console.log("scrollX: ",scrollX, "scrollY:", scrollY);
 const maxScrollY = maxRows * cellHeight - window.innerHeight;
 const maxScrollX = maxCols * cellWidth - window.innerWidth;
@@ -136,9 +149,6 @@ function onWheel(e) {
 
 function clamp(v, min, max) { return v < min ? min : v > max ? max : v; }
 
-const pointerHandler = new PointerHandler(grid);
-
-
 function updateScroll() {
     const xPct = maxScrollX ? (grid.scrollX / maxScrollX) * 100 : 0;
     const yPct = maxScrollY ? (grid.scrollY / maxScrollY) * 100 : 0;
@@ -175,3 +185,7 @@ function setScrollCursor(active) {
         canvases.forEach(c => c.style.cursor = previousCursor || "cell");
     }
 }
+
+
+window.colWidths = colWidths;
+window.rowHeights = rowHeights;

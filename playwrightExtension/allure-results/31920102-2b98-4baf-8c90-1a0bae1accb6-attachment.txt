@@ -1,0 +1,1 @@
+New Column Width: 75 Initial Width: 75

@@ -1,6 +1,6 @@
 import { ColResizeHandler, RowResizeHandler } from './resize.js';
 import { CellSelector, HeaderColSelector, HeaderRowSelector } from './selection.js';
-import {keyNavigation} from "./modulers.js";
+import { keyNavigation } from "./modulers.js";
 /**
  * Handles pointer events (mouse/touch) for grid interactions including:
  * - Cell selection
@@ -42,14 +42,16 @@ export class PointerHandler {
         window.addEventListener("pointermove", this.onPointerMove.bind(this));
         window.addEventListener("pointerup", this.onPointerUp.bind(this));
         window.addEventListener("keydown", (e) => {
+            const inputBlock = document.querySelector(".cell-input");
+            // console.log("::::::", inputBlock);
             if (e.ctrlKey && ["z", "y"].includes(e.key)) {
                 switch (e.key.toLowerCase()) {
                     case "z": this.grid.commandManager.undo(); return;
                     case "y": this.grid.commandManager.redo(); return;
                 }
-            } else if(e.ctrlKey && ["r"].includes(e.key)){
+            } else if (e.ctrlKey && ["r"].includes(e.key)) {
                 return;
-            } else{
+            } else if (!inputBlock || e.key === "Enter") {
                 e.preventDefault();
                 keyNavigation(e, this.grid);
             }
@@ -144,5 +146,96 @@ export class PointerHandler {
             }
             return;
         }
+    }
+
+    addColumnAfterSelection() {
+        const grid = this.grid;
+        const selectedCols = grid.multiHeaderSelectionCols;
+        if (!selectedCols || selectedCols.length === 0) return;
+
+        const insertAt = Math.max(...selectedCols);
+
+        grid.maxCols += 1;
+        grid.colWidths.splice(insertAt, 0, 80);
+
+        // Update header row (always exists)
+        const headerRow = grid.dataset.get(0);
+        for (let c = grid.maxCols - 2; c >= insertAt; c--) {
+            headerRow.set(c + 1, headerRow.get(c));
+        }
+        headerRow.set(insertAt, "");
+
+        // Only update rows that exist in the dataset (sparse update)
+        for (let [r, rowMap] of grid.dataset.entries()) {
+            if (r === 0) continue; // skip header, already done
+            // Shift values to the right for existing columns only
+            for (let c = grid.maxCols - 2; c >= insertAt; c--) {
+                if (rowMap.has(c)) {
+                    rowMap.set(c + 1, rowMap.get(c));
+                } else {
+                    rowMap.delete(c + 1); // keep sparse
+                }
+            }
+            rowMap.set(insertAt, "");
+        }
+
+        // grid.multiHeaderSelectionCols = [];
+        grid.updateVisibleCanvases();
+    }
+
+    // addRowAfterSelection() {
+    //     const grid = this.grid;
+    //     const selectedRows = grid.multiHeaderSelectionRows;
+    //     if (!selectedRows || selectedRows.length === 0) return;
+
+    //     const insertAt = Math.max(...selectedRows);
+
+    //     grid.maxRows += 1;
+    //     grid.rowHeights.splice(insertAt, 0, 25);
+
+    //     // Shift all rows after insertAt down by 1
+    //     for (let r = grid.maxRows - 2; r >= insertAt; r--) {
+    //         const prevRow = grid.dataset.get(r);
+    //         grid.dataset.set(r + 1, prevRow ? new Map(prevRow) : new Map());
+    //     }
+    //     // Insert new empty row at the correct position
+    //     const newRow = new Map();
+    //     for (let c = 0; c < grid.maxCols; c++) {
+    //         newRow.set(c, "");
+    //     }
+    //     grid.dataset.set(insertAt, newRow);
+
+    //     // grid.multiHeaderSelectionRows = [];
+    //     grid.updateVisibleCanvases();
+    // }
+    addRowAfterSelection() {
+        const grid = this.grid;
+        const selectedRows = grid.multiHeaderSelectionRows;
+        if (!selectedRows || selectedRows.length === 0) return;
+
+        const insertAt = Math.max(...selectedRows);
+
+        grid.maxRows += 1;
+        grid.rowHeights.splice(insertAt, 0, 25);
+
+        // Get all existing row indices >= insertAt, sorted descending
+        const existingRows = Array.from(grid.dataset.keys())
+            .filter(r => r >= insertAt && r !== 0) // skip header row 0
+            .sort((a, b) => b - a);
+
+        // Shift only existing rows down by 1
+        for (let r of existingRows) {
+            grid.dataset.set(r + 1, grid.dataset.get(r));
+        }
+
+        // Insert new empty row at the correct position
+        const newRow = new Map();
+        for (let c = 0; c < grid.maxCols; c++) {
+            newRow.set(c, "");
+        }
+        grid.dataset.set(insertAt, newRow);
+
+        // grid.multiHeaderSelectionRows = [];
+        grid.updateVisibleCanvases();
     }
 }

@@ -19,13 +19,17 @@ export class Grid {
      * @param {number} maxCols The maximum number of columns in the grid.
      * @param {Array} dataset The dataset that contains the values for the grid.
      */
-    constructor(wrapper, cellNum, cellValue, ArithmaticOps, rowsPerCanvas, colsPerCanvas, cellWidth, cellHeight, maxRows, maxCols, dataset) {
+    constructor(wrapper, cellNum, cellValue, addColumn, addRow, ArithmaticOps, rowsPerCanvas, colsPerCanvas, colWidths, rowHeights, maxRows, maxCols, dataset) {
         /** @type {HTMLElement} Wrapper element to hold the grid */
         this.wrapper = wrapper;
         /** @type {HTMLElement} cellNum element to hold the cell number(column row) */
         this.cellNum = cellNum;
         /** @type {HTMLElement} cellValue element to hold cell value */
         this.cellValue = cellValue;
+        /** @type {HTMLElement} addColumn element */
+        this.addColumn = addColumn;
+        /** @type {HTMLElement} addRow element */
+        this.addRow = addRow;
         /** @type {HTMLElement} ArithmaticOps element to hold Count, Sum, Min, Max, Avg */
         this.ArithmaticOps = ArithmaticOps;
         /** @type {number} The number of rows per canvas */
@@ -48,8 +52,12 @@ export class Grid {
         this.multiCursor = {};
         this.multiEditing = false;
 
-        this.colWidths = Array(maxCols).fill(cellWidth);
-        this.rowHeights = Array(maxRows).fill(cellHeight);
+        this.multiHeaderSelectionCols = [];  // For storing multiple selected column indices
+        this.multiHeaderSelectionRows = [];  // For storing multiple selected row indices
+        this.ctrlSelectActive = false;      // Flag for ctrl+drag selection mode
+
+        this.colWidths = colWidths;
+        this.rowHeights = rowHeights;
         this.scrollX = 0;
         this.scrollY = 0;
         this.startRow = 0;
@@ -193,9 +201,10 @@ export class Grid {
     }
 
     updateVisibleCanvases(col = 0, row = 0) {
+        // console.log(this.dataset);
+        
         if (this.result) {
             const { count, sum, min, max, avg } = this.result;
-
             let outputParts = [];
 
             if (count > 0) outputParts.push(`Count: ${count}`);
@@ -206,10 +215,10 @@ export class Grid {
 
             const output = outputParts.join("         ");
 
-            if (output) {
+            // if (output) {
                 // console.log(output);
                 this.ArithmaticOps.value = output;
-            }
+            // }
         }
         
         this.renderHeaders(col, row);

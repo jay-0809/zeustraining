@@ -10,6 +10,7 @@ export class SelectionStats {
         const dataMap = this.grid.dataset;
         const pointer = this.grid.pointer;
         const headerSel = this.grid.multiHeaderSelection;
+        
         let values = [];
         let count = 0;
 
@@ -19,10 +20,11 @@ export class SelectionStats {
             const [startRow, endRow] = [range.startRow, range.endRow].sort((a, b) => a - b);
             const [startCol, endCol] = [range.startCol, range.endCol].sort((a, b) => a - b);
             // console.log(startRow, endRow, startCol, endCol);
-
+            
             for (let r = startRow - 1; r <= endRow - 1; r++) {
                 const rowMap = dataMap.get(r);
                 if (!rowMap) continue;
+                // console.log(range, rowMap);
 
                 for (let c = startCol - 1; c <= endCol - 1; c++) {
                     const val = rowMap.get(c);
@@ -33,11 +35,8 @@ export class SelectionStats {
                 }
             }
         }
-
         // CASE 2: Full row/column header selection
         else if (headerSel) {
-            // console.log(";;;;;;;;;;");
-
             if (headerSel.colstart != null && headerSel.colend != null) {
                 const [cStart, cEnd] = [headerSel.colstart, headerSel.colend].sort((a, b) => a - b);
                 for (let r = 0; r < this.grid.maxRows; r++) {
@@ -68,9 +67,10 @@ export class SelectionStats {
         }
 
         if (!values.length) {
+            
             return this.grid.result = { count };
         }
-
+        
         let sum = 0;
         let min = Infinity;
         let max = -Infinity;
@@ -89,12 +89,13 @@ export class SelectionStats {
     }
 
     deBounceCount() {
-        if (this.countTimer) {
-            clearTimeout(this.countTimer);
-        }
-        this.countTimer = setTimeout(() => {
-            this.computeStats();
-            this.countTimer = null;
-        }, 200);
+        // if (this.countTimer) {
+        //     clearTimeout(this.countTimer);
+        // }
+        this.computeStats();
+        // this.countTimer = setTimeout(() => {
+        //     this.computeStats();
+        //     this.countTimer = null;
+        // }, 200);
     }
 }
