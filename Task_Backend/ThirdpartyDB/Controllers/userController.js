@@ -6,6 +6,8 @@ let resetTime = Date.now() + 15 * 1000; // 60 seconds from now
 // Function to get user details by ID
 const getUser = async (req, res) => {
     const currentTime = Date.now();
+    // console.log(`Current time: ${currentTime}, Reset time: ${resetTime}, Batch counter: ${batchCounter}`);
+    
 
     // Reset the batch counter every 60 seconds
     if (currentTime >= resetTime) {
@@ -15,9 +17,8 @@ const getUser = async (req, res) => {
 
     // If limit reached, reject
     if (batchCounter >= 100) {
-        return null;
-        // res.status(200).json({ message: 'Rate limit exceeded: Only 100 batches per minute allowed' });
-        // return res.status(429).json({ message: 'Rate limit exceeded: Only 100 batches per minute allowed' });
+        // console.log('Rate limit exceeded: Only 100 batches per minute allowed');
+        return res.status(429).json({ message: 'Rate limit exceeded: Only 100 batches per minute allowed' });
     }
 
     const startId = parseInt(req.params.id); 
@@ -30,10 +31,10 @@ const getUser = async (req, res) => {
         if (!users || users.length === 0) {
             return res.status(404).json({ message: 'No users found in this range' });
         }
-
+        batchCounter++;
         res.status(200).json(users);
     } catch (error) {
-        console.error('Error fetching users:', error);
+        // console.error('Error fetching users:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 }
@@ -46,7 +47,7 @@ const getUsers = async (req, res) => {
         }
         res.status(200).json(users);
     } catch (error) {
-        console.error('Error fetching user:', error);
+        // console.error('Error fetching user:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 }
@@ -58,7 +59,7 @@ const createUser = async (req, res) => {
         const savedUser = await newUser.save();
         res.status(201).json(savedUser);
     } catch (error) {
-        console.error('Error creating user:', error);
+        // console.error('Error creating user:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 }

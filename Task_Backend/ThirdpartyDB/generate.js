@@ -40,12 +40,12 @@ const insertData = async () => {
         await UserModel.deleteMany({});
 
         await UserModel.insertMany(userData);
-        console.log("✅ Successfully inserted 60,000 users");
+        console.log("Successfully inserted 60,000 users");
 
         await mongoose.disconnect();
         console.log("Disconnected from MongoDB");
     } catch (error) {
-        console.error("❌ Error inserting users:", error);
+        console.error("Error inserting users:", error);
     }
 };
 

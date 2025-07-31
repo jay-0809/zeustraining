@@ -36,3 +36,62 @@ body{
 .download:hover {
     background-color: #0056b3;
 }
+
+#progressBar{
+    width: 50%;
+    height: 25px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 20px;
+}
+.progressFill{
+    height: 100%;
+    border-radius: 10px;
+    overflow: hidden;
+    width: 0%;
+    background-color: #76c7c0;
+    transition: width 0.3s ease;
+}
+
+.buttons{
+    display: none;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.pause{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: orange;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    outline: none;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+.pause:hover {
+    background-color: rgb(235, 152, 0);;
+}
+
+.cancel{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: red;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    outline: none;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+.cancel:hover {
+    background-color: #b80000;
+}
