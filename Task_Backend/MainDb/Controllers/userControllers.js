@@ -4,26 +4,42 @@ const UserModel = require("../Models/UserModels");
 const getUsers = async (req, res) => {
     try {
         const last_id = parseInt(req.params.id); 
-        // console.log('Fetching users with last_id:', last_id);
+        // console.log('last_id:', last_id);
 
-        const response = await axios.get(`http://localhost:3000/api/users/${last_id}`);
-        // console.log('Response from Third Party DB:', response);
-        const users = response.data;
-        // console.log('Fetched users:', users);
-
+        const response = await fetch(`http://localhost:3000/api/users/${last_id}`);
+        if(response.status !== 200) {
+            // console.log(response.status, response.statusText);
+            return res.status(response.status).json({ message: response.statusText });
+        }
+        
+        const users = await response.json();
+        // console.log(`Fetched ${users} `);
+        
         if (!users || users.length === 0) {
             return res.status(404).json({ message: 'No users found' });
         }
 
         await UserModel.insertMany(users); 
-        console.log(`Successfully inserted ${last_id} users`);
+        console.log(`Successfully inserted ${last_id+99} users`);
 
         res.status(200).json(users);
     } catch (error) {
-        // console.error('Error fetching users:', error.message);
+        // console.log('Error:', error.message);
         res.status(500).json({ message: 'Internal server error' });
     }
 };
+
+const getAllUsers = async(req, res)=>{
+    try {
+        const users = await UserModel.find({});
+        if (users.length === 0) {   
+            return res.status(404).json({ message: 'No users found' });
+        }   
+        res.status(200).json(users);
+    } catch (error) {
+        res.status(500).json({message: 'Internal server error'});
+    }
+}
 
 const createUser = async (req, res) => {
     const newUser = new UserModel(req.body);
@@ -54,6 +70,7 @@ const deleteUsers = async (req, res) => {
 
 module.exports = {
     getUsers,
+    getAllUsers,
     createUser,
     deleteUsers
 };

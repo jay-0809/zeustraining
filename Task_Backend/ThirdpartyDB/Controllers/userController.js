@@ -1,14 +1,12 @@
 const { UserModel } = require('../Models/UserModel');
 
 let batchCounter = 0;
-let resetTime = Date.now() + 15 * 1000; // 60 seconds from now
+let resetTime = Date.now() + 15 * 1000; // 15 seconds from now
 
-// Function to get user details by ID
 const getUser = async (req, res) => {
     const currentTime = Date.now();
     // console.log(`Current time: ${currentTime}, Reset time: ${resetTime}, Batch counter: ${batchCounter}`);
     
-
     // Reset the batch counter every 60 seconds
     if (currentTime >= resetTime) {
         batchCounter = 0;

@@ -14,11 +14,21 @@ let isPaused = false;
 const fetchData = async (last_id) => {
     try {
         const response = await fetch(`http://localhost:8080/api/users/${last_id}`);
-        if (!response.ok) throw new Error('Failed to fetch users');
+        if (response.status === 500) {
+            throw new Error('Server error');
+        } else if (response.status === 404) {
+            console.log('No users found');
+            return [];
+        } else if (response.status === 429) {
+            return 'rate-limit';
+        }
+
+        // if (!response.ok) return null;
         const users = await response.json();
         return users;
+
     } catch (error) {
-        faildTOFetch++;
+        // console.error('Fetch error:', error.message);
         return null;
     }
 };
@@ -34,52 +44,55 @@ const deleteUsers = async () => {
         console.error('Error deleting users:', error);
     }
 }
+deleteUsers();
 
 const downloading = () => {
     download.style.display = 'none';
     buttons.style.display = 'flex';
 
-    progressBar.style.display = 'flex';
+    progressBar.style.display = 'none';
     progressBar.style.alignItems = 'center';
     progressBar.style.justifyContent = 'center';
     progressBar.style.marginTop = '20px';
-    
+
     interval = setInterval(async () => {
         progressFill.style.width = `${percent}%`;
         progressFill.innerHTML = `${percent}%`;
         progressFill.style.textAlign = 'right';
-        // progressFill.style.color = 'blue';
         progressFill.style.fontWeight = 'bold';
         progressFill.style.paddingRight = '5px';
 
         if (faildTOFetch >= 5) {
             clearInterval(interval);
-            progressBar.innerHTML = `Error: Failed to fetch data after multiple attempts`;
+            progressBar.style.display = 'flex';
+            progressBar.innerHTML = `Failed to fetch data after multiple attempts`;
             pauseButton.innerText = 'Resume Download';
             pauseButton.style.backgroundColor = '#0056b3';
             return;
         } else if (percent >= 100) {
             clearInterval(interval);
-            progressBar.innerHTML = `Download Complete`;
+            progressFill.innerHTML = `Download Complete ${percent}%`;
+            progressFill.style.textAlign = 'center';
             download.innerText = 'Download Complete';
             buttons.style.display = 'none';
             download.style.display = 'flex';
             download.style.backgroundColor = 'green';
             return;
         }
-        
-        // progressBar.innerHTML = `Progressing... ${percent}%`;
+
         const u = await fetchData(last_id);
-        if (u && u.length > 0) {
-            // console.log(`Fetched ${u.length} and user ${u}`);
-            
+        if (u === 'rate-limit') {
+            console.log('Rate limit hit — On Rest');
+            return;
+        } else if (u && u.length > 0) {
             last_id += u.length;
             percent = parseInt((last_id / 60000) * 100);
+            faildTOFetch = 0;
+        } else if (u === null) {
+            faildTOFetch++;
+            console.warn(`Fetch failed (${faildTOFetch} times)`);
         }
-        else{
-            console.log("On Rest");
-        }
-    }, 500);
+    }, 100);
 };
 
 download.addEventListener('pointerdown', () => {
@@ -99,8 +112,8 @@ pauseButton.addEventListener('pointerdown', () => {
         isPaused = false;
         pauseButton.innerText = 'Pause';
         pauseButton.style.backgroundColor = '#f0ad4e';
-        downloading();
         faildTOFetch = 0;
+        downloading();
     }
 });
 
@@ -119,6 +132,7 @@ cancelButton.addEventListener('pointerdown', () => {
     isPaused = false;
 
     progressBar.innerHTML = `Download Cancelled`;
+    progressBar.style.display = 'flex';
     progressFill.style.width = `${percent}%`;
     progressFill.innerHTML = `${percent}%`;
     buttons.style.display = 'none';

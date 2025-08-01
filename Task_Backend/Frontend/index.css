@@ -39,7 +39,7 @@ body{
 
 #progressBar{
     width: 50%;
-    height: 25px;
+    height: 20px;
     background-color: #e0e0e0;
     border-radius: 10px;
     overflow: hidden;
@@ -76,7 +76,7 @@ body{
     cursor: pointer;
 }
 .pause:hover {
-    background-color: rgb(235, 152, 0);;
+    background-color: rgb(211, 137, 0);;
 }
 
 .cancel{
