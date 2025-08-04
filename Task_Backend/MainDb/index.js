@@ -8,7 +8,10 @@ const MONGO_URL = 'mongodb+srv://maindb:12345@main.zjtufrh.mongodb.net/';
 app.use(cors());
 app.use(express.json());
 
+const userTempRoutes = require('./Routes/userTempRoutes');
 const userRoutes = require('./Routes/userRoutes');
+
+app.use('/api/user-temp', userTempRoutes);
 app.use('/api', userRoutes);
 
 app.get('/', (req, res) => {

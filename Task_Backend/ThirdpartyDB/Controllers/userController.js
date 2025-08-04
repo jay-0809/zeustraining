@@ -1,7 +1,7 @@
 const { UserModel } = require('../Models/UserModel');
 
 let batchCounter = 0;
-let resetTime = Date.now() + 15 * 1000; // 15 seconds from now
+let resetTime = Date.now() + 60 * 1000; // 15 seconds from now
 
 const getUser = async (req, res) => {
     const currentTime = Date.now();
@@ -10,7 +10,7 @@ const getUser = async (req, res) => {
     // Reset the batch counter every 60 seconds
     if (currentTime >= resetTime) {
         batchCounter = 0;
-        resetTime = currentTime + 15 * 1000;
+        resetTime = currentTime + 60 * 1000;
     }
 
     // If limit reached, reject
@@ -20,19 +20,23 @@ const getUser = async (req, res) => {
     }
 
     const startId = parseInt(req.params.id); 
+    console.log(`Fetching users from ID: ${startId}`);
+    
     const endId = startId + 99;
     try {
         const users = await UserModel.find({
             _id: { $gte: startId, $lte: endId }
         }).sort({ _id: 1 }); // Optional: sort by userId ascending
 
+        // console.log(users);
+        
         if (!users || users.length === 0) {
             return res.status(404).json({ message: 'No users found in this range' });
         }
         batchCounter++;
         res.status(200).json(users);
     } catch (error) {
-        // console.error('Error fetching users:', error);
+        console.log('Error fetching users:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 }
