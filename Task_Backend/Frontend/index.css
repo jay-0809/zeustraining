@@ -95,3 +95,20 @@ body{
 .cancel:hover {
     background-color: #b80000;
 }
+
+.refresh{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    outline: none;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+.refresh:hover {
+    background-color: #218838;
+}

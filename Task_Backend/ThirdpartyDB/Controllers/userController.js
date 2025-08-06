@@ -1,7 +1,7 @@
 const { UserModel } = require('../Models/UserModel');
 
 let batchCounter = 0;
-let resetTime = Date.now() + 60 * 1000; // 15 seconds from now
+let resetTime = Date.now() + 1 * 60 * 1000; // 60 seconds from now
 
 const getUser = async (req, res) => {
     const currentTime = Date.now();
@@ -10,13 +10,17 @@ const getUser = async (req, res) => {
     // Reset the batch counter every 60 seconds
     if (currentTime >= resetTime) {
         batchCounter = 0;
-        resetTime = currentTime + 60 * 1000;
+        resetTime = currentTime + 1 * 60 * 1000;
     }
 
     // If limit reached, reject
     if (batchCounter >= 100) {
+        const retryAfter = Math.ceil((resetTime - currentTime) / 1000);
         // console.log('Rate limit exceeded: Only 100 batches per minute allowed');
-        return res.status(429).json({ message: 'Rate limit exceeded: Only 100 batches per minute allowed' });
+        return res
+                .status(429)
+                .set('Retry-After', retryAfter)
+                .json({ message: 'Rate limit exceeded: Only 100 batches per minute allowed' });
     }
 
     const startId = parseInt(req.params.id); 
